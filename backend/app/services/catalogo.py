@@ -7,7 +7,7 @@ def listar_produtos():
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria
+        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
         FROM produtos
         """
     )
@@ -20,7 +20,10 @@ def listar_produtos():
             "preco": float(linha[1]),
             "tamanho": linha[2],
             "cor": linha[3],
-            "categoria": linha[4]
+            "categoria": linha[4],
+            "lagura_cm": float(linha[5] if linha[5] is not None else None),
+            "comprimento_cm": float(linha[6] if linha[6] is not None else None),
+            "modelagem": linha[7]
         }
         for linha in resultados
     ]
@@ -37,7 +40,7 @@ def buscar_produto_por_id(id):
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm
+        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
         FROM produtos
         WHERE id = %s
         """,
@@ -58,8 +61,9 @@ def buscar_produto_por_id(id):
         "tamanho": resultado[2],
         "cor": resultado[3],
         "categoria": resultado[4],
-        "largura_cm": float(resultado[5]),
-        "comprimento_cm": float(resultado[6])
+        "largura_cm": float(resultado[5] if resultado[5] is not None else None),
+        "comprimento_cm": float(resultado[6] if resultado[6] is not None else None),
+        "modelagem": resultado[7]
     }
 
     return produto
@@ -71,8 +75,8 @@ def adicionar_produto(produto):
 
     cursor.execute(
         """
-        INSERT INTO produtos (nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO produtos (nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """,
         (
             produto.nome,
@@ -81,7 +85,8 @@ def adicionar_produto(produto):
             produto.cor,
             produto.categoria,
             produto.largura_cm,
-            produto.comprimento_cm
+            produto.comprimento_cm,
+            produto.modelagem
         )
     )
 
@@ -99,7 +104,7 @@ def atualizar_produto(id, produto):
     cursor.execute(
         """
         UPDATE produtos
-        SET nome = %s, preco = %s, tamanho = %s, cor = %s, categoria = %s, largura_cm = %s, comprimento_cm = %s
+        SET nome = %s, preco = %s, tamanho = %s, cor = %s, categoria = %s, largura_cm = %s, comprimento_cm = %s, modelagem = %s
         WHERE id = %s
         """,
         (
@@ -110,6 +115,7 @@ def atualizar_produto(id, produto):
             produto.categoria,
             produto.largura_cm,
             produto.comprimento_cm,
+            produto.modelagem,
             id
         )
     )
@@ -174,7 +180,7 @@ def buscar_produto_por_categoria(categoria):
     return produtos
 
 
-def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm, comprimento_cm):
+def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm, comprimento_cm, modelagem):
     if categoria:
         categoria = categoria.strip()
     if tamanho:
@@ -185,6 +191,8 @@ def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm
         largura_cm = float(largura_cm)
     if comprimento_cm:
         comprimento_cm = float(comprimento_cm)
+    if modelagem:
+        modelagem = modelagem.strip()
 
     conexao = conectar()
     cursor = conexao.cursor()
@@ -212,9 +220,12 @@ def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm
         condicoes.append("comprimento_cm = %s")
         parametros.append(comprimento_cm)
 
+    if modelagem:
+        condicoes.append("unaccent(modelagem) ILIKE unaccent(%s)")
+        parametros.append(f"%{modelagem}%")
     
     query = """
-    SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm
+    SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
     FROM produtos
     """
     if condicoes:
@@ -230,8 +241,9 @@ def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm
             "tamanho": linha[2],
             "cor": linha[3],
             "categoria": linha[4],
-            "largura_cm": float(linha[5]),
-            "comprimento_cm": float(linha[6])
+            "largura_cm": float(linha[5] if linha[5] is not None else None),
+            "comprimento_cm": float(linha[6] if linha[6] is not None else None),
+            "modelagem": linha[7]
         }
         for linha in resultados
     ]

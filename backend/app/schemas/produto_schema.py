@@ -8,3 +8,5 @@ class ProdutoSchema(BaseModel):
     categoria: str
     largura_cm: float
     comprimento_cm: float
+    modelagem: str | None = None
+    
