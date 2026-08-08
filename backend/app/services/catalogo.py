@@ -114,6 +114,7 @@ def atualizar_produto(id, produto):
 
     return produto
 
+
 def deletar_produto(id):
     conexao = conectar()
     cursor = conexao.cursor()
