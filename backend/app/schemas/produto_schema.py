@@ -6,3 +6,5 @@ class ProdutoSchema(BaseModel):
     tamanho: str
     cor: str
     categoria: str
+    largura_cm: float
+    comprimento_cm: float

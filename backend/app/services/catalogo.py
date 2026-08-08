@@ -37,7 +37,7 @@ def buscar_produto_por_id(id):
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria
+        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm
         FROM produtos
         WHERE id = %s
         """,
@@ -57,7 +57,9 @@ def buscar_produto_por_id(id):
         "preco": float(resultado[1]),
         "tamanho": resultado[2],
         "cor": resultado[3],
-        "categoria": resultado[4]
+        "categoria": resultado[4],
+        "largura_cm": float(resultado[5]),
+        "comprimento_cm": float(resultado[6])
     }
 
     return produto
@@ -69,15 +71,17 @@ def adicionar_produto(produto):
 
     cursor.execute(
         """
-        INSERT INTO produtos (nome, preco, tamanho, cor, categoria)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO produtos (nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
         (
             produto.nome,
             produto.preco,
             produto.tamanho,
             produto.cor,
-            produto.categoria
+            produto.categoria,
+            produto.largura_cm,
+            produto.comprimento_cm
         )
     )
 
@@ -95,7 +99,7 @@ def atualizar_produto(id, produto):
     cursor.execute(
         """
         UPDATE produtos
-        SET nome = %s, preco = %s, tamanho = %s, cor = %s, categoria = %s
+        SET nome = %s, preco = %s, tamanho = %s, cor = %s, categoria = %s, largura_cm = %s, comprimento_cm = %s
         WHERE id = %s
         """,
         (
@@ -104,6 +108,8 @@ def atualizar_produto(id, produto):
             produto.tamanho,
             produto.cor,
             produto.categoria,
+            produto.largura_cm,
+            produto.comprimento_cm,
             id
         )
     )
@@ -140,7 +146,7 @@ def buscar_produto_por_categoria(categoria):
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria
+        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm
         FROM produtos
         WHERE unaccent(categoria) ILIKE unaccent(%s)
         """,
@@ -155,7 +161,9 @@ def buscar_produto_por_categoria(categoria):
             "preco": float(linha[1]),
             "tamanho": linha[2],
             "cor": linha[3],
-            "categoria": linha[4]
+            "categoria": linha[4],
+            "largura_cm": float(linha[5]),
+            "comprimento_cm": float(linha[6])
         }
         for linha in resultados
     ]
@@ -166,13 +174,17 @@ def buscar_produto_por_categoria(categoria):
     return produtos
 
 
-def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor):
+def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm, comprimento_cm):
     if categoria:
         categoria = categoria.strip()
     if tamanho:
         tamanho = tamanho.strip()
     if cor:
         cor = cor.strip()
+    if largura_cm:
+        largura_cm = float(largura_cm)
+    if comprimento_cm:
+        comprimento_cm = float(comprimento_cm)
 
     conexao = conectar()
     cursor = conexao.cursor()
@@ -192,9 +204,17 @@ def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor):
         condicoes.append("unaccent(cor) ILIKE unaccent(%s)")
         parametros.append(f"%{cor}%")
 
+    if largura_cm:
+        condicoes.append("largura_cm = %s")
+        parametros.append(largura_cm)
+
+    if comprimento_cm:
+        condicoes.append("comprimento_cm = %s")
+        parametros.append(comprimento_cm)
+
     
     query = """
-    SELECT nome, preco, tamanho, cor, categoria
+    SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm
     FROM produtos
     """
     if condicoes:
@@ -209,7 +229,9 @@ def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor):
             "preco": float(linha[1]),
             "tamanho": linha[2],
             "cor": linha[3],
-            "categoria": linha[4]
+            "categoria": linha[4],
+            "largura_cm": float(linha[5]),
+            "comprimento_cm": float(linha[6])
         }
         for linha in resultados
     ]

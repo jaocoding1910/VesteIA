@@ -62,13 +62,17 @@ def buscar_produtos_por_categoria_tamanho_cor(
 
     categoria: str | None = None,
     tamanho: str | None = None,
-    cor: str | None = None
+    cor: str | None = None,
+    largura_cm: float | None = None,
+    comprimento_cm: float | None = None
     ):
 
     return buscar_produto_por_categoria_tamanho_cor(
         categoria,
         tamanho,
-        cor
+        cor,
+        largura_cm,
+        comprimento_cm
     )
 
 
