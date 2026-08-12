@@ -21,8 +21,8 @@ def listar_produtos():
             "tamanho": linha[2],
             "cor": linha[3],
             "categoria": linha[4],
-            "lagura_cm": float(linha[5] if linha[5] is not None else None),
-            "comprimento_cm": float(linha[6] if linha[6] is not None else None),
+            "largura_cm": float(linha[5]) if linha[5] is not None else None,
+            "comprimento_cm": float(linha[6]) if linha[6] is not None else None,
             "modelagem": linha[7]
         }
         for linha in resultados
@@ -61,8 +61,8 @@ def buscar_produto_por_id(id):
         "tamanho": resultado[2],
         "cor": resultado[3],
         "categoria": resultado[4],
-        "largura_cm": float(resultado[5] if resultado[5] is not None else None),
-        "comprimento_cm": float(resultado[6] if resultado[6] is not None else None),
+        "largura_cm": float(resultado[5]) if resultado[5] is not None else None,
+        "comprimento_cm": float(resultado[6]) if resultado[6] is not None else None,
         "modelagem": resultado[7]
     }
 
@@ -152,7 +152,7 @@ def buscar_produto_por_categoria(categoria):
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm
+        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
         FROM produtos
         WHERE unaccent(categoria) ILIKE unaccent(%s)
         """,
@@ -168,8 +168,9 @@ def buscar_produto_por_categoria(categoria):
             "tamanho": linha[2],
             "cor": linha[3],
             "categoria": linha[4],
-            "largura_cm": float(linha[5]),
-            "comprimento_cm": float(linha[6])
+            "largura_cm": float(linha[5]) if linha[5] is not None else None,
+            "comprimento_cm": float(linha[6]) if linha[6] is not None else None,
+            "modelagem": linha[7]
         }
         for linha in resultados
     ]
@@ -241,8 +242,8 @@ def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm
             "tamanho": linha[2],
             "cor": linha[3],
             "categoria": linha[4],
-            "largura_cm": float(linha[5] if linha[5] is not None else None),
-            "comprimento_cm": float(linha[6] if linha[6] is not None else None),
+            "largura_cm": float(linha[5]) if linha[5] is not None else None,
+            "comprimento_cm": float(linha[6]) if linha[6] is not None else None,
             "modelagem": linha[7]
         }
         for linha in resultados
