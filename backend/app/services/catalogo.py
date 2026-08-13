@@ -7,7 +7,7 @@ def listar_produtos():
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
+        SELECT id, nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
         FROM produtos
         """
     )
@@ -16,14 +16,16 @@ def listar_produtos():
 
     produtos = [
         {
-            "nome": linha[0],
-            "preco": float(linha[1]),
-            "tamanho": linha[2],
-            "cor": linha[3],
-            "categoria": linha[4],
-            "largura_cm": float(linha[5]) if linha[5] is not None else None,
-            "comprimento_cm": float(linha[6]) if linha[6] is not None else None,
-            "modelagem": linha[7]
+
+            "id": linha[0],
+            "nome": linha[1],
+            "preco": float(linha[2]),
+            "tamanho": linha[3],
+            "cor": linha[4],
+            "categoria": linha[5],
+            "largura_cm": float(linha[6]) if linha[6] is not None else None,
+            "comprimento_cm": float(linha[7]) if linha[7] is not None else None,
+            "modelagem": linha[8]
         }
         for linha in resultados
     ]
@@ -40,7 +42,7 @@ def buscar_produto_por_id(id):
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
+        SELECT id, nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
         FROM produtos
         WHERE id = %s
         """,
@@ -56,14 +58,15 @@ def buscar_produto_por_id(id):
         return None
 
     produto = {
-        "nome": resultado[0],
-        "preco": float(resultado[1]),
-        "tamanho": resultado[2],
-        "cor": resultado[3],
-        "categoria": resultado[4],
-        "largura_cm": float(resultado[5]) if resultado[5] is not None else None,
-        "comprimento_cm": float(resultado[6]) if resultado[6] is not None else None,
-        "modelagem": resultado[7]
+        "id": resultado[0],
+        "nome": resultado[1],
+        "preco": float(resultado[2]),
+        "tamanho": resultado[3],
+        "cor": resultado[4],
+        "categoria": resultado[5],
+        "largura_cm": float(resultado[6]) if resultado[6] is not None else None,
+        "comprimento_cm": float(resultado[7]) if resultado[7] is not None else None,
+        "modelagem": resultado[8]
     }
 
     return produto
@@ -77,6 +80,7 @@ def adicionar_produto(produto):
         """
         INSERT INTO produtos (nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING id
         """,
         (
             produto.nome,
@@ -90,11 +94,23 @@ def adicionar_produto(produto):
         )
     )
 
+    novo_id = cursor.fetchone()[0]
+
     conexao.commit()
     cursor.close()
     conexao.close()
 
-    return produto
+    return {
+        "id": novo_id,
+        "nome": produto.nome,
+        "preco": produto.preco,
+        "tamanho": produto.tamanho,
+        "cor": produto.cor,
+        "categoria": produto.categoria,
+        "largura_cm": produto.largura_cm,
+        "comprimento_cm": produto.comprimento_cm,
+        "modelagem": produto.modelagem
+    }
 
 
 def atualizar_produto(id, produto):
@@ -124,7 +140,17 @@ def atualizar_produto(id, produto):
     cursor.close()
     conexao.close()
 
-    return produto
+    return {
+        "id": id,
+        "nome": produto.nome,
+        "preco": produto.preco,
+        "tamanho": produto.tamanho,
+        "cor": produto.cor,
+        "categoria": produto.categoria,
+        "largura_cm": produto.largura_cm,
+        "comprimento_cm": produto.comprimento_cm,
+        "modelagem": produto.modelagem
+    }
 
 
 def deletar_produto(id):

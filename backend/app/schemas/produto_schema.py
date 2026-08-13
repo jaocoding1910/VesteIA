@@ -6,7 +6,10 @@ class ProdutoSchema(BaseModel):
     tamanho: str
     cor: str
     categoria: str
-    largura_cm: float
-    comprimento_cm: float
+    largura_cm: float | None = None
+    comprimento_cm: float | None = None
     modelagem: str | None = None
-    
+
+
+class ProdutoResponse(ProdutoSchema):
+    id: int

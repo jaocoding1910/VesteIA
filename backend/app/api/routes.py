@@ -1,7 +1,7 @@
 import os
 
 from fastapi import APIRouter, HTTPException
-from app.schemas.produto_schema import ProdutoSchema
+from app.schemas.produto_schema import ProdutoSchema, ProdutoResponse
 from app.models.produto import Produto
 from app.services.catalogo import (
     buscar_produto_por_categoria,
@@ -35,27 +35,30 @@ def sobre():
     }
 
 
-@router.get("/produtos", response_model=list[ProdutoSchema])
+@router.get("/produtos", response_model=list[ProdutoResponse])
 def produtos():
     return listar_produtos()
 
 
-@router.post("/produtos", response_model=ProdutoSchema)
+@router.post("/produtos", response_model=ProdutoResponse)
 def criar_produto(produto: ProdutoSchema):
     novo_produto = Produto(
         nome=produto.nome,
         preco=produto.preco,
         tamanho=produto.tamanho,
         cor=produto.cor,
-        categoria=produto.categoria
+        categoria=produto.categoria,
+        largura_cm=produto.largura_cm,
+        comprimento_cm=produto.comprimento_cm,
+        modelagem=produto.modelagem
     )
 
-    adicionar_produto(novo_produto)
+    produto_criado = adicionar_produto(novo_produto)
 
-    return novo_produto
+    return produto_criado
 
 
-@router.put("/produtos/{id}", response_model=ProdutoSchema)
+@router.put("/produtos/{id}", response_model=ProdutoResponse)
 def editar_produto(id: int, produto: ProdutoSchema):
 
     produto_existente = buscar_produto_por_id(id)
@@ -109,7 +112,7 @@ def buscar_produtos_por_categoria_tamanho_cor(
 
 
 # BUSCAR POR ID
-@router.get("/produtos/{id}", response_model=ProdutoSchema)
+@router.get("/produtos/{id}", response_model=ProdutoResponse)
 def buscar_produto(id: int):
 
     produto = buscar_produto_por_id(id)
