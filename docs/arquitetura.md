@@ -1,71 +1,162 @@
-# Arquitetura do VesteIA
+---
 
-## 1. Visão geral
+## 7. Arquitetura atual do backend
 
-O VesteIA é uma plataforma de provador virtual voltada para o comércio eletrônico.
+O backend do VesteIA utiliza uma arquitetura organizada por responsabilidades.
 
-O projeto tem como objetivo aumentar a confiança do cliente antes da compra, permitindo que ele visualize produtos de forma virtual utilizando uma foto real ou um avatar.
+### API
 
-Além de melhorar a experiência de compra, o VesteIA busca contribuir para a redução de devoluções causadas por dúvidas relacionadas ao tamanho, aparência ou combinação das peças.
+Responsável por receber as requisições HTTP e disponibilizar os endpoints da aplicação.
+
+Arquivo principal:
+
+- `app/api/routes.py`
+
+Principais funcionalidades disponíveis atualmente:
+
+- cadastro de produtos;
+- listagem de produtos;
+- busca de produto por ID;
+- atualização de produtos;
+- exclusão de produtos;
+- filtros de catálogo;
+- gerenciamento temporário do perfil do usuário;
+- recomendação de tamanho;
+- recomendação de produtos.
+
+### Services
+
+Responsáveis pelas regras de negócio e acesso aos dados.
+
+#### `catalogo.py`
+
+Responsável pelas operações relacionadas ao catálogo e ao banco de dados:
+
+- listar produtos;
+- buscar produtos;
+- adicionar produtos;
+- atualizar produtos;
+- excluir produtos;
+- filtrar produtos por características.
+
+#### `recomendacao.py`
+
+Responsável pelas regras do sistema de recomendação:
+
+- calcular tamanho recomendado;
+- considerar altura, peso e cintura;
+- considerar preferência de caimento;
+- analisar características da peça;
+- gerar observações sobre o possível caimento.
+
+### Schemas
+
+Os schemas Pydantic são responsáveis pela validação e estrutura dos dados recebidos e retornados pela API.
+
+### Models
+
+Representam as entidades utilizadas internamente pela aplicação.
+
+### Database
+
+A aplicação utiliza PostgreSQL para persistência dos produtos do catálogo.
 
 ---
 
-## 2. Problema
+## 8. Fluxo atual de recomendação
 
-Durante uma compra online, o cliente não consegue visualizar com segurança como uma roupa ficará em seu corpo.
+O fluxo atual do motor de recomendação funciona da seguinte maneira:
 
-Essa dificuldade pode gerar:
+1. O usuário informa altura, peso e opcionalmente cintura.
+2. O usuário pode informar uma preferência de caimento.
+3. O sistema calcula um tamanho recomendado.
+4. O catálogo é consultado utilizando o tamanho calculado e outros filtros opcionais.
+5. Os produtos compatíveis são analisados.
+6. O sistema retorna:
+   - tamanho recomendado;
+   - produtos encontrados;
+   - características das peças;
+   - observações sobre o possível caimento.
 
-- insegurança antes da compra;
-- abandono do carrinho;
-- escolha incorreta de tamanho;
-- devoluções;
-- desconfiança em relação ao produto anunciado.
-
----
-
-## 3. Solução proposta
-
-O VesteIA permitirá que o usuário selecione um produto e escolha entre duas formas de experimentação virtual:
-
-- utilizar uma foto real;
-- utilizar um avatar personalizado.
-
-A foto real poderá oferecer uma experiência mais personalizada, enquanto o avatar será uma alternativa voltada para praticidade e privacidade.
-
-O sistema deverá informar com transparência que a simulação é uma estimativa visual e que o resultado pode variar conforme as medidas do usuário, o tecido, a modelagem e os dados fornecidos pela loja.
+Caso altura e peso não sejam enviados diretamente, o sistema poderá utilizar os dados armazenados temporariamente no perfil do usuário.
 
 ---
 
-## 4. Objetivo principal
+## 9. Tecnologias utilizadas
 
-Aumentar a confiança do consumidor antes da compra de roupas online.
+### Backend
+
+- Python
+- FastAPI
+- Pydantic
+- Uvicorn
+
+### Banco de dados
+
+- PostgreSQL
+- psycopg2
+
+### Documentação e testes da API
+
+- Swagger / OpenAPI
 
 ---
 
-## 5. Objetivos secundários
+## 10. Estrutura simplificada
 
-- melhorar a experiência de compra;
-- aumentar o engajamento com os produtos;
-- permitir a criação e comparação de combinações;
-- incentivar a descoberta de outros itens do catálogo;
-- auxiliar na decisão de compra;
-- reduzir devoluções relacionadas à escolha da peça.
+VesteIA
+│
+├── backend
+│   └── app
+│       ├── api
+│       │   └── routes.py
+│       ├── database
+│       │   └── database.py
+│       ├── models
+│       │   └── produto.py
+│       ├── schemas
+│       │   └── produto_schema.py
+│       ├── services
+│       │   ├── catalogo.py
+│       │   └── recomendacao.py
+│       ├── perfil.py
+│       └── main.py
+│
+└── arquitetura.md
 
-## 6. Fluxo do usuário
+---
 
-O fluxo principal do VesteIA será composto pelas seguintes etapas:
+## 11. Estado atual do MVP
 
-1. O usuário acessa a plataforma.
+O backend já possui uma base funcional para gerenciamento do catálogo e recomendação de produtos.
 
-2. Seleciona uma peça de roupa.
+Atualmente estão implementados:
 
-3. Escolhe a forma de experimentação:
-   - Foto real;
-   - Avatar.
+- API REST com FastAPI;
+- integração com PostgreSQL;
+- CRUD de produtos;
+- filtros dinâmicos de catálogo;
+- perfil temporário do usuário;
+- recomendação de tamanho;
+- preferência de caimento;
+- recomendação de produtos;
+- análise básica das características da peça.
 
-4. O sistema processa a solicitação e gera a simulação virtual.
+A geração visual do provador virtual com foto ou avatar pertence às próximas etapas de evolução do projeto.
 
-5. O usuário poderá experimentar outras peças ou criar novas combinações.
+---
 
-6. Após comparar as opções, o usuário decide se deseja prosseguir com a compra.
+## 12. Evoluções futuras
+
+Entre as próximas evoluções planejadas estão:
+
+- persistência dos perfis dos usuários no banco de dados;
+- autenticação de usuários;
+- tabelas de medidas específicas por produto ou marca;
+- melhoria do motor de recomendação;
+- integração com o frontend;
+- processamento de imagens;
+- geração do provador virtual;
+- criação de avatar;
+- comparação visual de produtos;
+- integração com plataformas de comércio eletrônico.

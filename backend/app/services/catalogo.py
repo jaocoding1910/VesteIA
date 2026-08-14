@@ -1,32 +1,66 @@
 from app.database.database import conectar
 
 
+def _converter_linha_para_produto(linha):
+    """
+    Converte uma linha retornada pelo PostgreSQL
+    em um dicionário padronizado de produto.
+
+    Ordem esperada da consulta:
+    id, nome, preco, tamanho, cor, categoria,
+    largura_cm, comprimento_cm, modelagem.
+    """
+
+    return {
+        "id": linha[0],
+        "nome": linha[1],
+        "preco": float(linha[2]),
+        "tamanho": linha[3],
+        "cor": linha[4],
+        "categoria": linha[5],
+        "largura_cm": (
+            float(linha[6])
+            if linha[6] is not None
+            else None
+        ),
+        "comprimento_cm": (
+            float(linha[7])
+            if linha[7] is not None
+            else None
+        ),
+        "modelagem": linha[8],
+    }
+
+
 def listar_produtos():
+    """
+    Retorna todos os produtos cadastrados no PostgreSQL.
+    """
+
     conexao = conectar()
     cursor = conexao.cursor()
 
     cursor.execute(
         """
-        SELECT id, nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
+        SELECT
+            id,
+            nome,
+            preco,
+            tamanho,
+            cor,
+            categoria,
+            largura_cm,
+            comprimento_cm,
+            modelagem
         FROM produtos
+        ORDER BY id
         """
     )
 
     resultados = cursor.fetchall()
 
     produtos = [
-        {
-
-            "id": linha[0],
-            "nome": linha[1],
-            "preco": float(linha[2]),
-            "tamanho": linha[3],
-            "cor": linha[4],
-            "categoria": linha[5],
-            "largura_cm": float(linha[6]) if linha[6] is not None else None,
-            "comprimento_cm": float(linha[7]) if linha[7] is not None else None,
-            "modelagem": linha[8]
-        }
+        _converter_linha_para_produto(linha)
         for linha in resultados
     ]
 
@@ -37,16 +71,29 @@ def listar_produtos():
 
 
 def buscar_produto_por_id(id):
+    """
+    Busca um produto específico utilizando sua chave primária.
+    """
+
     conexao = conectar()
     cursor = conexao.cursor()
 
     cursor.execute(
         """
-        SELECT id, nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
+        SELECT
+            id,
+            nome,
+            preco,
+            tamanho,
+            cor,
+            categoria,
+            largura_cm,
+            comprimento_cm,
+            modelagem
         FROM produtos
         WHERE id = %s
         """,
-        (id,)
+        (id,),
     )
 
     resultado = cursor.fetchone()
@@ -57,28 +104,30 @@ def buscar_produto_por_id(id):
     if resultado is None:
         return None
 
-    produto = {
-        "id": resultado[0],
-        "nome": resultado[1],
-        "preco": float(resultado[2]),
-        "tamanho": resultado[3],
-        "cor": resultado[4],
-        "categoria": resultado[5],
-        "largura_cm": float(resultado[6]) if resultado[6] is not None else None,
-        "comprimento_cm": float(resultado[7]) if resultado[7] is not None else None,
-        "modelagem": resultado[8]
-    }
-
-    return produto
+    return _converter_linha_para_produto(resultado)
 
 
 def adicionar_produto(produto):
+    """
+    Insere um novo produto no PostgreSQL e retorna
+    o produto completo com o ID gerado pelo banco.
+    """
+
     conexao = conectar()
     cursor = conexao.cursor()
 
     cursor.execute(
         """
-        INSERT INTO produtos (nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem)
+        INSERT INTO produtos (
+            nome,
+            preco,
+            tamanho,
+            cor,
+            categoria,
+            largura_cm,
+            comprimento_cm,
+            modelagem
+        )
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         RETURNING id
         """,
@@ -90,8 +139,8 @@ def adicionar_produto(produto):
             produto.categoria,
             produto.largura_cm,
             produto.comprimento_cm,
-            produto.modelagem
-        )
+            produto.modelagem,
+        ),
     )
 
     novo_id = cursor.fetchone()[0]
@@ -109,18 +158,30 @@ def adicionar_produto(produto):
         "categoria": produto.categoria,
         "largura_cm": produto.largura_cm,
         "comprimento_cm": produto.comprimento_cm,
-        "modelagem": produto.modelagem
+        "modelagem": produto.modelagem,
     }
 
 
 def atualizar_produto(id, produto):
+    """
+    Atualiza completamente um produto existente.
+    """
+
     conexao = conectar()
     cursor = conexao.cursor()
 
     cursor.execute(
         """
         UPDATE produtos
-        SET nome = %s, preco = %s, tamanho = %s, cor = %s, categoria = %s, largura_cm = %s, comprimento_cm = %s, modelagem = %s
+        SET
+            nome = %s,
+            preco = %s,
+            tamanho = %s,
+            cor = %s,
+            categoria = %s,
+            largura_cm = %s,
+            comprimento_cm = %s,
+            modelagem = %s
         WHERE id = %s
         """,
         (
@@ -132,8 +193,8 @@ def atualizar_produto(id, produto):
             produto.largura_cm,
             produto.comprimento_cm,
             produto.modelagem,
-            id
-        )
+            id,
+        ),
     )
 
     conexao.commit()
@@ -149,11 +210,15 @@ def atualizar_produto(id, produto):
         "categoria": produto.categoria,
         "largura_cm": produto.largura_cm,
         "comprimento_cm": produto.comprimento_cm,
-        "modelagem": produto.modelagem
+        "modelagem": produto.modelagem,
     }
 
 
 def deletar_produto(id):
+    """
+    Remove um produto do PostgreSQL utilizando seu ID.
+    """
+
     conexao = conectar()
     cursor = conexao.cursor()
 
@@ -162,7 +227,7 @@ def deletar_produto(id):
         DELETE FROM produtos
         WHERE id = %s
         """,
-        (id,)
+        (id,),
     )
 
     conexao.commit()
@@ -171,6 +236,13 @@ def deletar_produto(id):
 
 
 def buscar_produto_por_categoria(categoria):
+    """
+    Busca produtos cuja categoria contenha o texto informado.
+
+    A comparação ignora diferenças entre maiúsculas,
+    minúsculas e acentos.
+    """
+
     categoria = categoria.strip()
 
     conexao = conectar()
@@ -178,26 +250,27 @@ def buscar_produto_por_categoria(categoria):
 
     cursor.execute(
         """
-        SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
+        SELECT
+            id,
+            nome,
+            preco,
+            tamanho,
+            cor,
+            categoria,
+            largura_cm,
+            comprimento_cm,
+            modelagem
         FROM produtos
         WHERE unaccent(categoria) ILIKE unaccent(%s)
+        ORDER BY id
         """,
-        (f"%{categoria}%",)
+        (f"%{categoria}%",),
     )
 
     resultados = cursor.fetchall()
 
     produtos = [
-        {
-            "nome": linha[0],
-            "preco": float(linha[1]),
-            "tamanho": linha[2],
-            "cor": linha[3],
-            "categoria": linha[4],
-            "largura_cm": float(linha[5]) if linha[5] is not None else None,
-            "comprimento_cm": float(linha[6]) if linha[6] is not None else None,
-            "modelagem": linha[7]
-        }
+        _converter_linha_para_produto(linha)
         for linha in resultados
     ]
 
@@ -207,17 +280,36 @@ def buscar_produto_por_categoria(categoria):
     return produtos
 
 
-def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm, comprimento_cm, modelagem):
+def buscar_produto_por_categoria_tamanho_cor(
+    categoria=None,
+    tamanho=None,
+    cor=None,
+    largura_cm=None,
+    comprimento_cm=None,
+    modelagem=None,
+):
+    """
+    Busca produtos utilizando filtros opcionais.
+
+    Somente os filtros efetivamente informados são
+    adicionados à consulta SQL.
+    """
+
     if categoria:
         categoria = categoria.strip()
+
     if tamanho:
         tamanho = tamanho.strip()
+
     if cor:
         cor = cor.strip()
-    if largura_cm:
+
+    if largura_cm is not None:
         largura_cm = float(largura_cm)
-    if comprimento_cm:
+
+    if comprimento_cm is not None:
         comprimento_cm = float(comprimento_cm)
+
     if modelagem:
         modelagem = modelagem.strip()
 
@@ -227,51 +319,67 @@ def buscar_produto_por_categoria_tamanho_cor(categoria, tamanho, cor, largura_cm
     condicoes = []
     parametros = []
 
+    # Monta dinamicamente apenas os filtros recebidos.
     if categoria:
-        condicoes.append("unaccent(categoria) ILIKE unaccent(%s)")
+        condicoes.append(
+            "unaccent(categoria) ILIKE unaccent(%s)"
+        )
         parametros.append(f"%{categoria}%")
 
     if tamanho:
-        condicoes.append("unaccent(tamanho) ILIKE unaccent(%s)")
+        condicoes.append(
+            "unaccent(tamanho) ILIKE unaccent(%s)"
+        )
         parametros.append(f"%{tamanho}%")
 
     if cor:
-        condicoes.append("unaccent(cor) ILIKE unaccent(%s)")
+        condicoes.append(
+            "unaccent(cor) ILIKE unaccent(%s)"
+        )
         parametros.append(f"%{cor}%")
 
-    if largura_cm:
+    if largura_cm is not None:
         condicoes.append("largura_cm = %s")
         parametros.append(largura_cm)
 
-    if comprimento_cm:
+    if comprimento_cm is not None:
         condicoes.append("comprimento_cm = %s")
         parametros.append(comprimento_cm)
 
     if modelagem:
-        condicoes.append("unaccent(modelagem) ILIKE unaccent(%s)")
+        condicoes.append(
+            "unaccent(modelagem) ILIKE unaccent(%s)"
+        )
         parametros.append(f"%{modelagem}%")
-    
+
     query = """
-    SELECT nome, preco, tamanho, cor, categoria, largura_cm, comprimento_cm, modelagem
-    FROM produtos
+        SELECT
+            id,
+            nome,
+            preco,
+            tamanho,
+            cor,
+            categoria,
+            largura_cm,
+            comprimento_cm,
+            modelagem
+        FROM produtos
     """
+
     if condicoes:
         query += " WHERE " + " AND ".join(condicoes)
 
-    cursor.execute(query, tuple(parametros))
+    query += " ORDER BY id"
+
+    cursor.execute(
+        query,
+        tuple(parametros),
+    )
+
     resultados = cursor.fetchall()
 
     produtos = [
-        {
-            "nome": linha[0],
-            "preco": float(linha[1]),
-            "tamanho": linha[2],
-            "cor": linha[3],
-            "categoria": linha[4],
-            "largura_cm": float(linha[5]) if linha[5] is not None else None,
-            "comprimento_cm": float(linha[6]) if linha[6] is not None else None,
-            "modelagem": linha[7]
-        }
+        _converter_linha_para_produto(linha)
         for linha in resultados
     ]
 
