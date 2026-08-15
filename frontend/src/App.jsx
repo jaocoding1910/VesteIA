@@ -1,3 +1,4 @@
+import camisetaOversized from "./assets/produtos/camiseta-oversized.jpeg"
 import { useState } from "react"
 import "./App.css"
 
@@ -7,6 +8,7 @@ function App() {
   const [cintura, setCintura] = useState("")
   const [preferencia, setPreferencia] = useState("")
   const [resultado, setResultado] = useState(null)
+  const [produtoSelecionado, setProdutoSelecionado] = useState(null)
   const [erro, setErro] = useState("")
 
   // Envia os dados preenchidos para o backend do VesteIA.
@@ -14,6 +16,7 @@ function App() {
     if (!altura || !peso) {
       setErro("Informe altura e peso para gerar a recomendação.")
       setResultado(null)
+      setProdutoSelecionado(null)
       return
     }
 
@@ -32,6 +35,7 @@ function App() {
 
     try {
       setErro("")
+      setProdutoSelecionado(null)
 
       const resposta = await fetch(
         `http://127.0.0.1:8000/recomendar-produtos?${parametros}`
@@ -46,8 +50,14 @@ function App() {
       setResultado(dados)
     } catch (erro) {
       setResultado(null)
+      setProdutoSelecionado(null)
       setErro(erro.message)
     }
+  }
+
+  // Guarda o produto escolhido para iniciar a experiência do provador.
+  function experimentarProduto(produto) {
+    setProdutoSelecionado(produto)
   }
 
   return (
@@ -116,7 +126,6 @@ function App() {
 
           <p>{resultado.mensagem}</p>
 
-          {/* Exibe os produtos compatíveis encontrados pelo backend. */}
           {resultado.produtos?.length > 0 && (
             <div className="produtos">
               <h3>Produtos compatíveis</h3>
@@ -126,6 +135,13 @@ function App() {
                   className="produto-card"
                   key={produto.id}
                 >
+                  <div className="produto-imagem">
+                    <img
+                      src={camisetaOversized}
+                      alt={produto.nome}
+                    />
+                  </div>
+
                   <h4>{produto.nome}</h4>
 
                   <p className="preco">
@@ -164,10 +180,69 @@ function App() {
                       )}
                     </div>
                   )}
+
+                  <button
+                    type="button"
+                    className="botao-experimentar"
+                    onClick={() => experimentarProduto(produto)}
+                  >
+                    Experimentar com VesteIA
+                  </button>
                 </article>
               ))}
             </div>
           )}
+        </section>
+      )}
+
+      {produtoSelecionado && (
+        <section className="provador">
+          <p className="provador-etapa">
+            PROVADOR VESTEIA
+          </p>
+
+          <h2>Produto selecionado</h2>
+
+          <div className="provador-conteudo">
+            <div className="provador-imagem">
+              <img
+                src={camisetaOversized}
+                alt={produtoSelecionado.nome}
+              />
+            </div>
+
+            <div className="provador-informacoes">
+              <h3>{produtoSelecionado.nome}</h3>
+
+              <p>
+                Tamanho recomendado:{" "}
+                <strong>{produtoSelecionado.tamanho}</strong>
+              </p>
+
+              <p>
+                Cor:{" "}
+                <strong>{produtoSelecionado.cor}</strong>
+              </p>
+
+              <p>
+                Modelagem:{" "}
+                <strong>{produtoSelecionado.modelagem}</strong>
+              </p>
+
+              <p>
+                O produto está pronto para entrar na experiência
+                virtual do VesteIA.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="fechar-provador"
+            onClick={() => setProdutoSelecionado(null)}
+          >
+            Voltar aos produtos
+          </button>
         </section>
       )}
 

@@ -13,26 +13,40 @@
   align-items: center;
 
   background:
-    radial-gradient(circle at top, #0866d8 0%, #102c72 38%, #070b23 100%);
+    radial-gradient(
+      circle at top,
+      #0866d8 0%,
+      #102c72 38%,
+      #070b23 100%
+    );
 }
 
+/* Título principal. */
 .container h1 {
   margin-bottom: 10px;
 
   font-size: 4rem;
   letter-spacing: -2px;
 
-  background: linear-gradient(90deg, #ffffff, #9ddcff);
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #9ddcff
+  );
+
   background-clip: text;
   -webkit-background-clip: text;
+
   color: transparent;
 }
 
+/* Texto abaixo do título. */
 .container > p {
   max-width: 650px;
   margin-bottom: 36px;
 
   color: #d8e5ff;
+
   text-align: center;
   font-size: 1.1rem;
   line-height: 1.6;
@@ -50,16 +64,19 @@
   padding: 28px;
 
   background: rgba(37, 157, 255, 0.12);
+
   border: 1px solid rgba(103, 210, 255, 0.7);
   border-radius: 22px;
 
   backdrop-filter: blur(14px);
 }
 
+/* Campos do formulário. */
 .formulario input,
 .formulario select {
   width: 100%;
   height: 54px;
+
   padding: 0 16px;
 
   color: #ffffff;
@@ -71,9 +88,11 @@
   border-radius: 12px;
 
   outline: none;
+
   transition: 0.2s;
 }
 
+/* Destaque quando o usuário seleciona um campo. */
 .formulario input:focus,
 .formulario select:focus {
   border-color: #74d8ff;
@@ -92,20 +111,29 @@
   background: #0a2455;
 }
 
+/* Botão principal de recomendação. */
 .formulario button {
   height: 56px;
+
   margin-top: 6px;
 
   color: #ffffff;
+
   font-size: 1rem;
   font-weight: 700;
 
-  background: linear-gradient(90deg, #04c8ff, #7a9cff);
+  background:
+    linear-gradient(
+      90deg,
+      #04c8ff,
+      #7a9cff
+    );
 
   border: none;
   border-radius: 12px;
 
   cursor: pointer;
+
   transition: 0.2s;
 }
 
@@ -137,6 +165,7 @@
 
 .resultado h2 {
   margin-bottom: 22px;
+
   font-size: 1.7rem;
 }
 
@@ -144,6 +173,7 @@
   margin: 10px 0;
 
   color: #e3edff;
+
   line-height: 1.55;
 }
 
@@ -151,15 +181,16 @@
   color: #ffffff;
 }
 
-/* Destaca o tamanho calculado pelo motor. */
+/* Destaque do tamanho recomendado. */
 .resultado > p:first-of-type strong {
   margin-left: 5px;
 
   color: #8de5ff;
+
   font-size: 2.4rem;
 }
 
-/* Área dos produtos retornados pelo backend. */
+/* Área dos produtos encontrados pelo backend. */
 .produtos {
   margin-top: 30px;
 }
@@ -168,10 +199,11 @@
   margin-bottom: 16px;
 
   color: #ffffff;
+
   font-size: 1.35rem;
 }
 
-/* Card individual de produto compatível. */
+/* Card individual do produto. */
 .produto-card {
   padding: 24px;
 
@@ -183,26 +215,59 @@
   border-radius: 16px;
 }
 
+/* Imagem do produto. */
+.produto-imagem {
+  width: 100%;
+  height: 320px;
+
+  margin-bottom: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border-radius: 14px;
+}
+
+.produto-imagem img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  padding: 16px;
+}
+
+/* Nome do produto. */
 .produto-card h4 {
   margin-bottom: 8px;
 
   color: #ffffff;
+
   font-size: 1.2rem;
   line-height: 1.4;
 }
 
+/* Preço. */
 .produto-card .preco {
   margin: 6px 0 18px;
 
   color: #8de5ff;
+
   font-size: 1.6rem;
   font-weight: 800;
 }
 
-/* Organiza os dados do produto em blocos separados. */
+/* Dados do produto organizados em blocos. */
 .produto-detalhes {
   display: grid;
+
   grid-template-columns: 1fr 1fr;
+
   gap: 10px;
 }
 
@@ -210,6 +275,7 @@
   padding: 11px 12px;
 
   color: #d9e7ff;
+
   font-size: 0.9rem;
 
   background: rgba(255, 255, 255, 0.06);
@@ -218,9 +284,11 @@
   border-radius: 9px;
 }
 
+/* Observações sobre o caimento da peça. */
 .observacoes {
   display: flex;
   flex-wrap: wrap;
+
   gap: 8px;
 
   margin-top: 18px;
@@ -230,6 +298,7 @@
   padding: 7px 12px;
 
   color: #bcecff;
+
   font-size: 0.85rem;
 
   background: rgba(20, 184, 255, 0.12);
@@ -238,6 +307,170 @@
   border-radius: 20px;
 }
 
+/* Botão que envia o produto para o provador. */
+.botao-experimentar {
+  width: 100%;
+  height: 52px;
+
+  margin-top: 22px;
+
+  color: #ffffff;
+
+  font-size: 0.95rem;
+  font-weight: 800;
+
+  background:
+    linear-gradient(
+      90deg,
+      #00c8ff,
+      #786cff
+    );
+
+  border: none;
+  border-radius: 11px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.botao-experimentar:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 25px rgba(0, 198, 255, 0.3),
+    0 0 20px rgba(120, 108, 255, 0.2);
+}
+
+/* Primeira área funcional do Provador VesteIA. */
+.provador {
+  width: 100%;
+  max-width: 600px;
+
+  margin-top: 30px;
+  padding: 30px;
+
+  background: rgba(6, 26, 70, 0.92);
+
+  border: 1px solid rgba(91, 212, 255, 0.7);
+  border-radius: 22px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25),
+    0 0 30px rgba(0, 184, 255, 0.08);
+
+  backdrop-filter: blur(14px);
+}
+
+/* Identificação do provador. */
+.provador-etapa {
+  margin-bottom: 8px;
+
+  color: #69dbff;
+
+  font-size: 0.8rem;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  text-align: center;
+}
+
+.provador h2 {
+  margin-bottom: 24px;
+
+  color: #ffffff;
+
+  text-align: center;
+
+  font-size: 1.7rem;
+}
+
+/* Conteúdo interno do provador. */
+.provador-conteudo {
+  display: grid;
+
+  grid-template-columns: 220px 1fr;
+
+  gap: 24px;
+
+  align-items: center;
+}
+
+/* Imagem do produto selecionado. */
+.provador-imagem {
+  width: 220px;
+  height: 260px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border-radius: 15px;
+}
+
+.provador-imagem img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  padding: 12px;
+}
+
+/* Informações do produto no provador. */
+.provador-informacoes h3 {
+  margin-bottom: 16px;
+
+  color: #ffffff;
+
+  font-size: 1.25rem;
+}
+
+.provador-informacoes p {
+  margin: 8px 0;
+
+  color: #d8e7ff;
+
+  line-height: 1.5;
+}
+
+.provador-informacoes strong {
+  color: #7ee6ff;
+}
+
+/* Botão para voltar à lista de produtos. */
+.fechar-provador {
+  width: 100%;
+  height: 48px;
+
+  margin-top: 24px;
+
+  color: #ffffff;
+
+  font-weight: 700;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.fechar-provador:hover {
+  background: rgba(255, 255, 255, 0.14);
+
+  border-color: rgba(116, 216, 255, 0.5);
+}
+
+/* Mensagens de erro e validação. */
 .erro {
   width: 100%;
   max-width: 600px;
@@ -246,6 +479,7 @@
   padding: 15px;
 
   color: #ffe1e1;
+
   text-align: center;
 
   background: rgba(173, 29, 68, 0.55);
@@ -254,6 +488,7 @@
   border-radius: 12px;
 }
 
+/* Ajustes para celulares e telas menores. */
 @media (max-width: 600px) {
   .container {
     padding: 45px 16px;
@@ -264,11 +499,29 @@
   }
 
   .formulario,
-  .resultado {
+  .resultado,
+  .provador {
     padding: 21px;
+  }
+
+  .produto-imagem {
+    height: 260px;
   }
 
   .produto-detalhes {
     grid-template-columns: 1fr;
+  }
+
+  .provador-conteudo {
+    grid-template-columns: 1fr;
+  }
+
+  .provador-imagem {
+    width: 100%;
+    height: 280px;
+  }
+
+  .provador-informacoes {
+    text-align: center;
   }
 }
