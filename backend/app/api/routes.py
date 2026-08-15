@@ -12,6 +12,8 @@ from app.services.catalogo import (
     listar_produtos,
 )
 from app.services.recomendacao import (
+    calcular_confianca_recomendacao,
+    explicar_recomendacao,
     recomendar_tamanho,
     verificar_compatibilidade_peca,
 )
@@ -160,7 +162,8 @@ def recomendar_tamanho_endpoint(
     preferencia_caimento: str | None = None,
 ):
     """
-    Calcula apenas o tamanho recomendado para o usuário.
+    Calcula o tamanho recomendado para o usuário
+    e explica os principais motivos da recomendação.
     """
 
     tamanho_recomendado = recomendar_tamanho(
@@ -170,8 +173,15 @@ def recomendar_tamanho_endpoint(
         preferencia_caimento,
     )
 
+    explicacao = explicar_recomendacao(
+        tamanho_recomendado,
+        cintura_cm,
+        preferencia_caimento,
+    )
+
     return {
-        "tamanho_recomendado": tamanho_recomendado
+        "tamanho_recomendado": tamanho_recomendado,
+        "motivos": explicacao["motivos"],
     }
 
 
@@ -208,7 +218,7 @@ def recomendar_produtos(
             ),
         )
 
-    # Calcula o tamanho somente quando existem dados corporais.
+    # Calcula o tamanho, a explicação e a confiança da recomendação.
     if altura_cm is not None and peso_kg is not None:
         tamanho_recomendado = recomendar_tamanho(
             altura_cm,
@@ -216,8 +226,22 @@ def recomendar_produtos(
             cintura_cm,
             preferencia_caimento,
         )
+
+        explicacao = explicar_recomendacao(
+            tamanho_recomendado,
+            cintura_cm,
+            preferencia_caimento,
+        )
+
+        confianca = calcular_confianca_recomendacao(
+        altura_cm,
+        peso_kg,
+        cintura_cm,
+    )
+
     else:
         tamanho_recomendado = None
+        explicacao = None
 
     # Define a mensagem de acordo com o estado do perfil.
     if tamanho_recomendado is not None:
@@ -255,6 +279,8 @@ def recomendar_produtos(
         return {
             "mensagem": mensagem,
             "tamanho_recomendado": tamanho_recomendado,
+            "confianca": confianca,
+            "explicacao": explicacao,
             "produtos": [],
         }
 
@@ -272,6 +298,8 @@ def recomendar_produtos(
     return {
         "mensagem": mensagem,
         "tamanho_recomendado": tamanho_recomendado,
+        "confianca": confianca,
+        "explicacao": explicacao,
         "produtos": produtos,
     }
 

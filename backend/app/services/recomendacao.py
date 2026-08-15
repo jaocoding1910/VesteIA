@@ -90,6 +90,75 @@ def recomendar_tamanho(
     return tamanho_base
 
 
+def explicar_recomendacao(
+    tamanho_recomendado: str,
+    cintura_cm: float | None = None,
+    preferencia_caimento: str | None = None,
+):
+    """
+    Explica os principais fatores que influenciaram
+    a recomendação de tamanho.
+    """
+
+    motivos = []
+
+    # Registra quando a cintura influenciou a recomendação.
+    if cintura_cm is not None and cintura_cm >= 100:
+        motivos.append(
+            "a medida da cintura influenciou a recomendação"
+        )
+
+    # Analisa possíveis ajustes causados pela preferência de caimento.
+    if preferencia_caimento is not None:
+        preferencia_normalizada = preferencia_caimento.strip().lower()
+
+        if preferencia_normalizada == "solto":
+            motivos.append(
+                "preferência por caimento solto aumentou o tamanho"
+            )
+
+        elif preferencia_normalizada == "justo":
+            motivos.append(
+                "preferência por caimento justo diminuiu o tamanho"
+            )
+
+    # Mantém uma explicação padrão quando não houve ajustes adicionais.
+    if not motivos:
+        motivos.append(
+            "recomendação baseada nas medidas informadas"
+        )
+
+    return {
+        "tamanho_recomendado": tamanho_recomendado,
+        "motivos": motivos,
+    }
+
+
+def calcular_confianca_recomendacao(
+    altura_cm: float | None = None,
+    peso_kg: float | None = None,
+    cintura_cm: float | None = None,
+):
+    """
+    Define um nível simples de confiança para a recomendação
+    com base na quantidade de dados corporais disponíveis.
+    """
+
+    # Altura, peso e cintura permitem uma recomendação mais completa.
+    if (
+        altura_cm is not None
+        and peso_kg is not None
+        and cintura_cm is not None
+    ):
+        return "alta"
+
+    # Altura e peso permitem uma recomendação básica do MVP.
+    if altura_cm is not None and peso_kg is not None:
+        return "media"
+
+    return None
+
+
 def verificar_compatibilidade_peca(
     tamanho_recomendado: str,
     largura_cm: float | None = None,
