@@ -115,6 +115,59 @@ function App() {
           ))}
 
           <p>{resultado.mensagem}</p>
+
+          {/* Exibe os produtos compatíveis encontrados pelo backend. */}
+          {resultado.produtos?.length > 0 && (
+            <div className="produtos">
+              <h3>Produtos compatíveis</h3>
+
+              {resultado.produtos.map((produto) => (
+                <article
+                  className="produto-card"
+                  key={produto.id}
+                >
+                  <h4>{produto.nome}</h4>
+
+                  <p className="preco">
+                    R${" "}
+                    {Number(produto.preco)
+                      .toFixed(2)
+                      .replace(".", ",")}
+                  </p>
+
+                  <div className="produto-detalhes">
+                    <span>
+                      Tamanho: {produto.tamanho}
+                    </span>
+
+                    <span>
+                      Cor: {produto.cor}
+                    </span>
+
+                    <span>
+                      Categoria: {produto.categoria}
+                    </span>
+
+                    <span>
+                      Modelagem: {produto.modelagem}
+                    </span>
+                  </div>
+
+                  {produto.observacoes?.length > 0 && (
+                    <div className="observacoes">
+                      {produto.observacoes.map(
+                        (observacao, index) => (
+                          <span key={index}>
+                            {observacao}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
