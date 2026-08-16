@@ -3,8 +3,8 @@ from app.database.database import conectar
 
 def _garantir_tabela_sessoes(cursor):
     """
-    Garante a existência da tabela utilizada
-    para registrar as sessões do Provador VesteIA.
+    Garante a existência e a estrutura básica da tabela
+    utilizada pelo Provador VesteIA.
     """
 
     cursor.execute(
@@ -19,8 +19,17 @@ def _garantir_tabela_sessoes(cursor):
             tipo_arquivo VARCHAR(100) NOT NULL,
             tamanho_bytes BIGINT NOT NULL,
             status VARCHAR(50) NOT NULL,
+            caminho_arquivo TEXT,
             criado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
+        """
+    )
+
+    # Atualiza bancos criados antes da Sprint 40.
+    cursor.execute(
+        """
+        ALTER TABLE sessoes_provador
+        ADD COLUMN IF NOT EXISTS caminho_arquivo TEXT
         """
     )
 
@@ -28,7 +37,7 @@ def _garantir_tabela_sessoes(cursor):
 def adicionar_sessao_provador(sessao):
     """
     Registra uma nova sessão do Provador VesteIA
-    no PostgreSQL e retorna o ID criado pelo banco.
+    no PostgreSQL.
     """
 
     conexao = conectar()
@@ -47,10 +56,23 @@ def adicionar_sessao_provador(sessao):
                 nome_arquivo,
                 tipo_arquivo,
                 tamanho_bytes,
-                status
+                status,
+                caminho_arquivo
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING id, criado_em
+            VALUES (
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s
+            )
+            RETURNING
+                id,
+                criado_em
             """,
             (
                 sessao.produto_id,
@@ -61,6 +83,7 @@ def adicionar_sessao_provador(sessao):
                 sessao.tipo_arquivo,
                 sessao.tamanho_bytes,
                 sessao.status,
+                sessao.caminho_arquivo,
             ),
         )
 
@@ -72,6 +95,7 @@ def adicionar_sessao_provador(sessao):
             "id": resultado[0],
             "criado_em": resultado[1],
             "status": sessao.status,
+            "caminho_arquivo": sessao.caminho_arquivo,
         }
 
     except Exception:
@@ -107,6 +131,7 @@ def listar_sessoes_provador():
                 tipo_arquivo,
                 tamanho_bytes,
                 status,
+                caminho_arquivo,
                 criado_em
             FROM sessoes_provador
             ORDER BY id DESC
@@ -131,7 +156,8 @@ def listar_sessoes_provador():
                     "tipo_arquivo": linha[6],
                     "tamanho_bytes": linha[7],
                     "status": linha[8],
-                    "criado_em": linha[9],
+                    "caminho_arquivo": linha[9],
+                    "criado_em": linha[10],
                 }
             )
 

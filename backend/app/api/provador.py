@@ -1,3 +1,6 @@
+from pathlib import Path
+from uuid import uuid4
+
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from app.models.sessao_provador import SessaoProvador
@@ -21,6 +24,64 @@ TIPOS_IMAGEM_PERMITIDOS = {
     "image/webp",
 }
 
+EXTENSOES_IMAGEM = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
+
+
+# Caminho da pasta backend/.
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+
+# Local onde as fotos serão armazenadas no MVP.
+PASTA_UPLOADS_PROVADOR = (
+    BACKEND_DIR
+    / "uploads"
+    / "provador"
+)
+
+
+def salvar_foto_localmente(
+    conteudo: bytes,
+    tipo_arquivo: str,
+):
+    """
+    Salva a imagem utilizando um nome interno único.
+
+    O nome original enviado pelo usuário não é utilizado
+    como nome físico do arquivo.
+    """
+
+    PASTA_UPLOADS_PROVADOR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    extensao = EXTENSOES_IMAGEM[tipo_arquivo]
+
+    nome_interno = (
+        f"{uuid4().hex}{extensao}"
+    )
+
+    caminho_absoluto = (
+        PASTA_UPLOADS_PROVADOR
+        / nome_interno
+    )
+
+    caminho_absoluto.write_bytes(conteudo)
+
+    caminho_relativo = (
+        Path("uploads")
+        / "provador"
+        / nome_interno
+    )
+
+    return (
+        caminho_relativo.as_posix(),
+        caminho_absoluto,
+    )
+
 
 @router.post("/preparar")
 async def preparar_experiencia(
@@ -31,14 +92,19 @@ async def preparar_experiencia(
     modo: str = Form("foto"),
 ):
     """
-    Recebe uma sessão do Provador VesteIA,
-    valida a imagem e registra seus metadados no PostgreSQL.
+    Recebe a sessão do Provador VesteIA.
+
+    A imagem é validada, armazenada localmente e
+    sua referência é registrada no PostgreSQL.
     """
 
     if modo != "foto":
         raise HTTPException(
             status_code=400,
-            detail="Este endpoint atualmente aceita apenas o modo foto.",
+            detail=(
+                "Este endpoint atualmente aceita "
+                "apenas o modo foto."
+            ),
         )
 
     if foto.content_type not in TIPOS_IMAGEM_PERMITIDOS:
@@ -63,7 +129,23 @@ async def preparar_experiencia(
             detail="A imagem deve ter no máximo 10 MB.",
         )
 
-    await foto.seek(0)
+    try:
+        (
+            caminho_relativo,
+            caminho_absoluto,
+        ) = salvar_foto_localmente(
+            conteudo=conteudo_foto,
+            tipo_arquivo=foto.content_type,
+        )
+
+    except OSError:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível armazenar "
+                "a imagem do provador."
+            ),
+        )
 
     sessao = SessaoProvador(
         produto_id=produto_id,
@@ -74,37 +156,59 @@ async def preparar_experiencia(
         tipo_arquivo=foto.content_type,
         tamanho_bytes=tamanho_arquivo,
         status="pronto_para_processar",
+        caminho_arquivo=caminho_relativo,
     )
 
     try:
-        registro = adicionar_sessao_provador(sessao)
+        registro = adicionar_sessao_provador(
+            sessao
+        )
 
     except Exception:
+        # Evita deixar uma imagem órfã caso
+        # o registro no PostgreSQL falhe.
+        caminho_absoluto.unlink(
+            missing_ok=True
+        )
+
         raise HTTPException(
             status_code=500,
-            detail="Não foi possível registrar a sessão no PostgreSQL.",
+            detail=(
+                "Não foi possível registrar "
+                "a sessão no PostgreSQL."
+            ),
         )
 
     return {
         "sessao_id": registro["id"],
         "criado_em": registro["criado_em"],
+
         "status": "recebido",
-        "status_processamento": registro["status"],
+
+        "status_processamento": (
+            registro["status"]
+        ),
+
         "pronto_para_processar": True,
+
         "modo": modo,
+
         "produto": {
             "id": produto_id,
             "nome": produto_nome,
             "tamanho": tamanho,
         },
+
         "arquivo": {
             "nome": foto.filename,
             "tipo": foto.content_type,
             "tamanho_bytes": tamanho_arquivo,
+            "armazenado": True,
         },
+
         "mensagem": (
             "Sessão do Provador VesteIA registrada "
-            "no PostgreSQL com sucesso."
+            "e imagem armazenada com sucesso."
         ),
     }
 
@@ -112,7 +216,7 @@ async def preparar_experiencia(
 @router.get("/sessoes")
 def listar_sessoes():
     """
-    Lista as sessões já registradas pelo Provador VesteIA.
+    Lista as sessões registradas pelo Provador VesteIA.
     """
 
     try:
@@ -121,5 +225,8 @@ def listar_sessoes():
     except Exception:
         raise HTTPException(
             status_code=500,
-            detail="Não foi possível consultar as sessões do provador.",
+            detail=(
+                "Não foi possível consultar "
+                "as sessões do provador."
+            ),
         )

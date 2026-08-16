@@ -2,8 +2,8 @@ class SessaoProvador:
     """
     Representa uma sessão de experimentação do Provador VesteIA.
 
-    A imagem não é armazenada no PostgreSQL nesta etapa.
-    Guardamos apenas os metadados necessários da sessão.
+    A imagem não é armazenada dentro do PostgreSQL.
+    O banco mantém apenas sua referência e seus metadados.
     """
 
     def __init__(
@@ -16,12 +16,16 @@ class SessaoProvador:
         tipo_arquivo: str,
         tamanho_bytes: int,
         status: str,
+        caminho_arquivo: str | None = None,
     ):
         self.produto_id = produto_id
         self.produto_nome = produto_nome
         self.tamanho = tamanho
         self.modo = modo
+
         self.nome_arquivo = nome_arquivo
         self.tipo_arquivo = tipo_arquivo
         self.tamanho_bytes = tamanho_bytes
+
         self.status = status
+        self.caminho_arquivo = caminho_arquivo
