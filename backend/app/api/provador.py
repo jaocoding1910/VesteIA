@@ -25,6 +25,7 @@ from app.services.provador import (
     listar_sessoes_provador,
 )
 
+from app.services.deteccao_pessoa import detectar_pessoa
 
 router = APIRouter(
     prefix="/provador",
@@ -895,5 +896,84 @@ def avaliar_foto_provador(sessao_id: int):
         "mensagem": (
             "Qualidade técnica da foto "
             "avaliada pelo VesteIA."
+        ),
+    }
+
+
+@router.get(
+    "/sessoes/{sessao_id}/detectar-pessoa"
+)
+def detectar_pessoa_sessao(sessao_id: int):
+    """
+    Verifica a presença humana na imagem
+    normalizada de uma sessão do Provador VesteIA.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    caminho_normalizado = sessao[
+        "caminho_normalizado"
+    ]
+
+    if not caminho_normalizado:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Normalize a imagem antes "
+                "de executar a detecção humana."
+            ),
+        )
+
+    caminho_absoluto = (
+        BACKEND_DIR
+        / caminho_normalizado
+    )
+
+    try:
+        deteccao = detectar_pessoa(
+            caminho_absoluto
+        )
+
+    except FileNotFoundError as erro:
+        raise HTTPException(
+            status_code=404,
+            detail=str(erro),
+        )
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=422,
+            detail=str(erro),
+        )
+
+    return {
+        "sessao_id": sessao["id"],
+        "produto": {
+            "id": sessao["produto_id"],
+            "nome": sessao["produto_nome"],
+            "tamanho": sessao["tamanho"],
+        },
+        "deteccao_humana": deteccao,
+        "mensagem": (
+            "Detecção humana executada "
+            "pelo pipeline visual do VesteIA."
         ),
     }
