@@ -6,6 +6,7 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from app.models.sessao_provador import SessaoProvador
 from app.services.provador import (
     adicionar_sessao_provador,
+    buscar_sessao_provador_por_id,
     listar_sessoes_provador,
 )
 
@@ -31,10 +32,8 @@ EXTENSOES_IMAGEM = {
 }
 
 
-# Caminho da pasta backend/.
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
-# Local onde as fotos serão armazenadas no MVP.
 PASTA_UPLOADS_PROVADOR = (
     BACKEND_DIR
     / "uploads"
@@ -47,10 +46,7 @@ def salvar_foto_localmente(
     tipo_arquivo: str,
 ):
     """
-    Salva a imagem utilizando um nome interno único.
-
-    O nome original enviado pelo usuário não é utilizado
-    como nome físico do arquivo.
+    Salva a imagem com um nome interno único.
     """
 
     PASTA_UPLOADS_PROVADOR.mkdir(
@@ -69,7 +65,9 @@ def salvar_foto_localmente(
         / nome_interno
     )
 
-    caminho_absoluto.write_bytes(conteudo)
+    caminho_absoluto.write_bytes(
+        conteudo
+    )
 
     caminho_relativo = (
         Path("uploads")
@@ -92,10 +90,8 @@ async def preparar_experiencia(
     modo: str = Form("foto"),
 ):
     """
-    Recebe a sessão do Provador VesteIA.
-
-    A imagem é validada, armazenada localmente e
-    sua referência é registrada no PostgreSQL.
+    Recebe uma sessão, valida a imagem,
+    salva o arquivo e registra a sessão.
     """
 
     if modo != "foto":
@@ -115,7 +111,9 @@ async def preparar_experiencia(
 
     conteudo_foto = await foto.read()
 
-    tamanho_arquivo = len(conteudo_foto)
+    tamanho_arquivo = len(
+        conteudo_foto
+    )
 
     if tamanho_arquivo == 0:
         raise HTTPException(
@@ -165,8 +163,6 @@ async def preparar_experiencia(
         )
 
     except Exception:
-        # Evita deixar uma imagem órfã caso
-        # o registro no PostgreSQL falhe.
         caminho_absoluto.unlink(
             missing_ok=True
         )
@@ -182,30 +178,21 @@ async def preparar_experiencia(
     return {
         "sessao_id": registro["id"],
         "criado_em": registro["criado_em"],
-
         "status": "recebido",
-
-        "status_processamento": (
-            registro["status"]
-        ),
-
+        "status_processamento": registro["status"],
         "pronto_para_processar": True,
-
         "modo": modo,
-
         "produto": {
             "id": produto_id,
             "nome": produto_nome,
             "tamanho": tamanho,
         },
-
         "arquivo": {
             "nome": foto.filename,
             "tipo": foto.content_type,
             "tamanho_bytes": tamanho_arquivo,
             "armazenado": True,
         },
-
         "mensagem": (
             "Sessão do Provador VesteIA registrada "
             "e imagem armazenada com sucesso."
@@ -216,7 +203,7 @@ async def preparar_experiencia(
 @router.get("/sessoes")
 def listar_sessoes():
     """
-    Lista as sessões registradas pelo Provador VesteIA.
+    Lista todas as sessões registradas.
     """
 
     try:
@@ -230,3 +217,54 @@ def listar_sessoes():
                 "as sessões do provador."
             ),
         )
+
+
+@router.get("/sessoes/{sessao_id}")
+def obter_sessao(sessao_id: int):
+    """
+    Busca uma sessão específica e verifica
+    se o arquivo associado ainda existe.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    caminho_relativo = sessao["caminho_arquivo"]
+
+    arquivo_disponivel = False
+
+    if caminho_relativo:
+        caminho_absoluto = (
+            BACKEND_DIR
+            / caminho_relativo
+        )
+
+        arquivo_disponivel = (
+            caminho_absoluto.is_file()
+        )
+
+    return {
+        "sessao": sessao,
+        "arquivo_disponivel": arquivo_disponivel,
+        "pronto_para_processar": (
+            sessao["status"] == "pronto_para_processar"
+            and arquivo_disponivel
+        ),
+    }

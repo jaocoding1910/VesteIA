@@ -3,7 +3,7 @@ from app.database.database import conectar
 
 def _garantir_tabela_sessoes(cursor):
     """
-    Garante a existência e a estrutura básica da tabela
+    Garante a existência e a estrutura da tabela
     utilizada pelo Provador VesteIA.
     """
 
@@ -25,13 +25,33 @@ def _garantir_tabela_sessoes(cursor):
         """
     )
 
-    # Atualiza bancos criados antes da Sprint 40.
     cursor.execute(
         """
         ALTER TABLE sessoes_provador
         ADD COLUMN IF NOT EXISTS caminho_arquivo TEXT
         """
     )
+
+
+def _converter_linha_para_sessao(linha):
+    """
+    Converte uma linha do PostgreSQL
+    em um dicionário padronizado de sessão.
+    """
+
+    return {
+        "id": linha[0],
+        "produto_id": linha[1],
+        "produto_nome": linha[2],
+        "tamanho": linha[3],
+        "modo": linha[4],
+        "nome_arquivo": linha[5],
+        "tipo_arquivo": linha[6],
+        "tamanho_bytes": linha[7],
+        "status": linha[8],
+        "caminho_arquivo": linha[9],
+        "criado_em": linha[10],
+    }
 
 
 def adicionar_sessao_provador(sessao):
@@ -109,7 +129,7 @@ def adicionar_sessao_provador(sessao):
 
 def listar_sessoes_provador():
     """
-    Retorna as sessões registradas no PostgreSQL,
+    Retorna todas as sessões registradas,
     começando pela mais recente.
     """
 
@@ -142,26 +162,58 @@ def listar_sessoes_provador():
 
         conexao.commit()
 
-        sessoes = []
+        return [
+            _converter_linha_para_sessao(linha)
+            for linha in resultados
+        ]
 
-        for linha in resultados:
-            sessoes.append(
-                {
-                    "id": linha[0],
-                    "produto_id": linha[1],
-                    "produto_nome": linha[2],
-                    "tamanho": linha[3],
-                    "modo": linha[4],
-                    "nome_arquivo": linha[5],
-                    "tipo_arquivo": linha[6],
-                    "tamanho_bytes": linha[7],
-                    "status": linha[8],
-                    "caminho_arquivo": linha[9],
-                    "criado_em": linha[10],
-                }
-            )
+    finally:
+        cursor.close()
+        conexao.close()
 
-        return sessoes
+
+def buscar_sessao_provador_por_id(sessao_id):
+    """
+    Busca uma sessão específica utilizando
+    o ID gerado pelo PostgreSQL.
+    """
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    try:
+        _garantir_tabela_sessoes(cursor)
+
+        cursor.execute(
+            """
+            SELECT
+                id,
+                produto_id,
+                produto_nome,
+                tamanho,
+                modo,
+                nome_arquivo,
+                tipo_arquivo,
+                tamanho_bytes,
+                status,
+                caminho_arquivo,
+                criado_em
+            FROM sessoes_provador
+            WHERE id = %s
+            """,
+            (sessao_id,),
+        )
+
+        resultado = cursor.fetchone()
+
+        conexao.commit()
+
+        if resultado is None:
+            return None
+
+        return _converter_linha_para_sessao(
+            resultado
+        )
 
     finally:
         cursor.close()
