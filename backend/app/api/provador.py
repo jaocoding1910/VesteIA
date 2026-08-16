@@ -1,3 +1,4 @@
+from app.services.processamento_imagem import analisar_imagem
 from pathlib import Path
 from uuid import uuid4
 
@@ -503,5 +504,84 @@ def registrar_falha_processamento(sessao_id: int):
         "mensagem": (
             "Falha de processamento registrada "
             "na sessão VesteIA."
+        ),
+    }
+
+
+@router.get("/sessoes/{sessao_id}/analisar-imagem")
+def analisar_imagem_sessao(sessao_id: int):
+    """
+    Analisa tecnicamente a imagem armazenada
+    em uma sessão do Provador VesteIA.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    caminho_relativo = sessao["caminho_arquivo"]
+
+    if not caminho_relativo:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "A sessão não possui uma imagem "
+                "armazenada."
+            ),
+        )
+
+    caminho_absoluto = (
+        BACKEND_DIR
+        / caminho_relativo
+    )
+
+    try:
+        analise = analisar_imagem(
+            caminho_absoluto
+        )
+
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "O arquivo físico da sessão "
+                "não foi encontrado."
+            ),
+        )
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=422,
+            detail=str(erro),
+        )
+
+    return {
+        "sessao_id": sessao["id"],
+        "produto": sessao["produto_nome"],
+        "status": sessao["status"],
+        "arquivo": {
+            "nome_original": sessao["nome_arquivo"],
+            "caminho": sessao["caminho_arquivo"],
+        },
+        "analise_imagem": analise,
+        "mensagem": (
+            "Imagem analisada pelo processador "
+            "do VesteIA com sucesso."
         ),
     }

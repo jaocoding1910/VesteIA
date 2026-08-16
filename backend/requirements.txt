@@ -1,2 +1,6 @@
 fastapi
 uvicorn
+python-dotenv
+python-multipart
+Pillow
+psycopg2-binary
