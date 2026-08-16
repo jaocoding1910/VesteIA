@@ -35,7 +35,7 @@ def _garantir_tabela_sessoes(cursor):
 
 def _converter_linha_para_sessao(linha):
     """
-    Converte uma linha do PostgreSQL
+    Converte uma linha retornada pelo PostgreSQL
     em um dicionário padronizado de sessão.
     """
 
@@ -174,8 +174,7 @@ def listar_sessoes_provador():
 
 def buscar_sessao_provador_por_id(sessao_id):
     """
-    Busca uma sessão específica utilizando
-    o ID gerado pelo PostgreSQL.
+    Busca uma sessão específica pelo ID.
     """
 
     conexao = conectar()
@@ -214,6 +213,54 @@ def buscar_sessao_provador_por_id(sessao_id):
         return _converter_linha_para_sessao(
             resultado
         )
+
+    finally:
+        cursor.close()
+        conexao.close()
+
+
+def atualizar_status_sessao(
+    sessao_id,
+    novo_status,
+):
+    """
+    Atualiza o status de processamento
+    de uma sessão existente.
+    """
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    try:
+        cursor.execute(
+            """
+            UPDATE sessoes_provador
+            SET status = %s
+            WHERE id = %s
+            RETURNING id, status
+            """,
+            (
+                novo_status,
+                sessao_id,
+            ),
+        )
+
+        resultado = cursor.fetchone()
+
+        if resultado is None:
+            conexao.rollback()
+            return None
+
+        conexao.commit()
+
+        return {
+            "id": resultado[0],
+            "status": resultado[1],
+        }
+
+    except Exception:
+        conexao.rollback()
+        raise
 
     finally:
         cursor.close()

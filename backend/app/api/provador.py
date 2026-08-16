@@ -1,11 +1,18 @@
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import (
+    APIRouter,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+)
 
 from app.models.sessao_provador import SessaoProvador
 from app.services.provador import (
     adicionar_sessao_provador,
+    atualizar_status_sessao,
     buscar_sessao_provador_por_id,
     listar_sessoes_provador,
 )
@@ -46,7 +53,7 @@ def salvar_foto_localmente(
     tipo_arquivo: str,
 ):
     """
-    Salva a imagem com um nome interno único.
+    Salva a imagem utilizando um nome interno único.
     """
 
     PASTA_UPLOADS_PROVADOR.mkdir(
@@ -56,9 +63,7 @@ def salvar_foto_localmente(
 
     extensao = EXTENSOES_IMAGEM[tipo_arquivo]
 
-    nome_interno = (
-        f"{uuid4().hex}{extensao}"
-    )
+    nome_interno = f"{uuid4().hex}{extensao}"
 
     caminho_absoluto = (
         PASTA_UPLOADS_PROVADOR
@@ -81,6 +86,25 @@ def salvar_foto_localmente(
     )
 
 
+def verificar_arquivo_sessao(sessao):
+    """
+    Verifica se a sessão possui uma imagem
+    fisicamente disponível no backend.
+    """
+
+    caminho_relativo = sessao["caminho_arquivo"]
+
+    if not caminho_relativo:
+        return False
+
+    caminho_absoluto = (
+        BACKEND_DIR
+        / caminho_relativo
+    )
+
+    return caminho_absoluto.is_file()
+
+
 @router.post("/preparar")
 async def preparar_experiencia(
     foto: UploadFile = File(...),
@@ -90,8 +114,8 @@ async def preparar_experiencia(
     modo: str = Form("foto"),
 ):
     """
-    Recebe uma sessão, valida a imagem,
-    salva o arquivo e registra a sessão.
+    Recebe, valida e registra uma nova
+    sessão do Provador VesteIA.
     """
 
     if modo != "foto":
@@ -222,8 +246,8 @@ def listar_sessoes():
 @router.get("/sessoes/{sessao_id}")
 def obter_sessao(sessao_id: int):
     """
-    Busca uma sessão específica e verifica
-    se o arquivo associado ainda existe.
+    Busca uma sessão e verifica
+    a disponibilidade da imagem.
     """
 
     try:
@@ -246,25 +270,96 @@ def obter_sessao(sessao_id: int):
             detail="Sessão do provador não encontrada.",
         )
 
-    caminho_relativo = sessao["caminho_arquivo"]
+    arquivo_disponivel = verificar_arquivo_sessao(
+        sessao
+    )
 
-    arquivo_disponivel = False
-
-    if caminho_relativo:
-        caminho_absoluto = (
-            BACKEND_DIR
-            / caminho_relativo
-        )
-
-        arquivo_disponivel = (
-            caminho_absoluto.is_file()
-        )
+    pronto_para_processar = (
+        sessao["status"] == "pronto_para_processar"
+        and arquivo_disponivel
+    )
 
     return {
         "sessao": sessao,
         "arquivo_disponivel": arquivo_disponivel,
-        "pronto_para_processar": (
-            sessao["status"] == "pronto_para_processar"
-            and arquivo_disponivel
+        "pronto_para_processar": pronto_para_processar,
+    }
+
+
+@router.post("/sessoes/{sessao_id}/processar")
+def iniciar_processamento(sessao_id: int):
+    """
+    Valida a sessão e inicia seu ciclo
+    de processamento.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    if not verificar_arquivo_sessao(sessao):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "A sessão não possui uma imagem "
+                "disponível para processamento."
+            ),
+        )
+
+    if sessao["status"] == "processando":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Esta sessão já está em processamento."
+            ),
+        )
+
+    if sessao["status"] != "pronto_para_processar":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "A sessão não está em um estado "
+                "válido para iniciar o processamento."
+            ),
+        )
+
+    try:
+        resultado = atualizar_status_sessao(
+            sessao_id=sessao_id,
+            novo_status="processando",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível atualizar "
+                "o status da sessão."
+            ),
+        )
+
+    return {
+        "sessao_id": resultado["id"],
+        "status_anterior": sessao["status"],
+        "status_atual": resultado["status"],
+        "mensagem": (
+            "Processamento da sessão "
+            "VesteIA iniciado com sucesso."
         ),
     }
