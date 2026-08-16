@@ -3,6 +3,7 @@ from pathlib import Path
 from PIL import (
     Image,
     ImageOps,
+    ImageStat,
     UnidentifiedImageError,
 )
 
@@ -16,6 +17,14 @@ FORMATOS_SUPORTADOS = {
 
 LARGURA_MINIMA = 512
 ALTURA_MINIMA = 512
+
+# Critérios provisórios do MVP.
+LUMINOSIDADE_MINIMA = 55
+LUMINOSIDADE_MAXIMA = 210
+CONTRASTE_MINIMO = 25
+
+PROPORCAO_RETRATO_MINIMA = 0.50
+PROPORCAO_RETRATO_MAXIMA = 0.85
 
 
 def analisar_imagem(caminho_arquivo):
@@ -210,8 +219,10 @@ def avaliar_entrada_visual(caminho_normalizado):
 
     if altura > largura:
         orientacao = "retrato"
+
     elif largura > altura:
         orientacao = "paisagem"
+
     else:
         orientacao = "quadrada"
 
@@ -220,13 +231,9 @@ def avaliar_entrada_visual(caminho_normalizado):
         and altura >= ALTURA_MINIMA
     )
 
-    formato_padrao = (
-        formato == "JPEG"
-    )
+    formato_padrao = formato == "JPEG"
 
-    modo_padrao = (
-        modo_cor == "RGB"
-    )
+    modo_padrao = modo_cor == "RGB"
 
     entrada_pronta = (
         resolucao_suficiente
@@ -268,5 +275,160 @@ def avaliar_entrada_visual(caminho_normalizado):
         "formato_padrao": formato_padrao,
         "modo_padrao": modo_padrao,
         "entrada_pronta": entrada_pronta,
+        "observacoes": observacoes,
+    }
+
+
+def avaliar_qualidade_foto(caminho_normalizado):
+    """
+    Avalia características técnicas importantes
+    para uma futura análise corporal.
+
+    Ainda não identifica pessoa, corpo ou pose.
+    """
+
+    caminho = Path(caminho_normalizado)
+
+    if not caminho.is_file():
+        raise FileNotFoundError(
+            "Imagem normalizada não encontrada."
+        )
+
+    try:
+        with Image.open(caminho) as imagem:
+            imagem.load()
+
+            largura, altura = imagem.size
+
+            imagem_cinza = imagem.convert("L")
+
+            estatisticas = ImageStat.Stat(
+                imagem_cinza
+            )
+
+            luminosidade_media = round(
+                estatisticas.mean[0],
+                2,
+            )
+
+            contraste = round(
+                estatisticas.stddev[0],
+                2,
+            )
+
+    except UnidentifiedImageError as erro:
+        raise ValueError(
+            "A imagem normalizada não é válida."
+        ) from erro
+
+    except OSError as erro:
+        raise ValueError(
+            "Não foi possível avaliar a imagem."
+        ) from erro
+
+    proporcao = round(
+        largura / altura,
+        3,
+    )
+
+    orientacao_retrato = (
+        altura > largura
+    )
+
+    proporcao_adequada = (
+        PROPORCAO_RETRATO_MINIMA
+        <= proporcao
+        <= PROPORCAO_RETRATO_MAXIMA
+    )
+
+    resolucao_adequada = (
+        largura >= LARGURA_MINIMA
+        and altura >= ALTURA_MINIMA
+    )
+
+    luminosidade_adequada = (
+        LUMINOSIDADE_MINIMA
+        <= luminosidade_media
+        <= LUMINOSIDADE_MAXIMA
+    )
+
+    contraste_adequado = (
+        contraste >= CONTRASTE_MINIMO
+    )
+
+    criterios = {
+        "resolucao_adequada": resolucao_adequada,
+        "orientacao_retrato": orientacao_retrato,
+        "proporcao_adequada": proporcao_adequada,
+        "luminosidade_adequada": luminosidade_adequada,
+        "contraste_adequado": contraste_adequado,
+    }
+
+    criterios_aprovados = sum(
+        1
+        for aprovado in criterios.values()
+        if aprovado
+    )
+
+    score_tecnico = (
+        criterios_aprovados
+        * 20
+    )
+
+    apta_para_analise_corporal = all(
+        criterios.values()
+    )
+
+    observacoes = []
+
+    if not resolucao_adequada:
+        observacoes.append(
+            "utilize uma foto com maior resolução"
+        )
+
+    if not orientacao_retrato:
+        observacoes.append(
+            "prefira uma foto em orientação retrato"
+        )
+
+    if not proporcao_adequada:
+        observacoes.append(
+            "prefira uma foto vertical com enquadramento mais adequado"
+        )
+
+    if not luminosidade_adequada:
+        if luminosidade_media < LUMINOSIDADE_MINIMA:
+            observacoes.append(
+                "a foto está escura"
+            )
+
+        else:
+            observacoes.append(
+                "a foto está clara demais"
+            )
+
+    if not contraste_adequado:
+        observacoes.append(
+            "a imagem apresenta pouco contraste"
+        )
+
+    if not observacoes:
+        observacoes.append(
+            "foto tecnicamente adequada para a próxima etapa"
+        )
+
+    return {
+        "largura_px": largura,
+        "altura_px": altura,
+        "proporcao": proporcao,
+        "luminosidade_media": luminosidade_media,
+        "contraste": contraste,
+        "criterios": criterios,
+        "criterios_aprovados": criterios_aprovados,
+        "criterios_totais": len(criterios),
+        "score_tecnico": score_tecnico,
+        "apta_para_analise_corporal": (
+            apta_para_analise_corporal
+        ),
         "observacoes": observacoes,
     }

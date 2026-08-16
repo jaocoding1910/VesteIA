@@ -1,4 +1,10 @@
-from app.services.processamento_imagem import (analisar_imagem, avaliar_entrada_visual, normalizar_imagem,)
+from app.services.processamento_imagem import (
+    analisar_imagem,
+    avaliar_entrada_visual,
+    avaliar_qualidade_foto, 
+    normalizar_imagem,
+    )
+
 from pathlib import Path
 from uuid import uuid4
 
@@ -806,5 +812,88 @@ def preparar_entrada_visual(sessao_id: int):
         "mensagem": (
             "Entrada visual do Provador VesteIA "
             "preparada com sucesso."
+        ),
+    }
+
+
+@router.get(
+    "/sessoes/{sessao_id}/avaliar-foto"
+)
+def avaliar_foto_provador(sessao_id: int):
+    """
+    Avalia se a imagem normalizada possui
+    qualidade técnica suficiente para avançar
+    para uma futura análise corporal.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    caminho_normalizado = sessao[
+        "caminho_normalizado"
+    ]
+
+    if not caminho_normalizado:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "A sessão ainda não possui uma imagem "
+                "normalizada."
+            ),
+        )
+
+    caminho_absoluto = (
+        BACKEND_DIR
+        / caminho_normalizado
+    )
+
+    try:
+        avaliacao = avaliar_qualidade_foto(
+            caminho_absoluto
+        )
+
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "A imagem normalizada da sessão "
+                "não foi encontrada."
+            ),
+        )
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=422,
+            detail=str(erro),
+        )
+
+    return {
+        "sessao_id": sessao["id"],
+        "produto": {
+            "id": sessao["produto_id"],
+            "nome": sessao["produto_nome"],
+            "tamanho": sessao["tamanho"],
+        },
+        "avaliacao_foto": avaliacao,
+        "mensagem": (
+            "Qualidade técnica da foto "
+            "avaliada pelo VesteIA."
         ),
     }
