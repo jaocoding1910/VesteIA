@@ -20,6 +20,7 @@ def _garantir_tabela_sessoes(cursor):
             tamanho_bytes BIGINT NOT NULL,
             status VARCHAR(50) NOT NULL,
             caminho_arquivo TEXT,
+            caminho_normalizado TEXT,
             criado_em TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
         """
@@ -29,6 +30,13 @@ def _garantir_tabela_sessoes(cursor):
         """
         ALTER TABLE sessoes_provador
         ADD COLUMN IF NOT EXISTS caminho_arquivo TEXT
+        """
+    )
+
+    cursor.execute(
+        """
+        ALTER TABLE sessoes_provador
+        ADD COLUMN IF NOT EXISTS caminho_normalizado TEXT
         """
     )
 
@@ -50,14 +58,14 @@ def _converter_linha_para_sessao(linha):
         "tamanho_bytes": linha[7],
         "status": linha[8],
         "caminho_arquivo": linha[9],
-        "criado_em": linha[10],
+        "caminho_normalizado": linha[10],
+        "criado_em": linha[11],
     }
 
 
 def adicionar_sessao_provador(sessao):
     """
-    Registra uma nova sessão do Provador VesteIA
-    no PostgreSQL.
+    Registra uma nova sessão do Provador VesteIA.
     """
 
     conexao = conectar()
@@ -77,9 +85,11 @@ def adicionar_sessao_provador(sessao):
                 tipo_arquivo,
                 tamanho_bytes,
                 status,
-                caminho_arquivo
+                caminho_arquivo,
+                caminho_normalizado
             )
             VALUES (
+                %s,
                 %s,
                 %s,
                 %s,
@@ -104,6 +114,7 @@ def adicionar_sessao_provador(sessao):
                 sessao.tamanho_bytes,
                 sessao.status,
                 sessao.caminho_arquivo,
+                sessao.caminho_normalizado,
             ),
         )
 
@@ -116,6 +127,9 @@ def adicionar_sessao_provador(sessao):
             "criado_em": resultado[1],
             "status": sessao.status,
             "caminho_arquivo": sessao.caminho_arquivo,
+            "caminho_normalizado": (
+                sessao.caminho_normalizado
+            ),
         }
 
     except Exception:
@@ -129,8 +143,7 @@ def adicionar_sessao_provador(sessao):
 
 def listar_sessoes_provador():
     """
-    Retorna todas as sessões registradas,
-    começando pela mais recente.
+    Retorna todas as sessões registradas.
     """
 
     conexao = conectar()
@@ -152,6 +165,7 @@ def listar_sessoes_provador():
                 tamanho_bytes,
                 status,
                 caminho_arquivo,
+                caminho_normalizado,
                 criado_em
             FROM sessoes_provador
             ORDER BY id DESC
@@ -196,6 +210,7 @@ def buscar_sessao_provador_por_id(sessao_id):
                 tamanho_bytes,
                 status,
                 caminho_arquivo,
+                caminho_normalizado,
                 criado_em
             FROM sessoes_provador
             WHERE id = %s
@@ -224,8 +239,7 @@ def atualizar_status_sessao(
     novo_status,
 ):
     """
-    Atualiza o status de processamento
-    de uma sessão existente.
+    Atualiza o status de uma sessão.
     """
 
     conexao = conectar()
@@ -256,6 +270,56 @@ def atualizar_status_sessao(
         return {
             "id": resultado[0],
             "status": resultado[1],
+        }
+
+    except Exception:
+        conexao.rollback()
+        raise
+
+    finally:
+        cursor.close()
+        conexao.close()
+
+
+def atualizar_caminho_normalizado(
+    sessao_id,
+    caminho_normalizado,
+):
+    """
+    Registra no PostgreSQL o caminho da imagem
+    normalizada de uma sessão.
+    """
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    try:
+        cursor.execute(
+            """
+            UPDATE sessoes_provador
+            SET caminho_normalizado = %s
+            WHERE id = %s
+            RETURNING
+                id,
+                caminho_normalizado
+            """,
+            (
+                caminho_normalizado,
+                sessao_id,
+            ),
+        )
+
+        resultado = cursor.fetchone()
+
+        if resultado is None:
+            conexao.rollback()
+            return None
+
+        conexao.commit()
+
+        return {
+            "id": resultado[0],
+            "caminho_normalizado": resultado[1],
         }
 
     except Exception:

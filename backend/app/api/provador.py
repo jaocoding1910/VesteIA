@@ -1,4 +1,4 @@
-from app.services.processamento_imagem import analisar_imagem
+from app.services.processamento_imagem import (analisar_imagem, normalizar_imagem,)
 from pathlib import Path
 from uuid import uuid4
 
@@ -13,6 +13,7 @@ from fastapi import (
 from app.models.sessao_provador import SessaoProvador
 from app.services.provador import (
     adicionar_sessao_provador,
+    atualizar_caminho_normalizado,
     atualizar_status_sessao,
     buscar_sessao_provador_por_id,
     listar_sessoes_provador,
@@ -583,5 +584,139 @@ def analisar_imagem_sessao(sessao_id: int):
         "mensagem": (
             "Imagem analisada pelo processador "
             "do VesteIA com sucesso."
+        ),
+    }
+
+
+@router.post(
+    "/sessoes/{sessao_id}/normalizar-imagem"
+)
+def normalizar_imagem_sessao(sessao_id: int):
+    """
+    Cria uma versão JPEG/RGB padronizada
+    da imagem de uma sessão.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    caminho_original = sessao[
+        "caminho_arquivo"
+    ]
+
+    if not caminho_original:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "A sessão não possui uma imagem "
+                "armazenada."
+            ),
+        )
+
+    caminho_absoluto_original = (
+        BACKEND_DIR
+        / caminho_original
+    )
+
+    if not caminho_absoluto_original.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "O arquivo físico original "
+                "não foi encontrado."
+            ),
+        )
+
+    nome_base = (
+        caminho_absoluto_original.stem
+    )
+
+    caminho_relativo_normalizado = (
+        Path("uploads")
+        / "provador"
+        / "normalizadas"
+        / f"{nome_base}_normalizado.jpg"
+    )
+
+    caminho_absoluto_normalizado = (
+        BACKEND_DIR
+        / caminho_relativo_normalizado
+    )
+
+    try:
+        resultado_normalizacao = (
+            normalizar_imagem(
+                caminho_origem=(
+                    caminho_absoluto_original
+                ),
+                caminho_destino=(
+                    caminho_absoluto_normalizado
+                ),
+            )
+        )
+
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "O arquivo original da sessão "
+                "não foi encontrado."
+            ),
+        )
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=422,
+            detail=str(erro),
+        )
+
+    try:
+        registro = atualizar_caminho_normalizado(
+            sessao_id=sessao_id,
+            caminho_normalizado=(
+                caminho_relativo_normalizado.as_posix()
+            ),
+        )
+
+    except Exception:
+        caminho_absoluto_normalizado.unlink(
+            missing_ok=True
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "A imagem foi normalizada, mas não foi "
+                "possível atualizar a sessão."
+            ),
+        )
+
+    return {
+        "sessao_id": registro["id"],
+        "arquivo_original": caminho_original,
+        "arquivo_normalizado": (
+            registro["caminho_normalizado"]
+        ),
+        "normalizacao": resultado_normalizacao,
+        "mensagem": (
+            "Imagem normalizada para o padrão "
+            "interno do VesteIA com sucesso."
         ),
     }
