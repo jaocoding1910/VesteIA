@@ -12,10 +12,26 @@ MODEL_PATH = (
 )
 
 
+LANDMARKS_CORPORAIS = {
+    "ombro_esquerdo": 11,
+    "ombro_direito": 12,
+    "cotovelo_esquerdo": 13,
+    "cotovelo_direito": 14,
+    "punho_esquerdo": 15,
+    "punho_direito": 16,
+    "quadril_esquerdo": 23,
+    "quadril_direito": 24,
+    "joelho_esquerdo": 25,
+    "joelho_direito": 26,
+    "tornozelo_esquerdo": 27,
+    "tornozelo_direito": 28,
+}
+
+
 def detectar_pessoa(caminho_imagem):
     """
-    Detecta presença humana usando
-    MediaPipe Pose Landmarker Tasks API.
+    Detecta presença humana e organiza landmarks
+    corporais úteis para o pipeline do VesteIA.
     """
 
     caminho = Path(caminho_imagem)
@@ -60,6 +76,7 @@ def detectar_pessoa(caminho_imagem):
         return {
             "pessoa_detectada": False,
             "landmarks_detectados": 0,
+            "pontos_corporais": {},
             "mensagem": (
                 "Nenhuma pessoa detectável "
                 "foi encontrada na imagem."
@@ -68,11 +85,27 @@ def detectar_pessoa(caminho_imagem):
 
     landmarks = resultado.pose_landmarks[0]
 
+    pontos_corporais = {}
+
+    for nome, indice in LANDMARKS_CORPORAIS.items():
+        landmark = landmarks[indice]
+
+        pontos_corporais[nome] = {
+            "x": round(landmark.x, 4),
+            "y": round(landmark.y, 4),
+            "z": round(landmark.z, 4),
+            "visibilidade": round(
+                landmark.visibility,
+                4,
+            ),
+        }
+
     return {
         "pessoa_detectada": True,
         "landmarks_detectados": len(landmarks),
+        "pontos_corporais": pontos_corporais,
         "mensagem": (
-            "Presença humana detectada "
-            "na imagem."
+            "Presença humana detectada e "
+            "landmarks corporais estruturados."
         ),
     }
