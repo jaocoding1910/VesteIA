@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.provador import router as provador_router
 
 from app.api.routes import router
 
 app = FastAPI()
+
+app.include_router(provador_router)
 
 # Permite que o frontend React acesse a API durante o desenvolvimento.
 origens_permitidas = [
