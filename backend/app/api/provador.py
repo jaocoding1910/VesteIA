@@ -1,4 +1,4 @@
-from app.services.processamento_imagem import (analisar_imagem, normalizar_imagem,)
+from app.services.processamento_imagem import (analisar_imagem, avaliar_entrada_visual, normalizar_imagem,)
 from pathlib import Path
 from uuid import uuid4
 
@@ -718,5 +718,93 @@ def normalizar_imagem_sessao(sessao_id: int):
         "mensagem": (
             "Imagem normalizada para o padrão "
             "interno do VesteIA com sucesso."
+        ),
+    }
+
+
+@router.get(
+    "/sessoes/{sessao_id}/entrada-visual"
+)
+def preparar_entrada_visual(sessao_id: int):
+    """
+    Recupera e valida a imagem normalizada que será
+    utilizada como entrada oficial do pipeline visual.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    caminho_normalizado = sessao[
+        "caminho_normalizado"
+    ]
+
+    if not caminho_normalizado:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "A sessão ainda não possui uma imagem "
+                "normalizada. Normalize a imagem antes "
+                "de preparar a entrada visual."
+            ),
+        )
+
+    caminho_absoluto = (
+        BACKEND_DIR
+        / caminho_normalizado
+    )
+
+    try:
+        avaliacao = avaliar_entrada_visual(
+            caminho_absoluto
+        )
+
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "A referência da imagem normalizada existe, "
+                "mas o arquivo físico não foi encontrado."
+            ),
+        )
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=422,
+            detail=str(erro),
+        )
+
+    return {
+        "sessao_id": sessao["id"],
+        "produto": {
+            "id": sessao["produto_id"],
+            "nome": sessao["produto_nome"],
+            "tamanho": sessao["tamanho"],
+        },
+        "status_sessao": sessao["status"],
+        "entrada_visual": {
+            "arquivo": caminho_normalizado,
+            "origem": "imagem_normalizada",
+            **avaliacao,
+        },
+        "mensagem": (
+            "Entrada visual do Provador VesteIA "
+            "preparada com sucesso."
         ),
     }

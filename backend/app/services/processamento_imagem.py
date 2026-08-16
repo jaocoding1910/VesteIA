@@ -14,6 +14,10 @@ FORMATOS_SUPORTADOS = {
 }
 
 
+LARGURA_MINIMA = 512
+ALTURA_MINIMA = 512
+
+
 def analisar_imagem(caminho_arquivo):
     """
     Abre uma imagem armazenada pelo Provador VesteIA
@@ -66,7 +70,7 @@ def normalizar_imagem(
     Converte uma imagem suportada para o padrão interno
     do VesteIA: JPEG + RGB.
 
-    Também corrige a orientação EXIF e trata transparência.
+    Também corrige orientação EXIF e trata transparência.
     """
 
     origem = Path(caminho_origem)
@@ -92,7 +96,6 @@ def normalizar_imagem(
                     "pelo normalizador do VesteIA."
                 )
 
-            # Corrige fotos de celular que usam orientação EXIF.
             imagem_corrigida = ImageOps.exif_transpose(
                 imagem
             )
@@ -101,8 +104,6 @@ def normalizar_imagem(
                 imagem_corrigida.size
             )
 
-            # PNG e WebP podem possuir transparência.
-            # JPEG não suporta canal alpha.
             if (
                 imagem_corrigida.mode in ("RGBA", "LA")
                 or (
@@ -164,4 +165,108 @@ def normalizar_imagem(
         "altura_final_px": altura_final,
         "tamanho_normalizado_bytes": destino.stat().st_size,
         "normalizada": True,
+    }
+
+
+def avaliar_entrada_visual(caminho_normalizado):
+    """
+    Avalia tecnicamente a imagem normalizada que será
+    utilizada como entrada oficial do pipeline visual.
+
+    Esta função ainda não detecta pessoa, corpo ou pose.
+    """
+
+    caminho = Path(caminho_normalizado)
+
+    if not caminho.is_file():
+        raise FileNotFoundError(
+            "Imagem normalizada não encontrada."
+        )
+
+    try:
+        with Image.open(caminho) as imagem:
+            imagem.load()
+
+            largura, altura = imagem.size
+            formato = imagem.format
+            modo_cor = imagem.mode
+
+    except UnidentifiedImageError as erro:
+        raise ValueError(
+            "A imagem normalizada não é válida."
+        ) from erro
+
+    except OSError as erro:
+        raise ValueError(
+            "Não foi possível ler a imagem normalizada."
+        ) from erro
+
+    total_pixels = largura * altura
+
+    proporcao = round(
+        largura / altura,
+        3,
+    )
+
+    if altura > largura:
+        orientacao = "retrato"
+    elif largura > altura:
+        orientacao = "paisagem"
+    else:
+        orientacao = "quadrada"
+
+    resolucao_suficiente = (
+        largura >= LARGURA_MINIMA
+        and altura >= ALTURA_MINIMA
+    )
+
+    formato_padrao = (
+        formato == "JPEG"
+    )
+
+    modo_padrao = (
+        modo_cor == "RGB"
+    )
+
+    entrada_pronta = (
+        resolucao_suficiente
+        and formato_padrao
+        and modo_padrao
+    )
+
+    observacoes = []
+
+    if not resolucao_suficiente:
+        observacoes.append(
+            "resolução abaixo do mínimo recomendado"
+        )
+
+    if not formato_padrao:
+        observacoes.append(
+            "imagem fora do formato interno JPEG"
+        )
+
+    if not modo_padrao:
+        observacoes.append(
+            "imagem fora do modo interno RGB"
+        )
+
+    if not observacoes:
+        observacoes.append(
+            "imagem tecnicamente pronta para o pipeline visual"
+        )
+
+    return {
+        "largura_px": largura,
+        "altura_px": altura,
+        "total_pixels": total_pixels,
+        "proporcao": proporcao,
+        "orientacao": orientacao,
+        "formato": formato,
+        "modo_cor": modo_cor,
+        "resolucao_suficiente": resolucao_suficiente,
+        "formato_padrao": formato_padrao,
+        "modo_padrao": modo_padrao,
+        "entrada_pronta": entrada_pronta,
+        "observacoes": observacoes,
     }
