@@ -363,3 +363,145 @@ def iniciar_processamento(sessao_id: int):
             "VesteIA iniciado com sucesso."
         ),
     }
+
+
+@router.post("/sessoes/{sessao_id}/concluir")
+def concluir_processamento(sessao_id: int):
+    """
+    Finaliza com sucesso uma sessão que
+    atualmente está em processamento.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    if sessao["status"] == "processado":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Esta sessão já foi processada."
+            ),
+        )
+
+    if sessao["status"] != "processando":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Somente uma sessão em processamento "
+                "pode ser concluída."
+            ),
+        )
+
+    try:
+        resultado = atualizar_status_sessao(
+            sessao_id=sessao_id,
+            novo_status="processado",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível concluir "
+                "o processamento da sessão."
+            ),
+        )
+
+    return {
+        "sessao_id": resultado["id"],
+        "status_anterior": sessao["status"],
+        "status_atual": resultado["status"],
+        "sucesso": True,
+        "mensagem": (
+            "Processamento da sessão "
+            "VesteIA concluído com sucesso."
+        ),
+    }
+
+
+@router.post("/sessoes/{sessao_id}/falhar")
+def registrar_falha_processamento(sessao_id: int):
+    """
+    Marca como erro uma sessão que
+    atualmente está em processamento.
+    """
+
+    try:
+        sessao = buscar_sessao_provador_por_id(
+            sessao_id
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        )
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Sessão do provador não encontrada.",
+        )
+
+    if sessao["status"] == "erro":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Esta sessão já está marcada com erro."
+            ),
+        )
+
+    if sessao["status"] != "processando":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Somente uma sessão em processamento "
+                "pode ser marcada com erro."
+            ),
+        )
+
+    try:
+        resultado = atualizar_status_sessao(
+            sessao_id=sessao_id,
+            novo_status="erro",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível registrar "
+                "a falha de processamento."
+            ),
+        )
+
+    return {
+        "sessao_id": resultado["id"],
+        "status_anterior": sessao["status"],
+        "status_atual": resultado["status"],
+        "sucesso": False,
+        "mensagem": (
+            "Falha de processamento registrada "
+            "na sessão VesteIA."
+        ),
+    }
