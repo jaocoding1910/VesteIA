@@ -45,3 +45,43 @@ def extrair_landmarks_corporais(landmarks: list) -> dict:
         }
 
     return pontos_corporais
+
+
+def avaliar_visibilidade_ponto(
+    ponto: dict,
+    limite: float = 0.5
+) -> bool:
+    """
+    Verifica se um landmark possui visibilidade
+    suficiente para ser utilizado na análise corporal.
+    """
+
+    visibilidade = ponto.get("visibilidade", 0)
+
+    return visibilidade >= limite
+
+
+def classificar_pontos_corporais(
+    pontos_corporais: dict,
+    limite: float = 0.5
+) -> dict:
+    """
+    Classifica os pontos corporais de acordo
+    com a qualidade de visibilidade.
+    """
+
+    classificacao = {}
+
+    for nome, ponto in pontos_corporais.items():
+
+        confiavel = avaliar_visibilidade_ponto(
+            ponto,
+            limite
+        )
+
+        classificacao[nome] = {
+            **ponto,
+            "confiavel": confiavel
+        }
+
+    return classificacao

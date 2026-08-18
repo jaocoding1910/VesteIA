@@ -6,6 +6,8 @@ from mediapipe.tasks.python import vision
 
 from app.services.analise_corporal import (
     extrair_landmarks_corporais,
+    avaliar_visibilidade_ponto,
+    classificar_pontos_corporais,
 )
 
 
@@ -103,6 +105,11 @@ def detectar_pessoa(caminho_imagem):
     # em nomes úteis para o restante do VesteIA.
     pontos_corporais = extrair_landmarks_corporais(
         landmarks_convertidos
+    )
+
+    # Classifica a confiabilidade de cada ponto corporal.
+    pontos_corporais = classificar_pontos_corporais(
+        pontos_corporais
     )
 
     return {
