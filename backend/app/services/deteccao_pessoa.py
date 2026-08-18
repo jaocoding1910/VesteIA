@@ -8,6 +8,7 @@ from app.services.analise_corporal import (
     extrair_landmarks_corporais,
     avaliar_visibilidade_ponto,
     classificar_pontos_corporais,
+    avaliar_aptidao_por_categoria,
 )
 
 
@@ -20,9 +21,10 @@ MODEL_PATH = (
 
 def detectar_pessoa(caminho_imagem):
     """
-    Detecta presença humana usando o MediaPipe
-    e organiza os landmarks corporais relevantes
-    para o pipeline do VesteIA.
+    Detecta presença humana usando o MediaPipe,
+    organiza os landmarks corporais relevantes
+    e avalia a aptidão da foto para categorias
+    de produtos do VesteIA.
     """
 
     caminho = Path(caminho_imagem)
@@ -68,6 +70,12 @@ def detectar_pessoa(caminho_imagem):
             "pessoa_detectada": False,
             "landmarks_detectados": 0,
             "pontos_corporais": {},
+            "aptidao_produtos": {
+                "camiseta": False,
+                "calca": False,
+                "vestido": False,
+                "calcado": False,
+            },
             "mensagem": (
                 "Nenhuma pessoa detectável "
                 "foi encontrada na imagem."
@@ -76,7 +84,8 @@ def detectar_pessoa(caminho_imagem):
 
     landmarks = resultado.pose_landmarks[0]
 
-    # Padroniza os 33 landmarks retornados pelo MediaPipe.
+    # Converte os 33 landmarks do MediaPipe
+    # para um formato simples usado pelo VesteIA.
     landmarks_convertidos = []
 
     for landmark in landmarks:
@@ -101,14 +110,21 @@ def detectar_pessoa(caminho_imagem):
             }
         )
 
-    # A análise corporal traduz índices do MediaPipe
-    # em nomes úteis para o restante do VesteIA.
+    # Traduz os índices do MediaPipe
+    # para nomes corporais úteis.
     pontos_corporais = extrair_landmarks_corporais(
         landmarks_convertidos
     )
 
-    # Classifica a confiabilidade de cada ponto corporal.
+    # Classifica cada ponto como confiável
+    # ou não confiável pela visibilidade.
     pontos_corporais = classificar_pontos_corporais(
+        pontos_corporais
+    )
+
+    # Decide quais categorias podem utilizar
+    # os pontos corporais disponíveis na foto.
+    aptidao_produtos = avaliar_aptidao_por_categoria(
         pontos_corporais
     )
 
@@ -117,9 +133,12 @@ def detectar_pessoa(caminho_imagem):
         "landmarks_detectados": len(
             landmarks
         ),
+        
         "pontos_corporais": pontos_corporais,
+        "aptidao_produtos": aptidao_produtos,
         "mensagem": (
-            "Presença humana detectada e "
-            "estrutura corporal organizada."
+            "Presença humana detectada, "
+            "estrutura corporal organizada e "
+            "aptidão por categoria avaliada."
         ),
     }

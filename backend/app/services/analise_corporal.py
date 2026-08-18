@@ -85,3 +85,50 @@ def classificar_pontos_corporais(
         }
 
     return classificacao
+
+
+def avaliar_aptidao_por_categoria(pontos_corporais):
+    """
+    Avalia quais categorias de produto podem utilizar
+    os pontos corporais detectados com confiança.
+    """
+
+    def ponto_confiavel(nome):
+        ponto = pontos_corporais.get(nome)
+
+        if not ponto:
+            return False
+
+        return ponto.get("confiavel", False)
+
+    aptidao = {
+        "camiseta": (
+            ponto_confiavel("ombro_esquerdo")
+            and ponto_confiavel("ombro_direito")
+        ),
+
+        "calca": (
+            ponto_confiavel("quadril_esquerdo")
+            and ponto_confiavel("quadril_direito")
+            and ponto_confiavel("joelho_esquerdo")
+            and ponto_confiavel("joelho_direito")
+        ),
+
+        "vestido": (
+            ponto_confiavel("ombro_esquerdo")
+            and ponto_confiavel("ombro_direito")
+            and ponto_confiavel("quadril_esquerdo")
+            and ponto_confiavel("quadril_direito")
+        ),
+
+        "calcado": (
+            ponto_confiavel("tornozelo_esquerdo")
+            and ponto_confiavel("tornozelo_direito")
+            and ponto_confiavel("calcanhar_esquerdo")
+            and ponto_confiavel("calcanhar_direito")
+            and ponto_confiavel("ponta_pe_esquerdo")
+            and ponto_confiavel("ponta_pe_direito")
+        ),
+    }
+
+    return aptidao
