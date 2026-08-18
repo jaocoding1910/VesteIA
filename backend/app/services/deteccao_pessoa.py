@@ -4,6 +4,10 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
+from app.services.analise_corporal import (
+    extrair_landmarks_corporais,
+)
+
 
 MODEL_PATH = (
     Path(__file__).resolve().parent.parent
@@ -12,26 +16,11 @@ MODEL_PATH = (
 )
 
 
-LANDMARKS_CORPORAIS = {
-    "ombro_esquerdo": 11,
-    "ombro_direito": 12,
-    "cotovelo_esquerdo": 13,
-    "cotovelo_direito": 14,
-    "punho_esquerdo": 15,
-    "punho_direito": 16,
-    "quadril_esquerdo": 23,
-    "quadril_direito": 24,
-    "joelho_esquerdo": 25,
-    "joelho_direito": 26,
-    "tornozelo_esquerdo": 27,
-    "tornozelo_direito": 28,
-}
-
-
 def detectar_pessoa(caminho_imagem):
     """
-    Detecta presença humana e organiza landmarks
-    corporais úteis para o pipeline do VesteIA.
+    Detecta presença humana usando o MediaPipe
+    e organiza os landmarks corporais relevantes
+    para o pipeline do VesteIA.
     """
 
     caminho = Path(caminho_imagem)
@@ -85,27 +74,45 @@ def detectar_pessoa(caminho_imagem):
 
     landmarks = resultado.pose_landmarks[0]
 
-    pontos_corporais = {}
+    # Padroniza os 33 landmarks retornados pelo MediaPipe.
+    landmarks_convertidos = []
 
-    for nome, indice in LANDMARKS_CORPORAIS.items():
-        landmark = landmarks[indice]
+    for landmark in landmarks:
+        landmarks_convertidos.append(
+            {
+                "x": round(
+                    landmark.x,
+                    4,
+                ),
+                "y": round(
+                    landmark.y,
+                    4,
+                ),
+                "z": round(
+                    landmark.z,
+                    4,
+                ),
+                "visibilidade": round(
+                    landmark.visibility,
+                    4,
+                ),
+            }
+        )
 
-        pontos_corporais[nome] = {
-            "x": round(landmark.x, 4),
-            "y": round(landmark.y, 4),
-            "z": round(landmark.z, 4),
-            "visibilidade": round(
-                landmark.visibility,
-                4,
-            ),
-        }
+    # A análise corporal traduz índices do MediaPipe
+    # em nomes úteis para o restante do VesteIA.
+    pontos_corporais = extrair_landmarks_corporais(
+        landmarks_convertidos
+    )
 
     return {
         "pessoa_detectada": True,
-        "landmarks_detectados": len(landmarks),
+        "landmarks_detectados": len(
+            landmarks
+        ),
         "pontos_corporais": pontos_corporais,
         "mensagem": (
             "Presença humana detectada e "
-            "landmarks corporais estruturados."
+            "estrutura corporal organizada."
         ),
     }
