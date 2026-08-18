@@ -6,9 +6,10 @@ from mediapipe.tasks.python import vision
 
 from app.services.analise_corporal import (
     extrair_landmarks_corporais,
-    avaliar_visibilidade_ponto,
     classificar_pontos_corporais,
     avaliar_aptidao_por_categoria,
+    organizar_regioes_corporais,
+    avaliar_qualidade_regioes,
 )
 
 
@@ -22,9 +23,11 @@ MODEL_PATH = (
 def detectar_pessoa(caminho_imagem):
     """
     Detecta presença humana usando o MediaPipe,
-    organiza os landmarks corporais relevantes
-    e avalia a aptidão da foto para categorias
-    de produtos do VesteIA.
+    organiza os landmarks corporais,
+    classifica a confiabilidade dos pontos,
+    avalia aptidão por categoria de produto,
+    organiza regiões corporais
+    e avalia a qualidade de cada região.
     """
 
     caminho = Path(caminho_imagem)
@@ -58,7 +61,6 @@ def detectar_pessoa(caminho_imagem):
     with vision.PoseLandmarker.create_from_options(
         opcoes
     ) as detector:
-
         resultado = detector.detect(imagem)
 
     pessoa_detectada = bool(
@@ -76,6 +78,38 @@ def detectar_pessoa(caminho_imagem):
                 "vestido": False,
                 "calcado": False,
             },
+            "regioes_corporais": {
+                "tronco": {},
+                "bracos": {},
+                "pernas": {},
+                "pes": {},
+            },
+            "qualidade_regioes": {
+                "tronco": {
+                    "status": "insuficiente",
+                    "pontos_confiaveis": 0,
+                    "total_pontos": 0,
+                    "percentual_confiavel": 0,
+                },
+                "bracos": {
+                    "status": "insuficiente",
+                    "pontos_confiaveis": 0,
+                    "total_pontos": 0,
+                    "percentual_confiavel": 0,
+                },
+                "pernas": {
+                    "status": "insuficiente",
+                    "pontos_confiaveis": 0,
+                    "total_pontos": 0,
+                    "percentual_confiavel": 0,
+                },
+                "pes": {
+                    "status": "insuficiente",
+                    "pontos_confiaveis": 0,
+                    "total_pontos": 0,
+                    "percentual_confiavel": 0,
+                },
+            },
             "mensagem": (
                 "Nenhuma pessoa detectável "
                 "foi encontrada na imagem."
@@ -84,8 +118,8 @@ def detectar_pessoa(caminho_imagem):
 
     landmarks = resultado.pose_landmarks[0]
 
-    # Converte os 33 landmarks do MediaPipe
-    # para um formato simples usado pelo VesteIA.
+    # Converte os landmarks do MediaPipe
+    # para o formato interno do VesteIA.
     landmarks_convertidos = []
 
     for landmark in landmarks:
@@ -117,15 +151,25 @@ def detectar_pessoa(caminho_imagem):
     )
 
     # Classifica cada ponto como confiável
-    # ou não confiável pela visibilidade.
+    # ou não confiável.
     pontos_corporais = classificar_pontos_corporais(
         pontos_corporais
     )
 
-    # Decide quais categorias podem utilizar
-    # os pontos corporais disponíveis na foto.
+    # Avalia para quais categorias de produto
+    # a foto possui informação corporal suficiente.
     aptidao_produtos = avaliar_aptidao_por_categoria(
         pontos_corporais
+    )
+
+    # Organiza os pontos em regiões corporais.
+    regioes_corporais = organizar_regioes_corporais(
+        pontos_corporais
+    )
+
+    # Avalia a qualidade visual de cada região.
+    qualidade_regioes = avaliar_qualidade_regioes(
+        regioes_corporais
     )
 
     return {
@@ -133,12 +177,14 @@ def detectar_pessoa(caminho_imagem):
         "landmarks_detectados": len(
             landmarks
         ),
-        
         "pontos_corporais": pontos_corporais,
         "aptidao_produtos": aptidao_produtos,
+        "regioes_corporais": regioes_corporais,
+        "qualidade_regioes": qualidade_regioes,
         "mensagem": (
             "Presença humana detectada, "
-            "estrutura corporal organizada e "
-            "aptidão por categoria avaliada."
+            "estrutura corporal organizada, "
+            "aptidão por categoria avaliada "
+            "e qualidade das regiões analisada."
         ),
     }

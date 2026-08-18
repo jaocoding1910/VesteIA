@@ -132,3 +132,109 @@ def avaliar_aptidao_por_categoria(pontos_corporais):
     }
 
     return aptidao
+
+
+def organizar_regioes_corporais(pontos_corporais):
+    """
+    Organiza os pontos corporais detectados em regiões
+    úteis para o pipeline do VesteIA.
+    """
+
+    regioes = {
+        "tronco": [
+            "ombro_esquerdo",
+            "ombro_direito",
+            "quadril_esquerdo",
+            "quadril_direito",
+        ],
+
+        "bracos": [
+            "ombro_esquerdo",
+            "ombro_direito",
+            "cotovelo_esquerdo",
+            "cotovelo_direito",
+            "pulso_esquerdo",
+            "pulso_direito",
+        ],
+
+        "pernas": [
+            "quadril_esquerdo",
+            "quadril_direito",
+            "joelho_esquerdo",
+            "joelho_direito",
+            "tornozelo_esquerdo",
+            "tornozelo_direito",
+        ],
+
+        "pes": [
+            "calcanhar_esquerdo",
+            "calcanhar_direito",
+            "ponta_pe_esquerdo",
+            "ponta_pe_direito",
+        ],
+    }
+
+    resultado = {}
+
+    for nome_regiao, nomes_pontos in regioes.items():
+
+        pontos_disponiveis = {}
+
+        for nome_ponto in nomes_pontos:
+            if nome_ponto in pontos_corporais:
+                pontos_disponiveis[nome_ponto] = pontos_corporais[nome_ponto]
+
+        resultado[nome_regiao] = pontos_disponiveis
+
+    return resultado
+
+
+def avaliar_qualidade_regioes(regioes_corporais):
+    """
+    Avalia a qualidade de cada região corporal
+    com base na quantidade de pontos confiáveis.
+
+    Retorna:
+    - apta
+    - parcial
+    - insuficiente
+    """
+
+    resultado = {}
+
+    for nome_regiao, pontos in regioes_corporais.items():
+
+        total_pontos = len(pontos)
+
+        pontos_confiaveis = sum(
+            1
+            for ponto in pontos.values()
+            if ponto.get("confiavel", False)
+        )
+
+        if total_pontos == 0:
+            percentual = 0
+
+        else:
+            percentual = pontos_confiaveis / total_pontos
+
+        if percentual >= 0.75:
+            status = "apta"
+
+        elif percentual >= 0.50:
+            status = "parcial"
+
+        else:
+            status = "insuficiente"
+
+        resultado[nome_regiao] = {
+            "status": status,
+            "pontos_confiaveis": pontos_confiaveis,
+            "total_pontos": total_pontos,
+            "percentual_confiavel": round(
+                percentual,
+                2,
+            ),
+        }
+
+    return resultado
