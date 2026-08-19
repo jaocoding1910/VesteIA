@@ -10,6 +10,13 @@ from app.services.analise_corporal import (
     avaliar_aptidao_por_categoria,
     organizar_regioes_corporais,
     avaliar_qualidade_regioes,
+    calcular_largura_ombros,
+    calcular_largura_quadril,
+    calcular_proporcoes_corporais,
+    interpretar_proporcoes_corporais,
+    gerar_contexto_ajuste,
+    gerar_analise_ajuste,
+    calcular_confianca_analise,
 )
 
 
@@ -22,12 +29,13 @@ MODEL_PATH = (
 
 def detectar_pessoa(caminho_imagem):
     """
-    Detecta presença humana usando o MediaPipe,
-    organiza os landmarks corporais,
-    classifica a confiabilidade dos pontos,
-    avalia aptidão por categoria de produto,
-    organiza regiões corporais
-    e avalia a qualidade de cada região.
+    Executa o pipeline de análise corporal do VesteIA.
+
+    Detecta a pessoa, organiza landmarks,
+    avalia qualidade e aptidão por categoria,
+    calcula geometria e proporções corporais,
+    prepara a análise de ajuste
+    e calcula a confiança da análise.
     """
 
     caminho = Path(caminho_imagem)
@@ -72,18 +80,21 @@ def detectar_pessoa(caminho_imagem):
             "pessoa_detectada": False,
             "landmarks_detectados": 0,
             "pontos_corporais": {},
+
             "aptidao_produtos": {
                 "camiseta": False,
                 "calca": False,
                 "vestido": False,
                 "calcado": False,
             },
+
             "regioes_corporais": {
                 "tronco": {},
                 "bracos": {},
                 "pernas": {},
                 "pes": {},
             },
+
             "qualidade_regioes": {
                 "tronco": {
                     "status": "insuficiente",
@@ -110,6 +121,90 @@ def detectar_pessoa(caminho_imagem):
                     "percentual_confiavel": 0,
                 },
             },
+
+            "geometria_corporal": {
+                "largura_ombros": None,
+                "largura_quadril": None,
+            },
+
+            "proporcoes_corporais": {
+                "proporcao_ombros_quadril": None,
+                "status": "dados_insuficientes",
+            },
+
+            "interpretacao_corporal": {
+                "relacao_ombros_quadril": "indeterminada",
+                "status": "dados_insuficientes",
+            },
+
+            "contexto_ajuste": {
+                "camiseta": {
+                    "status": "dados_insuficientes",
+                },
+                "calca": {
+                    "status": "dados_insuficientes",
+                },
+                "vestido": {
+                    "status": "dados_insuficientes",
+                },
+                "calcado": {
+                    "status": "dados_insuficientes",
+                },
+            },
+
+            "analise_ajuste": {
+                "camiseta": {
+                    "status": "dados_insuficientes",
+                    "regioes_analisadas": [
+                        "tronco",
+                        "bracos",
+                    ],
+                },
+                "calca": {
+                    "status": "dados_insuficientes",
+                    "regioes_analisadas": [
+                        "pernas",
+                        "tronco",
+                    ],
+                },
+                "vestido": {
+                    "status": "dados_insuficientes",
+                    "regioes_analisadas": [
+                        "tronco",
+                        "pernas",
+                    ],
+                },
+                "calcado": {
+                    "status": "dados_insuficientes",
+                    "regioes_analisadas": [
+                        "pes",
+                    ],
+                },
+            },
+
+            "confianca_analise": {
+                "camiseta": {
+                    "nivel": "indisponivel",
+                    "pontuacao": 0,
+                    "status": "dados_insuficientes",
+                },
+                "calca": {
+                    "nivel": "indisponivel",
+                    "pontuacao": 0,
+                    "status": "dados_insuficientes",
+                },
+                "vestido": {
+                    "nivel": "indisponivel",
+                    "pontuacao": 0,
+                    "status": "dados_insuficientes",
+                },
+                "calcado": {
+                    "nivel": "indisponivel",
+                    "pontuacao": 0,
+                    "status": "dados_insuficientes",
+                },
+            },
+
             "mensagem": (
                 "Nenhuma pessoa detectável "
                 "foi encontrada na imagem."
@@ -118,8 +213,6 @@ def detectar_pessoa(caminho_imagem):
 
     landmarks = resultado.pose_landmarks[0]
 
-    # Converte os landmarks do MediaPipe
-    # para o formato interno do VesteIA.
     landmarks_convertidos = []
 
     for landmark in landmarks:
@@ -144,32 +237,70 @@ def detectar_pessoa(caminho_imagem):
             }
         )
 
-    # Traduz os índices do MediaPipe
-    # para nomes corporais úteis.
+    # Pontos corporais semânticos.
     pontos_corporais = extrair_landmarks_corporais(
         landmarks_convertidos
     )
 
-    # Classifica cada ponto como confiável
-    # ou não confiável.
+    # Confiabilidade individual dos pontos.
     pontos_corporais = classificar_pontos_corporais(
         pontos_corporais
     )
 
-    # Avalia para quais categorias de produto
-    # a foto possui informação corporal suficiente.
+    # Aptidão da imagem por categoria.
     aptidao_produtos = avaliar_aptidao_por_categoria(
         pontos_corporais
     )
 
-    # Organiza os pontos em regiões corporais.
+    # Organização das regiões corporais.
     regioes_corporais = organizar_regioes_corporais(
         pontos_corporais
     )
 
-    # Avalia a qualidade visual de cada região.
+    # Qualidade visual das regiões.
     qualidade_regioes = avaliar_qualidade_regioes(
         regioes_corporais
+    )
+
+    # Geometria corporal relativa.
+    largura_ombros = calcular_largura_ombros(
+        pontos_corporais
+    )
+
+    largura_quadril = calcular_largura_quadril(
+        pontos_corporais
+    )
+
+    geometria_corporal = {
+        "largura_ombros": largura_ombros,
+        "largura_quadril": largura_quadril,
+    }
+
+    # Proporções corporais relativas.
+    proporcoes_corporais = calcular_proporcoes_corporais(
+        geometria_corporal
+    )
+
+    # Interpretação estrutural.
+    interpretacao_corporal = interpretar_proporcoes_corporais(
+        proporcoes_corporais
+    )
+
+    # Contexto por categoria de produto.
+    contexto_ajuste = gerar_contexto_ajuste(
+        interpretacao_corporal,
+        aptidao_produtos,
+    )
+
+    # Análise preliminar de ajuste.
+    analise_ajuste = gerar_analise_ajuste(
+        contexto_ajuste,
+        qualidade_regioes,
+    )
+
+    # Confiança consolidada da análise visual.
+    confianca_analise = calcular_confianca_analise(
+        analise_ajuste
     )
 
     return {
@@ -181,10 +312,20 @@ def detectar_pessoa(caminho_imagem):
         "aptidao_produtos": aptidao_produtos,
         "regioes_corporais": regioes_corporais,
         "qualidade_regioes": qualidade_regioes,
+        "geometria_corporal": geometria_corporal,
+        "proporcoes_corporais": proporcoes_corporais,
+        "interpretacao_corporal": interpretacao_corporal,
+        "contexto_ajuste": contexto_ajuste,
+        "analise_ajuste": analise_ajuste,
+        "confianca_analise": confianca_analise,
         "mensagem": (
             "Presença humana detectada, "
             "estrutura corporal organizada, "
-            "aptidão por categoria avaliada "
-            "e qualidade das regiões analisada."
+            "aptidão por categoria avaliada, "
+            "qualidade das regiões analisada, "
+            "geometria e proporções calculadas, "
+            "estrutura corporal interpretada, "
+            "análise de ajuste preparada "
+            "e confiança da análise calculada."
         ),
     }

@@ -1,3 +1,5 @@
+import math
+
 LANDMARKS_CORPORAIS = {
     # Tronco
     "ombro_esquerdo": 11,
@@ -235,6 +237,361 @@ def avaliar_qualidade_regioes(regioes_corporais):
                 percentual,
                 2,
             ),
+        }
+
+    return resultado
+
+
+def calcular_distancia_2d(ponto_a, ponto_b):
+    """
+    Calcula a distância bidimensional entre dois
+    pontos corporais usando as coordenadas x e y.
+    """
+
+    if not ponto_a or not ponto_b:
+        return None
+
+    delta_x = ponto_b["x"] - ponto_a["x"]
+    delta_y = ponto_b["y"] - ponto_a["y"]
+
+    distancia = math.sqrt(
+        delta_x ** 2 + delta_y ** 2
+    )
+
+    return round(distancia, 4)
+
+
+def calcular_largura_ombros(pontos_corporais):
+    """
+    Calcula a largura relativa dos ombros
+    usando os landmarks esquerdo e direito.
+    """
+
+    ombro_esquerdo = pontos_corporais.get(
+        "ombro_esquerdo"
+    )
+
+    ombro_direito = pontos_corporais.get(
+        "ombro_direito"
+    )
+
+    if not ombro_esquerdo or not ombro_direito:
+        return None
+
+    if not ombro_esquerdo.get("confiavel", False):
+        return None
+
+    if not ombro_direito.get("confiavel", False):
+        return None
+
+    return calcular_distancia_2d(
+        ombro_esquerdo,
+        ombro_direito
+    )
+
+
+def calcular_largura_quadril(pontos_corporais):
+    """
+    Calcula a largura relativa do quadril
+    usando os landmarks esquerdo e direito.
+    """
+
+    quadril_esquerdo = pontos_corporais.get(
+        "quadril_esquerdo"
+    )
+
+    quadril_direito = pontos_corporais.get(
+        "quadril_direito"
+    )
+
+    if not quadril_esquerdo or not quadril_direito:
+        return None
+
+    if not quadril_esquerdo.get("confiavel", False):
+        return None
+
+    if not quadril_direito.get("confiavel", False):
+        return None
+
+    return calcular_distancia_2d(
+        quadril_esquerdo,
+        quadril_direito
+    )
+
+
+def calcular_proporcoes_corporais(geometria_corporal):
+    """
+    Calcula proporções corporais relativas a partir
+    da geometria detectada na imagem.
+
+    Não representa medidas reais em centímetros.
+    """
+
+    largura_ombros = geometria_corporal.get("largura_ombros")
+    largura_quadril = geometria_corporal.get("largura_quadril")
+
+    if not largura_ombros or not largura_quadril:
+        return {
+            "proporcao_ombros_quadril": None,
+            "status": "dados_insuficientes"
+        }
+
+    proporcao = largura_ombros / largura_quadril
+
+    return {
+        "proporcao_ombros_quadril": round(proporcao, 4),
+        "status": "calculada"
+    }
+
+
+def interpretar_proporcoes_corporais(proporcoes_corporais):
+    """
+    Interpreta as proporções corporais relativas
+    calculadas pelo pipeline visual do VesteIA.
+
+    A interpretação é geométrica e não representa
+    medidas corporais reais em centímetros.
+    """
+
+    proporcao = proporcoes_corporais.get(
+        "proporcao_ombros_quadril"
+    )
+
+    if proporcao is None:
+        return {
+            "relacao_ombros_quadril": "indeterminada",
+            "status": "dados_insuficientes",
+        }
+
+    if proporcao > 1.10:
+        relacao = "ombros_mais_largos"
+
+    elif proporcao < 0.90:
+        relacao = "quadril_mais_largo"
+
+    else:
+        relacao = "proporcoes_equilibradas"
+
+    return {
+        "relacao_ombros_quadril": relacao,
+        "status": "interpretada",
+    }
+
+
+def gerar_contexto_ajuste(
+    interpretacao_corporal,
+    aptidao_produtos,
+):
+    """
+    Gera contexto estrutural para futuras análises
+    de ajuste das peças no VesteIA.
+
+    Não recomenda tamanho e não representa
+    medidas corporais reais.
+    """
+
+    relacao = interpretacao_corporal.get(
+        "relacao_ombros_quadril"
+    )
+
+    contexto = {}
+
+    # Camisetas dependem principalmente
+    # da região superior do corpo.
+    if aptidao_produtos.get("camiseta"):
+        contexto["camiseta"] = {
+            "regiao_prioritaria": "tronco",
+            "relacao_corporal": relacao,
+            "status": "pronta_para_analise",
+        }
+    else:
+        contexto["camiseta"] = {
+            "status": "dados_insuficientes",
+        }
+
+    # Calças dependem principalmente
+    # da região inferior.
+    if aptidao_produtos.get("calca"):
+        contexto["calca"] = {
+            "regiao_prioritaria": "pernas_quadril",
+            "relacao_corporal": relacao,
+            "status": "pronta_para_analise",
+        }
+    else:
+        contexto["calca"] = {
+            "status": "dados_insuficientes",
+        }
+
+    # Vestidos podem depender tanto
+    # do tronco quanto do quadril/pernas.
+    if aptidao_produtos.get("vestido"):
+        contexto["vestido"] = {
+            "regiao_prioritaria": "corpo_integrado",
+            "relacao_corporal": relacao,
+            "status": "pronta_para_analise",
+        }
+    else:
+        contexto["vestido"] = {
+            "status": "dados_insuficientes",
+        }
+
+    # Calçados dependem da disponibilidade
+    # dos pontos relacionados aos pés.
+    if aptidao_produtos.get("calcado"):
+        contexto["calcado"] = {
+            "regiao_prioritaria": "pes",
+            "status": "pronta_para_analise",
+        }
+    else:
+        contexto["calcado"] = {
+            "status": "dados_insuficientes",
+        }
+
+    return contexto
+
+
+def gerar_analise_ajuste(
+    contexto_ajuste,
+    qualidade_regioes,
+):
+    """
+    Gera uma análise preliminar de ajuste
+    para cada categoria de produto.
+
+    Esta função ainda não recomenda tamanho
+    nem determina se uma peça ficará apertada
+    ou folgada.
+    """
+
+    analise = {}
+
+    mapa_regioes = {
+        "camiseta": ["tronco", "bracos"],
+        "calca": ["pernas", "tronco"],
+        "vestido": ["tronco", "pernas"],
+        "calcado": ["pes"],
+    }
+
+    for categoria, regioes in mapa_regioes.items():
+
+        contexto_categoria = contexto_ajuste.get(
+            categoria,
+            {}
+        )
+
+        if (
+            contexto_categoria.get("status")
+            != "pronta_para_analise"
+        ):
+            analise[categoria] = {
+                "status": "dados_insuficientes",
+                "regioes_analisadas": regioes,
+            }
+            continue
+
+        qualidade_categoria = {}
+
+        for regiao in regioes:
+            qualidade_categoria[regiao] = (
+                qualidade_regioes.get(
+                    regiao,
+                    {
+                        "status": "insuficiente",
+                    },
+                )
+            )
+
+        analise[categoria] = {
+            "status": "analise_preparada",
+            "regiao_prioritaria": (
+                contexto_categoria.get(
+                    "regiao_prioritaria"
+                )
+            ),
+            "relacao_corporal": (
+                contexto_categoria.get(
+                    "relacao_corporal"
+                )
+            ),
+            "regioes_analisadas": regioes,
+            "qualidade_regioes": qualidade_categoria,
+        }
+
+    return analise
+
+
+def calcular_confianca_analise(
+    analise_ajuste,
+):
+    """
+    Calcula o nível de confiança da análise
+    visual para cada categoria de produto.
+
+    A confiança representa a qualidade dos
+    dados corporais disponíveis na imagem.
+
+    Não representa confiança de tamanho
+    nem de medidas físicas reais.
+    """
+
+    resultado = {}
+
+    for categoria, analise in analise_ajuste.items():
+
+        if (
+            analise.get("status")
+            != "analise_preparada"
+        ):
+            resultado[categoria] = {
+                "nivel": "indisponivel",
+                "pontuacao": 0,
+                "status": "dados_insuficientes",
+            }
+            continue
+
+        qualidade_regioes = analise.get(
+            "qualidade_regioes",
+            {},
+        )
+
+        percentuais = []
+
+        for qualidade in qualidade_regioes.values():
+            percentual = qualidade.get(
+                "percentual_confiavel",
+                0,
+            )
+
+            percentuais.append(
+                percentual
+            )
+
+        if not percentuais:
+            resultado[categoria] = {
+                "nivel": "indisponivel",
+                "pontuacao": 0,
+                "status": "dados_insuficientes",
+            }
+            continue
+
+        pontuacao = round(
+            sum(percentuais) / len(percentuais),
+            2,
+        )
+
+        if pontuacao >= 0.85:
+            nivel = "alta"
+
+        elif pontuacao >= 0.60:
+            nivel = "moderada"
+
+        else:
+            nivel = "baixa"
+
+        resultado[categoria] = {
+            "nivel": nivel,
+            "pontuacao": pontuacao,
+            "status": "calculada",
         }
 
     return resultado
