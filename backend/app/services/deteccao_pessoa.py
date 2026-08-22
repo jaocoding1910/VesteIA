@@ -27,6 +27,11 @@ from app.services.escala_corporal import (
     estimar_medidas_corporais,
 )
 
+from app.services.calibracao_anatomica import (
+    avaliar_calibracao_anatomica,
+    avaliar_consistencia_geometrica,
+)
+
 
 MODEL_PATH = (
     Path(__file__).resolve().parent.parent
@@ -46,23 +51,23 @@ def detectar_pessoa(
     Pipeline atual:
     - detecção humana
     - landmarks
-    - classificação de pontos
+    - classificação dos pontos
     - aptidão por categoria
     - regiões corporais
     - qualidade visual
-    - referência corporal relativa
+    - referência corporal
     - calibração corporal
     - geometria corporal
-    - proporções
+    - proporções corporais
+    - escala visual
+    - estimativas em centímetros
+    - consistência geométrica
+    - calibração anatômica
+    - interpretação corporal
     - contexto de ajuste
     - análise de ajuste
     - confiança
     - vestibilidade
-    - escala corporal visual
-    - estimativas corporais em centímetros
-
-    As medidas em centímetros ainda são
-    estimativas visuais provisórias.
     """
 
     caminho = Path(
@@ -187,10 +192,34 @@ def detectar_pessoa(
             "conversao_disponivel": False,
         }
 
+        geometria_corporal = {
+            "largura_ombros": None,
+            "largura_quadril": None,
+        }
+
+        proporcoes_corporais = {
+            "proporcao_ombros_quadril": None,
+            "status": "indisponivel",
+        }
+
         medidas_corporais_estimadas = {
             "status": "medidas_indisponiveis",
             "largura_ombros_cm": None,
             "largura_quadril_cm": None,
+        }
+
+        consistencia_geometrica = {
+            "status": "dados_insuficientes",
+            "consistente": False,
+            "motivos": [
+                "nenhuma pessoa detectada"
+            ],
+        }
+
+        calibracao_anatomica = {
+            "status": "dados_insuficientes",
+            "pronta_para_calibracao_anatomica": False,
+            "medidas_corrigidas": False,
         }
 
         return {
@@ -256,19 +285,25 @@ def detectar_pessoa(
                 escala_corporal
             ),
 
-            "geometria_corporal": {
-                "largura_ombros": None,
-                "largura_quadril": None,
-            },
+            "geometria_corporal": (
+                geometria_corporal
+            ),
+
+            "proporcoes_corporais": (
+                proporcoes_corporais
+            ),
 
             "medidas_corporais_estimadas": (
                 medidas_corporais_estimadas
             ),
 
-            "proporcoes_corporais": {
-                "proporcao_ombros_quadril": None,
-                "status": "indisponivel",
-            },
+            "consistencia_geometrica": (
+                consistencia_geometrica
+            ),
+
+            "calibracao_anatomica": (
+                calibracao_anatomica
+            ),
 
             "interpretacao_corporal": {
                 "relacao_ombros_quadril": None,
@@ -422,6 +457,16 @@ def detectar_pessoa(
     }
 
     # ======================================================
+    # PROPORÇÕES CORPORAIS
+    # ======================================================
+
+    proporcoes_corporais = (
+        calcular_proporcoes_corporais(
+            geometria_corporal
+        )
+    )
+
+    # ======================================================
     # ESCALA CORPORAL
     # ======================================================
 
@@ -519,9 +564,48 @@ def detectar_pessoa(
             ),
         }
 
-    # Marca apenas que a transformação matemática
-    # em centímetros foi executada.
-    # Isso NÃO significa calibração anatômica exata.
+    # ======================================================
+    # CONSISTÊNCIA GEOMÉTRICA
+    # ======================================================
+
+    consistencia_geometrica = (
+        avaliar_consistencia_geometrica(
+            geometria_corporal=(
+                geometria_corporal
+            ),
+            proporcoes_corporais=(
+                proporcoes_corporais
+            ),
+            referencia_altura_corporal=(
+                referencia_altura_corporal
+            ),
+        )
+    )
+
+    # ======================================================
+    # CALIBRAÇÃO ANATÔMICA
+    # ======================================================
+
+    calibracao_anatomica = (
+        avaliar_calibracao_anatomica(
+            calibracao_corporal=(
+                calibracao_corporal
+            ),
+            escala_corporal=(
+                escala_corporal
+            ),
+            medidas_corporais_estimadas=(
+                medidas_corporais_estimadas
+            ),
+            consistencia_geometrica=
+                consistencia_geometrica
+        ),
+    )
+
+    # ======================================================
+    # MARCA A CONVERSÃO EM CM
+    # ======================================================
+
     conversao_cm_executada = (
         medidas_corporais_estimadas.get(
             "status"
@@ -540,14 +624,8 @@ def detectar_pessoa(
     }
 
     # ======================================================
-    # PROPORÇÕES CORPORAIS
+    # INTERPRETAÇÃO CORPORAL
     # ======================================================
-
-    proporcoes_corporais = (
-        calcular_proporcoes_corporais(
-            geometria_corporal
-        )
-    )
 
     interpretacao_corporal = (
         interpretar_proporcoes_corporais(
@@ -643,12 +721,20 @@ def detectar_pessoa(
             geometria_corporal
         ),
 
+        "proporcoes_corporais": (
+            proporcoes_corporais
+        ),
+
         "medidas_corporais_estimadas": (
             medidas_corporais_estimadas
         ),
 
-        "proporcoes_corporais": (
-            proporcoes_corporais
+        "consistencia_geometrica": (
+            consistencia_geometrica
+        ),
+
+        "calibracao_anatomica": (
+            calibracao_anatomica
         ),
 
         "interpretacao_corporal": (
@@ -678,10 +764,13 @@ def detectar_pessoa(
             "qualidade das regiões analisada, "
             "referência corporal calculada, "
             "calibração corporal avaliada, "
+            "geometria e proporções calculadas, "
             "escala visual processada, "
             "estimativas corporais em centímetros "
             "calculadas quando disponíveis, "
-            "geometria e proporções analisadas, "
+            "consistência geométrica avaliada, "
+            "calibração anatômica avaliada, "
+            "estrutura corporal interpretada, "
             "confiança calculada e "
             "vestibilidade avaliada."
         ),
