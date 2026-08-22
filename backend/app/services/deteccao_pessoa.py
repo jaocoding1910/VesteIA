@@ -54,6 +54,10 @@ from app.services.resultado_captura import (
     gerar_resultado_captura,
 )
 
+from app.services.resumo_provador import (
+    gerar_resumo_provador,
+)
+
 
 MODEL_PATH = (
     Path(__file__).resolve().parent.parent
@@ -83,7 +87,8 @@ def detectar_pessoa(
     - distorção de perspectiva
     - qualidade geral da captura
     - controle central do fluxo
-    - resultado resumido para frontend
+    - resultado amigável da captura
+    - resumo estável para o frontend
     - calibração anatômica
     - fator métrico
     - medidas corporais consolidadas
@@ -172,6 +177,17 @@ def detectar_pessoa(
             gerar_resultado_captura(
                 qualidade_captura=(
                     qualidade_captura
+                ),
+                controle_fluxo_provador=(
+                    controle_fluxo_provador
+                ),
+            )
+        )
+
+        resumo_provador = (
+            gerar_resumo_provador(
+                resultado_captura=(
+                    resultado_captura
                 ),
                 controle_fluxo_provador=(
                     controle_fluxo_provador
@@ -334,7 +350,9 @@ def detectar_pessoa(
 
         return {
             "pessoa_detectada": False,
+
             "landmarks_detectados": 0,
+
             "pontos_corporais": {},
 
             "aptidao_produtos": {
@@ -429,6 +447,10 @@ def detectar_pessoa(
                 resultado_captura
             ),
 
+            "resumo_provador": (
+                resumo_provador
+            ),
+
             "calibracao_anatomica": (
                 calibracao_anatomica
             ),
@@ -479,20 +501,24 @@ def detectar_pessoa(
     landmarks_convertidos = []
 
     for landmark in landmarks:
+
         landmarks_convertidos.append(
             {
                 "x": round(
                     landmark.x,
                     4,
                 ),
+
                 "y": round(
                     landmark.y,
                     4,
                 ),
+
                 "z": round(
                     landmark.z,
                     4,
                 ),
+
                 "visibilidade": round(
                     landmark.visibility,
                     4,
@@ -527,7 +553,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # REGIÕES
+    # REGIÕES CORPORAIS
     # ======================================================
 
     regioes_corporais = (
@@ -581,8 +607,13 @@ def detectar_pessoa(
     )
 
     geometria_corporal = {
-        "largura_ombros": largura_ombros,
-        "largura_quadril": largura_quadril,
+        "largura_ombros": (
+            largura_ombros
+        ),
+
+        "largura_quadril": (
+            largura_quadril
+        ),
     }
 
     proporcoes_corporais = (
@@ -619,11 +650,13 @@ def detectar_pessoa(
         calibracao_pronta
         and referencia_pronta
     ):
+
         escala_corporal = (
             calcular_escala_corporal(
                 altura_usuario_cm=(
                     altura_cm
                 ),
+
                 altura_corpo_relativa=(
                     altura_corpo_relativa
                 ),
@@ -631,6 +664,7 @@ def detectar_pessoa(
         )
 
     else:
+
         escala_corporal = {
             "status": "escala_indisponivel",
             "escala_cm_por_unidade": None,
@@ -657,11 +691,13 @@ def detectar_pessoa(
         )
         and escala_cm_por_unidade is not None
     ):
+
         medidas_corporais_estimadas = (
             estimar_medidas_corporais(
                 geometria_corporal=(
                     geometria_corporal
                 ),
+
                 escala_cm_por_unidade=(
                     escala_cm_por_unidade
                 ),
@@ -669,6 +705,7 @@ def detectar_pessoa(
         )
 
     else:
+
         medidas_corporais_estimadas = {
             "status": "escala_indisponivel",
             "largura_ombros_cm": None,
@@ -689,9 +726,11 @@ def detectar_pessoa(
             geometria_corporal=(
                 geometria_corporal
             ),
+
             proporcoes_corporais=(
                 proporcoes_corporais
             ),
+
             referencia_altura_corporal=(
                 referencia_altura_corporal
             ),
@@ -699,7 +738,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # POSE
+    # POSE PARA CORREÇÃO
     # ======================================================
 
     pose_para_correcao_anatomica = (
@@ -707,6 +746,7 @@ def detectar_pessoa(
             pontos_corporais=(
                 pontos_corporais
             ),
+
             consistencia_geometrica=(
                 consistencia_geometrica
             ),
@@ -714,7 +754,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # DISTORÇÃO
+    # DISTORÇÃO DE PERSPECTIVA
     # ======================================================
 
     indice_distorcao_perspectiva = (
@@ -734,12 +774,15 @@ def detectar_pessoa(
             qualidade_regioes=(
                 qualidade_regioes
             ),
+
             calibracao_corporal=(
                 calibracao_corporal
             ),
+
             pose_para_correcao_anatomica=(
                 pose_para_correcao_anatomica
             ),
+
             indice_distorcao_perspectiva=(
                 indice_distorcao_perspectiva
             ),
@@ -747,7 +790,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # CONTROLE DO FLUXO
+    # CONTROLE CENTRAL DO FLUXO
     # ======================================================
 
     controle_fluxo_provador = (
@@ -759,7 +802,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # RESULTADO RESUMIDO PARA O FRONTEND
+    # RESULTADO AMIGÁVEL DA CAPTURA
     # ======================================================
 
     resultado_captura = (
@@ -767,6 +810,23 @@ def detectar_pessoa(
             qualidade_captura=(
                 qualidade_captura
             ),
+
+            controle_fluxo_provador=(
+                controle_fluxo_provador
+            ),
+        )
+    )
+
+    # ======================================================
+    # CONTRATO FINAL PARA O FRONTEND
+    # ======================================================
+
+    resumo_provador = (
+        gerar_resumo_provador(
+            resultado_captura=(
+                resultado_captura
+            ),
+
             controle_fluxo_provador=(
                 controle_fluxo_provador
             ),
@@ -893,12 +953,15 @@ def detectar_pessoa(
                 calibracao_corporal=(
                     calibracao_corporal
                 ),
+
                 escala_corporal=(
                     escala_corporal
                 ),
+
                 medidas_corporais_estimadas=(
                     medidas_corporais_estimadas
                 ),
+
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -910,11 +973,13 @@ def detectar_pessoa(
                 altura_usuario_cm=(
                     altura_cm
                 ),
+
                 altura_corpo_relativa=(
                     referencia_altura_corporal.get(
                         "altura_corpo_relativa"
                     )
                 ),
+
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -926,12 +991,15 @@ def detectar_pessoa(
                 medidas_corporais_estimadas=(
                     medidas_corporais_estimadas
                 ),
+
                 calibracao_anatomica=(
                     calibracao_anatomica
                 ),
+
                 fator_calibracao_metrica=(
                     fator_calibracao_metrica
                 ),
+
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -950,6 +1018,7 @@ def detectar_pessoa(
 
         calibracao_corporal = {
             **calibracao_corporal,
+
             "conversao_cm_executada": (
                 conversao_cm_executada
             ),
@@ -1065,6 +1134,10 @@ def detectar_pessoa(
             resultado_captura
         ),
 
+        "resumo_provador": (
+            resumo_provador
+        ),
+
         "calibracao_anatomica": (
             calibracao_anatomica
         ),
@@ -1101,8 +1174,9 @@ def detectar_pessoa(
             "Presença humana detectada, "
             "qualidade da captura avaliada, "
             "fluxo do provador decidido, "
-            "resultado resumido preparado para "
-            "o frontend e etapas posteriores "
+            "resultado amigável gerado, "
+            "contrato resumido preparado "
+            "para o frontend e etapas posteriores "
             "executadas somente quando autorizadas."
         ),
     }
