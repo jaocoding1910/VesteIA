@@ -50,6 +50,10 @@ from app.services.controle_fluxo_provador import (
     decidir_fluxo_provador,
 )
 
+from app.services.resultado_captura import (
+    gerar_resultado_captura,
+)
+
 
 MODEL_PATH = (
     Path(__file__).resolve().parent.parent
@@ -65,7 +69,7 @@ def detectar_pessoa(
     """
     Executa o pipeline visual corporal do VesteIA.
 
-    O pipeline atual possui:
+    Pipeline atual:
     - detecção humana
     - landmarks corporais
     - qualidade das regiões
@@ -79,6 +83,7 @@ def detectar_pessoa(
     - distorção de perspectiva
     - qualidade geral da captura
     - controle central do fluxo
+    - resultado resumido para frontend
     - calibração anatômica
     - fator métrico
     - medidas corporais consolidadas
@@ -125,7 +130,6 @@ def detectar_pessoa(
     with vision.PoseLandmarker.create_from_options(
         opcoes
     ) as detector:
-
         resultado = detector.detect(
             imagem
         )
@@ -139,6 +143,41 @@ def detectar_pessoa(
     # ======================================================
 
     if not pessoa_detectada:
+
+        qualidade_captura = {
+            "status": "dados_insuficientes",
+            "pontuacao": 0,
+            "nivel": "insuficiente",
+            "decisao": "pedir_nova_foto",
+            "nova_foto_necessaria": True,
+            "orientacoes": [
+                "Envie uma nova foto com o corpo visível."
+            ],
+        }
+
+        controle_fluxo_provador = {
+            "status": "fluxo_bloqueado",
+            "acao": "bloquear",
+            "pode_avancar": False,
+            "com_ressalvas": False,
+            "nova_foto_necessaria": True,
+            "motivo": "nenhuma_pessoa_detectada",
+            "mensagem": (
+                "O fluxo do provador foi bloqueado "
+                "porque nenhuma pessoa foi detectada."
+            ),
+        }
+
+        resultado_captura = (
+            gerar_resultado_captura(
+                qualidade_captura=(
+                    qualidade_captura
+                ),
+                controle_fluxo_provador=(
+                    controle_fluxo_provador
+                ),
+            )
+        )
 
         contexto_ajuste = {
             categoria: {
@@ -272,30 +311,6 @@ def detectar_pessoa(
             "medidas_corrigidas": False,
         }
 
-        qualidade_captura = {
-            "status": "dados_insuficientes",
-            "pontuacao": 0,
-            "nivel": "insuficiente",
-            "decisao": "pedir_nova_foto",
-            "nova_foto_necessaria": True,
-            "orientacoes": [
-                "Envie uma nova foto com o corpo visível."
-            ],
-        }
-
-        controle_fluxo_provador = {
-            "status": "fluxo_bloqueado",
-            "acao": "bloquear",
-            "pode_avancar": False,
-            "com_ressalvas": False,
-            "nova_foto_necessaria": True,
-            "motivo": "nenhuma_pessoa_detectada",
-            "mensagem": (
-                "O fluxo do provador foi bloqueado "
-                "porque nenhuma pessoa foi detectada."
-            ),
-        }
-
         calibracao_anatomica = {
             "status": "bloqueada_por_qualidade_captura",
             "pronta_para_calibracao_anatomica": False,
@@ -319,9 +334,7 @@ def detectar_pessoa(
 
         return {
             "pessoa_detectada": False,
-
             "landmarks_detectados": 0,
-
             "pontos_corporais": {},
 
             "aptidao_produtos": {
@@ -412,6 +425,10 @@ def detectar_pessoa(
                 controle_fluxo_provador
             ),
 
+            "resultado_captura": (
+                resultado_captura
+            ),
+
             "calibracao_anatomica": (
                 calibracao_anatomica
             ),
@@ -462,24 +479,20 @@ def detectar_pessoa(
     landmarks_convertidos = []
 
     for landmark in landmarks:
-
         landmarks_convertidos.append(
             {
                 "x": round(
                     landmark.x,
                     4,
                 ),
-
                 "y": round(
                     landmark.y,
                     4,
                 ),
-
                 "z": round(
                     landmark.z,
                     4,
                 ),
-
                 "visibilidade": round(
                     landmark.visibility,
                     4,
@@ -504,7 +517,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # APTIDÃO
+    # APTIDÃO POR CATEGORIA
     # ======================================================
 
     aptidao_produtos = (
@@ -552,7 +565,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # GEOMETRIA
+    # GEOMETRIA CORPORAL
     # ======================================================
 
     largura_ombros = (
@@ -568,13 +581,8 @@ def detectar_pessoa(
     )
 
     geometria_corporal = {
-        "largura_ombros": (
-            largura_ombros
-        ),
-
-        "largura_quadril": (
-            largura_quadril
-        ),
+        "largura_ombros": largura_ombros,
+        "largura_quadril": largura_quadril,
     }
 
     proporcoes_corporais = (
@@ -611,13 +619,11 @@ def detectar_pessoa(
         calibracao_pronta
         and referencia_pronta
     ):
-
         escala_corporal = (
             calcular_escala_corporal(
                 altura_usuario_cm=(
                     altura_cm
                 ),
-
                 altura_corpo_relativa=(
                     altura_corpo_relativa
                 ),
@@ -625,7 +631,6 @@ def detectar_pessoa(
         )
 
     else:
-
         escala_corporal = {
             "status": "escala_indisponivel",
             "escala_cm_por_unidade": None,
@@ -652,13 +657,11 @@ def detectar_pessoa(
         )
         and escala_cm_por_unidade is not None
     ):
-
         medidas_corporais_estimadas = (
             estimar_medidas_corporais(
                 geometria_corporal=(
                     geometria_corporal
                 ),
-
                 escala_cm_por_unidade=(
                     escala_cm_por_unidade
                 ),
@@ -666,7 +669,6 @@ def detectar_pessoa(
         )
 
     else:
-
         medidas_corporais_estimadas = {
             "status": "escala_indisponivel",
             "largura_ombros_cm": None,
@@ -687,11 +689,9 @@ def detectar_pessoa(
             geometria_corporal=(
                 geometria_corporal
             ),
-
             proporcoes_corporais=(
                 proporcoes_corporais
             ),
-
             referencia_altura_corporal=(
                 referencia_altura_corporal
             ),
@@ -707,7 +707,6 @@ def detectar_pessoa(
             pontos_corporais=(
                 pontos_corporais
             ),
-
             consistencia_geometrica=(
                 consistencia_geometrica
             ),
@@ -735,15 +734,12 @@ def detectar_pessoa(
             qualidade_regioes=(
                 qualidade_regioes
             ),
-
             calibracao_corporal=(
                 calibracao_corporal
             ),
-
             pose_para_correcao_anatomica=(
                 pose_para_correcao_anatomica
             ),
-
             indice_distorcao_perspectiva=(
                 indice_distorcao_perspectiva
             ),
@@ -751,7 +747,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # CONTROLE CENTRAL DE FLUXO
+    # CONTROLE DO FLUXO
     # ======================================================
 
     controle_fluxo_provador = (
@@ -759,6 +755,21 @@ def detectar_pessoa(
             qualidade_captura=(
                 qualidade_captura
             )
+        )
+    )
+
+    # ======================================================
+    # RESULTADO RESUMIDO PARA O FRONTEND
+    # ======================================================
+
+    resultado_captura = (
+        gerar_resultado_captura(
+            qualidade_captura=(
+                qualidade_captura
+            ),
+            controle_fluxo_provador=(
+                controle_fluxo_provador
+            ),
         )
     )
 
@@ -882,15 +893,12 @@ def detectar_pessoa(
                 calibracao_corporal=(
                     calibracao_corporal
                 ),
-
                 escala_corporal=(
                     escala_corporal
                 ),
-
                 medidas_corporais_estimadas=(
                     medidas_corporais_estimadas
                 ),
-
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -902,13 +910,11 @@ def detectar_pessoa(
                 altura_usuario_cm=(
                     altura_cm
                 ),
-
                 altura_corpo_relativa=(
                     referencia_altura_corporal.get(
                         "altura_corpo_relativa"
                     )
                 ),
-
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -920,15 +926,12 @@ def detectar_pessoa(
                 medidas_corporais_estimadas=(
                     medidas_corporais_estimadas
                 ),
-
                 calibracao_anatomica=(
                     calibracao_anatomica
                 ),
-
                 fator_calibracao_metrica=(
                     fator_calibracao_metrica
                 ),
-
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -1058,6 +1061,10 @@ def detectar_pessoa(
             controle_fluxo_provador
         ),
 
+        "resultado_captura": (
+            resultado_captura
+        ),
+
         "calibracao_anatomica": (
             calibracao_anatomica
         ),
@@ -1092,10 +1099,10 @@ def detectar_pessoa(
 
         "mensagem": (
             "Presença humana detectada, "
-            "estrutura corporal organizada, "
             "qualidade da captura avaliada, "
-            "fluxo do provador decidido e "
-            "etapas posteriores executadas "
-            "somente quando autorizadas."
+            "fluxo do provador decidido, "
+            "resultado resumido preparado para "
+            "o frontend e etapas posteriores "
+            "executadas somente quando autorizadas."
         ),
     }
