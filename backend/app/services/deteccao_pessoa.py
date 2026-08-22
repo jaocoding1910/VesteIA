@@ -42,6 +42,14 @@ from app.services.correcao_anatomica import (
     calcular_indice_distorcao_perspectiva,
 )
 
+from app.services.qualidade_captura import (
+    avaliar_qualidade_captura,
+)
+
+from app.services.controle_fluxo_provador import (
+    decidir_fluxo_provador,
+)
+
 
 MODEL_PATH = (
     Path(__file__).resolve().parent.parent
@@ -55,37 +63,31 @@ def detectar_pessoa(
     altura_cm=None,
 ):
     """
-    Detecta presença humana utilizando MediaPipe
-    e executa o pipeline corporal do VesteIA.
+    Executa o pipeline visual corporal do VesteIA.
 
-    Pipeline atual:
+    O pipeline atual possui:
     - detecção humana
-    - landmarks
-    - classificação dos pontos
-    - aptidão por categoria
-    - regiões corporais
-    - qualidade visual
-    - referência corporal
+    - landmarks corporais
+    - qualidade das regiões
+    - referência relativa de altura
     - calibração corporal
-    - geometria corporal
-    - proporções corporais
+    - geometria e proporções
     - escala visual
-    - estimativas corporais em centímetros
+    - medidas experimentais em centímetros
     - consistência geométrica
     - avaliação da pose
-    - índice de distorção da captura
+    - distorção de perspectiva
+    - qualidade geral da captura
+    - controle central do fluxo
     - calibração anatômica
-    - fator de calibração métrica
-    - consolidação das medidas corporais
-    - interpretação corporal
+    - fator métrico
+    - medidas corporais consolidadas
     - contexto de ajuste
-    - análise de ajuste
     - confiança
     - vestibilidade
 
-    As medidas métricas continuam experimentais
-    e ainda não estão liberadas para recomendação
-    automática de tamanho.
+    Quando a qualidade da captura não é suficiente,
+    as etapas posteriores são bloqueadas.
     """
 
     caminho = Path(
@@ -138,11 +140,11 @@ def detectar_pessoa(
 
     if not pessoa_detectada:
 
-        confianca_analise = {
+        contexto_ajuste = {
             categoria: {
-                "nivel": "indisponivel",
-                "pontuacao": 0,
-                "status": "dados_insuficientes",
+                "status": "bloqueado_por_qualidade_captura",
+                "pode_analisar": False,
+                "motivo": "nenhuma_pessoa_detectada",
             }
             for categoria in (
                 "camiseta",
@@ -152,9 +154,24 @@ def detectar_pessoa(
             )
         }
 
-        contexto_ajuste = {
+        analise_ajuste = {
             categoria: {
-                "status": "dados_insuficientes",
+                "status": "analise_bloqueada",
+                "motivo": "nenhuma_pessoa_detectada",
+            }
+            for categoria in (
+                "camiseta",
+                "calca",
+                "vestido",
+                "calcado",
+            )
+        }
+
+        confianca_analise = {
+            categoria: {
+                "nivel": "indisponivel",
+                "pontuacao": 0,
+                "status": "analise_bloqueada",
             }
             for categoria in (
                 "camiseta",
@@ -165,25 +182,29 @@ def detectar_pessoa(
         }
 
         vestibilidade = {
-            categoria: avaliar_vestibilidade(
-                categoria,
-                contexto_ajuste,
-                confianca_analise,
+            categoria: {
+                "categoria": categoria,
+                "status": "analise_bloqueada",
+                "nivel_confianca": "indisponivel",
+                "pontuacao_confianca": 0,
+                "vestibilidade": None,
+                "motivo": "nenhuma_pessoa_detectada",
+            }
+            for categoria in (
+                "camiseta",
+                "calca",
+                "vestido",
+                "calcado",
             )
-            for categoria in contexto_ajuste
         }
 
         referencia_altura_corporal = {
-            "status": (
-                "dados_corporais_indisponiveis"
-            ),
+            "status": "dados_corporais_indisponiveis",
             "altura_corpo_relativa": None,
         }
 
         calibracao_corporal = {
-            "status": (
-                "dados_insuficientes_para_calibracao"
-            ),
+            "status": "dados_insuficientes_para_calibracao",
             "altura_usuario_disponivel": (
                 altura_cm is not None
             ),
@@ -224,6 +245,7 @@ def detectar_pessoa(
             "status": "medidas_indisponiveis",
             "largura_ombros_cm": None,
             "largura_quadril_cm": None,
+            "uso_para_recomendacao_tamanho": False,
         }
 
         consistencia_geometrica = {
@@ -250,20 +272,44 @@ def detectar_pessoa(
             "medidas_corrigidas": False,
         }
 
-        calibracao_anatomica = {
+        qualidade_captura = {
             "status": "dados_insuficientes",
+            "pontuacao": 0,
+            "nivel": "insuficiente",
+            "decisao": "pedir_nova_foto",
+            "nova_foto_necessaria": True,
+            "orientacoes": [
+                "Envie uma nova foto com o corpo visível."
+            ],
+        }
+
+        controle_fluxo_provador = {
+            "status": "fluxo_bloqueado",
+            "acao": "bloquear",
+            "pode_avancar": False,
+            "com_ressalvas": False,
+            "nova_foto_necessaria": True,
+            "motivo": "nenhuma_pessoa_detectada",
+            "mensagem": (
+                "O fluxo do provador foi bloqueado "
+                "porque nenhuma pessoa foi detectada."
+            ),
+        }
+
+        calibracao_anatomica = {
+            "status": "bloqueada_por_qualidade_captura",
             "pronta_para_calibracao_anatomica": False,
             "medidas_corrigidas": False,
         }
 
         fator_calibracao_metrica = {
-            "status": "dados_insuficientes",
+            "status": "bloqueado_por_qualidade_captura",
             "fator_cm_por_unidade": None,
             "calibracao_liberada": False,
         }
 
         medidas_corporais_calibradas = {
-            "status": "dados_insuficientes",
+            "status": "bloqueadas_por_qualidade_captura",
             "medidas_liberadas": False,
             "largura_ombros_cm": None,
             "largura_quadril_cm": None,
@@ -358,6 +404,14 @@ def detectar_pessoa(
                 indice_distorcao_perspectiva
             ),
 
+            "qualidade_captura": (
+                qualidade_captura
+            ),
+
+            "controle_fluxo_provador": (
+                controle_fluxo_provador
+            ),
+
             "calibracao_anatomica": (
                 calibracao_anatomica
             ),
@@ -379,7 +433,9 @@ def detectar_pessoa(
                 contexto_ajuste
             ),
 
-            "analise_ajuste": {},
+            "analise_ajuste": (
+                analise_ajuste
+            ),
 
             "confianca_analise": (
                 confianca_analise
@@ -390,13 +446,13 @@ def detectar_pessoa(
             ),
 
             "mensagem": (
-                "Nenhuma pessoa detectável "
-                "foi encontrada na imagem."
+                "Nenhuma pessoa detectável foi encontrada "
+                "e o fluxo do provador foi bloqueado."
             ),
         }
 
     # ======================================================
-    # LANDMARKS MEDIAPIPE
+    # LANDMARKS
     # ======================================================
 
     landmarks = (
@@ -448,7 +504,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # APTIDÃO POR CATEGORIA
+    # APTIDÃO
     # ======================================================
 
     aptidao_produtos = (
@@ -458,7 +514,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # REGIÕES CORPORAIS
+    # REGIÕES
     # ======================================================
 
     regioes_corporais = (
@@ -474,7 +530,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # REFERÊNCIA DE ALTURA CORPORAL
+    # REFERÊNCIA DE ALTURA
     # ======================================================
 
     referencia_altura_corporal = (
@@ -496,7 +552,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # GEOMETRIA CORPORAL
+    # GEOMETRIA
     # ======================================================
 
     largura_ombros = (
@@ -521,10 +577,6 @@ def detectar_pessoa(
         ),
     }
 
-    # ======================================================
-    # PROPORÇÕES CORPORAIS
-    # ======================================================
-
     proporcoes_corporais = (
         calcular_proporcoes_corporais(
             geometria_corporal
@@ -532,7 +584,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # ESCALA CORPORAL
+    # ESCALA VISUAL
     # ======================================================
 
     altura_corpo_relativa = (
@@ -565,6 +617,7 @@ def detectar_pessoa(
                 altura_usuario_cm=(
                     altura_cm
                 ),
+
                 altura_corpo_relativa=(
                     altura_corpo_relativa
                 ),
@@ -584,7 +637,7 @@ def detectar_pessoa(
         }
 
     # ======================================================
-    # ESTIMATIVAS CORPORAIS EM CM
+    # MEDIDAS EXPERIMENTAIS EM CM
     # ======================================================
 
     escala_cm_por_unidade = (
@@ -605,6 +658,7 @@ def detectar_pessoa(
                 geometria_corporal=(
                     geometria_corporal
                 ),
+
                 escala_cm_por_unidade=(
                     escala_cm_por_unidade
                 ),
@@ -615,20 +669,13 @@ def detectar_pessoa(
 
         medidas_corporais_estimadas = {
             "status": "escala_indisponivel",
-
             "largura_ombros_cm": None,
-
             "largura_quadril_cm": None,
-
             "unidade": "cm",
-
             "tipo_medida": (
                 "estimativa_visual_provisoria"
             ),
-
-            "uso_para_recomendacao_tamanho": (
-                False
-            ),
+            "uso_para_recomendacao_tamanho": False,
         }
 
     # ======================================================
@@ -652,7 +699,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # POSE PARA CORREÇÃO ANATÔMICA
+    # POSE
     # ======================================================
 
     pose_para_correcao_anatomica = (
@@ -668,7 +715,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # ÍNDICE DE DISTORÇÃO DE PERSPECTIVA
+    # DISTORÇÃO
     # ======================================================
 
     indice_distorcao_perspectiva = (
@@ -680,151 +727,265 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # CALIBRAÇÃO ANATÔMICA
+    # QUALIDADE DA CAPTURA
     # ======================================================
 
-    calibracao_anatomica = (
-        avaliar_calibracao_anatomica(
+    qualidade_captura = (
+        avaliar_qualidade_captura(
+            qualidade_regioes=(
+                qualidade_regioes
+            ),
+
             calibracao_corporal=(
                 calibracao_corporal
             ),
 
-            escala_corporal=(
-                escala_corporal
+            pose_para_correcao_anatomica=(
+                pose_para_correcao_anatomica
             ),
 
-            medidas_corporais_estimadas=(
-                medidas_corporais_estimadas
-            ),
-
-            consistencia_geometrica=(
-                consistencia_geometrica
+            indice_distorcao_perspectiva=(
+                indice_distorcao_perspectiva
             ),
         )
     )
 
     # ======================================================
-    # FATOR DE CALIBRAÇÃO MÉTRICA
+    # CONTROLE CENTRAL DE FLUXO
     # ======================================================
 
-    fator_calibracao_metrica = (
-        calcular_fator_correcao_anatomica(
-            altura_usuario_cm=(
-                altura_cm
-            ),
+    controle_fluxo_provador = (
+        decidir_fluxo_provador(
+            qualidade_captura=(
+                qualidade_captura
+            )
+        )
+    )
 
-            altura_corpo_relativa=(
-                referencia_altura_corporal.get(
-                    "altura_corpo_relativa"
-                )
-            ),
-
-            consistencia_geometrica=(
-                consistencia_geometrica
-            ),
+    pode_avancar = (
+        controle_fluxo_provador.get(
+            "pode_avancar",
+            False,
         )
     )
 
     # ======================================================
-    # MEDIDAS CORPORAIS CALIBRADAS
+    # FLUXO BLOQUEADO
     # ======================================================
 
-    medidas_corporais_calibradas = (
-        gerar_medidas_corporais_calibradas(
-            medidas_corporais_estimadas=(
-                medidas_corporais_estimadas
+    if not pode_avancar:
+
+        calibracao_anatomica = {
+            "status": "bloqueada_por_qualidade_captura",
+            "pronta_para_calibracao_anatomica": False,
+            "medidas_corrigidas": False,
+            "motivo": "fluxo_provador_bloqueado",
+        }
+
+        fator_calibracao_metrica = {
+            "status": "bloqueado_por_qualidade_captura",
+            "fator_cm_por_unidade": None,
+            "calibracao_liberada": False,
+        }
+
+        medidas_corporais_calibradas = {
+            "status": "bloqueadas_por_qualidade_captura",
+            "medidas_liberadas": False,
+            "largura_ombros_cm": None,
+            "largura_quadril_cm": None,
+            "medidas_corrigidas_anatomicamente": False,
+            "uso_para_recomendacao_tamanho": False,
+            "motivos": [
+                "captura_insuficiente_para_continuar"
+            ],
+        }
+
+        calibracao_corporal = {
+            **calibracao_corporal,
+            "conversao_cm_executada": False,
+        }
+
+        interpretacao_corporal = (
+            interpretar_proporcoes_corporais(
+                proporcoes_corporais
+            )
+        )
+
+        contexto_ajuste = {
+            categoria: {
+                "status": "bloqueado_por_qualidade_captura",
+                "pode_analisar": False,
+                "motivo": "nova_foto_necessaria",
+            }
+            for categoria in (
+                "camiseta",
+                "calca",
+                "vestido",
+                "calcado",
+            )
+        }
+
+        analise_ajuste = {
+            categoria: {
+                "status": "analise_bloqueada",
+                "motivo": (
+                    "qualidade_captura_insuficiente"
+                ),
+            }
+            for categoria in (
+                "camiseta",
+                "calca",
+                "vestido",
+                "calcado",
+            )
+        }
+
+        confianca_analise = {
+            categoria: {
+                "nivel": "indisponivel",
+                "pontuacao": 0,
+                "status": "analise_bloqueada",
+            }
+            for categoria in (
+                "camiseta",
+                "calca",
+                "vestido",
+                "calcado",
+            )
+        }
+
+        vestibilidade = {
+            categoria: {
+                "categoria": categoria,
+                "status": "analise_bloqueada",
+                "nivel_confianca": "indisponivel",
+                "pontuacao_confianca": 0,
+                "vestibilidade": None,
+                "motivo": "nova_foto_necessaria",
+            }
+            for categoria in (
+                "camiseta",
+                "calca",
+                "vestido",
+                "calcado",
+            )
+        }
+
+    # ======================================================
+    # FLUXO LIBERADO
+    # ======================================================
+
+    else:
+
+        calibracao_anatomica = (
+            avaliar_calibracao_anatomica(
+                calibracao_corporal=(
+                    calibracao_corporal
+                ),
+
+                escala_corporal=(
+                    escala_corporal
+                ),
+
+                medidas_corporais_estimadas=(
+                    medidas_corporais_estimadas
+                ),
+
+                consistencia_geometrica=(
+                    consistencia_geometrica
+                ),
+            )
+        )
+
+        fator_calibracao_metrica = (
+            calcular_fator_correcao_anatomica(
+                altura_usuario_cm=(
+                    altura_cm
+                ),
+
+                altura_corpo_relativa=(
+                    referencia_altura_corporal.get(
+                        "altura_corpo_relativa"
+                    )
+                ),
+
+                consistencia_geometrica=(
+                    consistencia_geometrica
+                ),
+            )
+        )
+
+        medidas_corporais_calibradas = (
+            gerar_medidas_corporais_calibradas(
+                medidas_corporais_estimadas=(
+                    medidas_corporais_estimadas
+                ),
+
+                calibracao_anatomica=(
+                    calibracao_anatomica
+                ),
+
+                fator_calibracao_metrica=(
+                    fator_calibracao_metrica
+                ),
+
+                consistencia_geometrica=(
+                    consistencia_geometrica
+                ),
+            )
+        )
+
+        conversao_cm_executada = (
+            medidas_corporais_estimadas.get(
+                "status"
+            )
+            in (
+                "estimativa_visual_calculada",
+                "estimativa_parcial",
+            )
+        )
+
+        calibracao_corporal = {
+            **calibracao_corporal,
+            "conversao_cm_executada": (
+                conversao_cm_executada
             ),
+        }
 
-            calibracao_anatomica=(
-                calibracao_anatomica
-            ),
-
-            fator_calibracao_metrica=(
-                fator_calibracao_metrica
-            ),
-
-            consistencia_geometrica=(
-                consistencia_geometrica
-            ),
+        interpretacao_corporal = (
+            interpretar_proporcoes_corporais(
+                proporcoes_corporais
+            )
         )
-    )
 
-    # ======================================================
-    # MARCA A CONVERSÃO PARA CM
-    # ======================================================
-
-    conversao_cm_executada = (
-        medidas_corporais_estimadas.get(
-            "status"
+        contexto_ajuste = (
+            gerar_contexto_ajuste(
+                interpretacao_corporal,
+                aptidao_produtos,
+            )
         )
-        in (
-            "estimativa_visual_calculada",
-            "estimativa_parcial",
+
+        analise_ajuste = (
+            gerar_analise_ajuste(
+                contexto_ajuste,
+                qualidade_regioes,
+            )
         )
-    )
 
-    calibracao_corporal = {
-        **calibracao_corporal,
-
-        "conversao_cm_executada": (
-            conversao_cm_executada
-        ),
-    }
-
-    # ======================================================
-    # INTERPRETAÇÃO CORPORAL
-    # ======================================================
-
-    interpretacao_corporal = (
-        interpretar_proporcoes_corporais(
-            proporcoes_corporais
+        confianca_analise = (
+            calcular_confianca_analise(
+                analise_ajuste
+            )
         )
-    )
 
-    # ======================================================
-    # CONTEXTO DE AJUSTE
-    # ======================================================
-
-    contexto_ajuste = (
-        gerar_contexto_ajuste(
-            interpretacao_corporal,
-            aptidao_produtos,
-        )
-    )
-
-    # ======================================================
-    # ANÁLISE DE AJUSTE
-    # ======================================================
-
-    analise_ajuste = (
-        gerar_analise_ajuste(
-            contexto_ajuste,
-            qualidade_regioes,
-        )
-    )
-
-    # ======================================================
-    # CONFIANÇA DA ANÁLISE
-    # ======================================================
-
-    confianca_analise = (
-        calcular_confianca_analise(
-            analise_ajuste
-        )
-    )
-
-    # ======================================================
-    # VESTIBILIDADE
-    # ======================================================
-
-    vestibilidade = {
-        categoria: avaliar_vestibilidade(
-            categoria,
-            contexto_ajuste,
-            confianca_analise,
-        )
-        for categoria in contexto_ajuste
-    }
+        vestibilidade = {
+            categoria: avaliar_vestibilidade(
+                categoria,
+                contexto_ajuste,
+                confianca_analise,
+            )
+            for categoria in contexto_ajuste
+        }
 
     # ======================================================
     # RESULTADO FINAL
@@ -889,6 +1050,14 @@ def detectar_pessoa(
             indice_distorcao_perspectiva
         ),
 
+        "qualidade_captura": (
+            qualidade_captura
+        ),
+
+        "controle_fluxo_provador": (
+            controle_fluxo_provador
+        ),
+
         "calibracao_anatomica": (
             calibracao_anatomica
         ),
@@ -924,22 +1093,9 @@ def detectar_pessoa(
         "mensagem": (
             "Presença humana detectada, "
             "estrutura corporal organizada, "
-            "aptidão por categoria avaliada, "
-            "qualidade das regiões analisada, "
-            "referência corporal calculada, "
-            "calibração corporal avaliada, "
-            "geometria e proporções calculadas, "
-            "escala visual processada, "
-            "estimativas corporais em centímetros "
-            "calculadas quando disponíveis, "
-            "consistência geométrica avaliada, "
-            "pose avaliada para correção anatômica, "
-            "distorção de perspectiva avaliada, "
-            "calibração anatômica validada, "
-            "fator de calibração métrica calculado, "
-            "medidas corporais consolidadas, "
-            "estrutura corporal interpretada, "
-            "confiança calculada e "
-            "vestibilidade avaliada."
+            "qualidade da captura avaliada, "
+            "fluxo do provador decidido e "
+            "etapas posteriores executadas "
+            "somente quando autorizadas."
         ),
     }
