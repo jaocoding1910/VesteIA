@@ -12,7 +12,7 @@
 # e associado a um usuário autenticado.
 
 perfil_usuario = {
-    "altura_cm": None,
+    "altura_cm": 175,
     "peso_kg": None,
     "cintura_cm": None
 }
