@@ -1,5 +1,6 @@
 import camisetaOversized from "./assets/produtos/camiseta-oversized.jpeg"
 import { useEffect, useRef, useState } from "react"
+import { analisarCapturaProvador } from "./services/provadorService"
 import "./App.css"
 
 function App() {
@@ -17,16 +18,16 @@ function App() {
   const [fotoUsuario, setFotoUsuario] = useState(null)
   const [fotoPreview, setFotoPreview] = useState(null)
 
-  // Guarda a sessão devolvida pelo FastAPI após o registro no PostgreSQL.
   const [sessaoProvador, setSessaoProvador] = useState(null)
-
   const [enviandoSessao, setEnviandoSessao] = useState(false)
+
+  const [analiseCaptura, setAnaliseCaptura] = useState(null)
+  const [analisandoCaptura, setAnalisandoCaptura] = useState(false)
 
   const [erro, setErro] = useState("")
 
   const inputFotoRef = useRef(null)
 
-  // Libera da memória a URL temporária da foto.
   useEffect(() => {
     return () => {
       if (fotoPreview) {
@@ -35,7 +36,11 @@ function App() {
     }
   }, [fotoPreview])
 
-  // Formata a data retornada pelo PostgreSQL para leitura no frontend.
+  function limparAnaliseCaptura() {
+    setAnaliseCaptura(null)
+    setAnalisandoCaptura(false)
+  }
+
   function formatarData(data) {
     if (!data) {
       return "-"
@@ -44,7 +49,6 @@ function App() {
     return new Date(data).toLocaleString("pt-BR")
   }
 
-  // Busca recomendação de tamanho e produtos no backend.
   async function buscarRecomendacao() {
     if (!altura || !peso) {
       setErro("Informe altura e peso para gerar a recomendação.")
@@ -77,6 +81,7 @@ function App() {
       setFotoUsuario(null)
       setFotoPreview(null)
       setSessaoProvador(null)
+      limparAnaliseCaptura()
 
       const resposta = await fetch(
         `http://127.0.0.1:8000/recomendar-produtos?${parametros}`
@@ -98,7 +103,6 @@ function App() {
     }
   }
 
-  // Envia o produto escolhido para o Provador VesteIA.
   function experimentarProduto(produto) {
     setProdutoSelecionado(produto)
 
@@ -109,9 +113,9 @@ function App() {
     setFotoPreview(null)
 
     setSessaoProvador(null)
+    limparAnaliseCaptura()
   }
 
-  // Inicia o fluxo do provador.
   function iniciarProvador() {
     setProvadorIniciado(true)
 
@@ -121,17 +125,17 @@ function App() {
     setFotoPreview(null)
 
     setSessaoProvador(null)
+    limparAnaliseCaptura()
   }
 
-  // Abre o seletor de arquivos do sistema.
   function escolherFoto() {
     setModoExperimentacao("foto")
     setSessaoProvador(null)
+    limparAnaliseCaptura()
 
     inputFotoRef.current?.click()
   }
 
-  // Recebe e valida a foto escolhida.
   function receberFoto(event) {
     const arquivo = event.target.files?.[0]
 
@@ -160,16 +164,19 @@ function App() {
     setErro("")
     setFotoUsuario(arquivo)
     setSessaoProvador(null)
+    limparAnaliseCaptura()
+
+    if (fotoPreview) {
+      URL.revokeObjectURL(fotoPreview)
+    }
 
     const preview = URL.createObjectURL(arquivo)
 
     setFotoPreview(preview)
 
-    // Permite selecionar novamente o mesmo arquivo.
     event.target.value = ""
   }
 
-  // Seleciona a alternativa de avatar.
   function escolherAvatar() {
     setModoExperimentacao("avatar")
 
@@ -177,9 +184,9 @@ function App() {
     setFotoPreview(null)
 
     setSessaoProvador(null)
+    limparAnaliseCaptura()
   }
 
-  // Envia os dados da experiência para o FastAPI.
   async function prepararExperiencia() {
     if (!fotoUsuario) {
       setErro(
@@ -227,6 +234,7 @@ function App() {
     try {
       setErro("")
       setSessaoProvador(null)
+      limparAnaliseCaptura()
       setEnviandoSessao(true)
 
       const resposta = await fetch(
@@ -250,12 +258,43 @@ function App() {
     } catch (erro) {
       setErro(erro.message)
       setSessaoProvador(null)
+      limparAnaliseCaptura()
     } finally {
       setEnviandoSessao(false)
     }
   }
 
-  // Fecha o provador e retorna aos produtos.
+  async function analisarFotoRegistrada() {
+    const sessaoId = sessaoProvador?.sessao_id
+
+    if (!sessaoId) {
+      setErro(
+        "Nenhuma sessão registrada foi encontrada."
+      )
+      return
+    }
+
+    try {
+      setErro("")
+      setAnaliseCaptura(null)
+      setAnalisandoCaptura(true)
+
+      const analise = await analisarCapturaProvador(
+        sessaoId
+      )
+
+      setAnaliseCaptura(analise)
+    } catch (erro) {
+      setAnaliseCaptura(null)
+      setErro(
+        erro.message ||
+          "Não foi possível analisar a captura."
+      )
+    } finally {
+      setAnalisandoCaptura(false)
+    }
+  }
+
   function voltarAosProdutos() {
     setProdutoSelecionado(null)
 
@@ -266,6 +305,7 @@ function App() {
     setFotoPreview(null)
 
     setSessaoProvador(null)
+    limparAnaliseCaptura()
   }
 
   return (
@@ -666,6 +706,94 @@ function App() {
               <p>
                 {sessaoProvador.mensagem}
               </p>
+
+              {!analiseCaptura && (
+                <button
+                  type="button"
+                  className="botao-iniciar-provador"
+                  onClick={analisarFotoRegistrada}
+                  disabled={analisandoCaptura}
+                >
+                  {analisandoCaptura
+                    ? "Analisando captura..."
+                    : "Analisar foto com VesteIA"}
+                </button>
+              )}
+            </div>
+          )}
+
+          {analiseCaptura && (
+            <div className="modo-selecionado">
+              <p className="provador-etapa">
+                ANÁLISE DA CAPTURA
+              </p>
+
+              <h3>
+                {analiseCaptura.titulo}
+              </h3>
+
+              <p>
+                {analiseCaptura.mensagem}
+              </p>
+
+              <p>
+                <strong>
+                  Estado:
+                </strong>{" "}
+                {analiseCaptura.estado}
+              </p>
+
+              <p>
+                <strong>
+                  Qualidade:
+                </strong>{" "}
+                {analiseCaptura.qualidade?.nivel || "-"}
+              </p>
+
+              <p>
+                <strong>
+                  Pontuação:
+                </strong>{" "}
+                {analiseCaptura.qualidade?.pontuacao ?? "-"}
+              </p>
+
+              <p>
+                <strong>
+                  Pode continuar:
+                </strong>{" "}
+                {analiseCaptura.podeContinuar
+                  ? "Sim"
+                  : "Não"}
+              </p>
+
+              {analiseCaptura.orientacoes?.length > 0 && (
+                <div className="observacoes">
+                  {analiseCaptura.orientacoes.map(
+                    (orientacao, index) => (
+                      <span key={index}>
+                        {orientacao}
+                      </span>
+                    )
+                  )}
+                </div>
+              )}
+
+              {analiseCaptura.novaFotoNecessaria && (
+                <button
+                  type="button"
+                  className="trocar-foto"
+                  onClick={escolherFoto}
+                >
+                  Enviar uma nova foto
+                </button>
+              )}
+
+              {analiseCaptura.podeContinuar && (
+                <p>
+                  ✅ Captura liberada para a próxima etapa
+                  do Provador VesteIA.
+                </p>
+              )}
             </div>
           )}
 
