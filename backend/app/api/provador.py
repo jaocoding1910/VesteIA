@@ -1303,3 +1303,205 @@ def detectar_pessoa_sessao(
             "e contexto corpo-produto preparado."
         ),
     }
+
+
+@router.post(
+    "/sessoes/{sessao_id}/executar"
+)
+def executar_pipeline_provador(
+    sessao_id: int
+):
+    """
+    Executa automaticamente o fluxo principal
+    da sessão do Provador VesteIA.
+
+    Primeira versão da orquestração:
+    - busca sessão
+    - garante imagem normalizada
+    - executa detecção corporal
+    - devolve resultado completo
+
+    O frontend passa a precisar chamar
+    apenas este endpoint.
+    """
+
+    try:
+        sessao = (
+            buscar_sessao_provador_por_id(
+                sessao_id
+            )
+        )
+
+    except Exception as erro:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "a sessão do provador."
+            ),
+        ) from erro
+
+    if sessao is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Sessão do provador "
+                "não encontrada."
+            ),
+        )
+
+    caminho_normalizado = sessao.get(
+        "caminho_normalizado"
+    )
+
+    if not caminho_normalizado:
+
+        caminho_original = sessao.get(
+            "caminho_arquivo"
+        )
+
+        if not caminho_original:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "A sessão não possui "
+                    "imagem armazenada."
+                ),
+            )
+
+        caminho_absoluto_original = (
+            BACKEND_DIR
+            / caminho_original
+        )
+
+        if not caminho_absoluto_original.is_file():
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "O arquivo físico original "
+                    "não foi encontrado."
+                ),
+            )
+
+        nome_base = (
+            caminho_absoluto_original.stem
+        )
+
+        caminho_relativo_normalizado = (
+            Path("uploads")
+            / "provador"
+            / "normalizadas"
+            / f"{nome_base}_normalizado.jpg"
+        )
+
+        caminho_absoluto_normalizado = (
+            BACKEND_DIR
+            / caminho_relativo_normalizado
+        )
+
+        try:
+            normalizar_imagem(
+                caminho_origem=(
+                    caminho_absoluto_original
+                ),
+                caminho_destino=(
+                    caminho_absoluto_normalizado
+                ),
+            )
+
+        except (
+            FileNotFoundError,
+            ValueError,
+        ) as erro:
+            raise HTTPException(
+                status_code=422,
+                detail=str(erro),
+            ) from erro
+
+        try:
+            atualizar_caminho_normalizado(
+                sessao_id=sessao_id,
+                caminho_normalizado=(
+                    caminho_relativo_normalizado
+                    .as_posix()
+                ),
+            )
+
+        except Exception as erro:
+            caminho_absoluto_normalizado.unlink(
+                missing_ok=True
+            )
+
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    "A imagem foi normalizada, "
+                    "mas a sessão não pôde "
+                    "ser atualizada."
+                ),
+            ) from erro
+
+        caminho_normalizado = (
+            caminho_relativo_normalizado
+            .as_posix()
+        )
+
+    caminho_absoluto = (
+        BACKEND_DIR
+        / caminho_normalizado
+    )
+
+    try:
+        deteccao = detectar_pessoa(
+            caminho_absoluto,
+            altura_cm=perfil_usuario.get(
+                "altura_cm"
+            ),
+        )
+
+    except FileNotFoundError as erro:
+        raise HTTPException(
+            status_code=404,
+            detail=str(erro),
+        ) from erro
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=422,
+            detail=str(erro),
+        ) from erro
+
+    return {
+        "sessao_id": sessao_id,
+
+        "pipeline": {
+            "normalizacao": "concluida",
+            "deteccao": "concluida",
+        },
+
+        "resumo_provador": (
+            deteccao.get(
+                "resumo_provador"
+            )
+        ),
+
+        "resultado_captura": (
+            deteccao.get(
+                "resultado_captura"
+            )
+        ),
+
+        "controle_fluxo_provador": (
+            deteccao.get(
+                "controle_fluxo_provador"
+            )
+        ),
+
+        "deteccao_humana": deteccao,
+
+        "mensagem": (
+            "Pipeline automático do "
+            "Provador VesteIA executado "
+            "com sucesso."
+        ),
+    }
