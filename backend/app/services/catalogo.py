@@ -387,3 +387,105 @@ def buscar_produto_por_categoria_tamanho_cor(
     conexao.close()
 
     return produtos
+
+
+def buscar_variacoes_produto(
+    produto_referencia: dict,
+):
+    """
+    Busca todas as variações de tamanho
+    equivalentes ao produto informado.
+
+    Nesta versão consideramos como pertencentes
+    ao mesmo produto os registros que possuem:
+
+    - mesmo nome
+    - mesma cor
+    - mesma categoria
+    - mesma modelagem
+
+    O tamanho pode variar.
+
+    Esse conjunto será utilizado pelo VesteIA
+    para comparar P, M, G, GG etc.
+    """
+
+    if not produto_referencia:
+        return []
+
+    nome = produto_referencia.get(
+        "nome"
+    )
+
+    cor = produto_referencia.get(
+        "cor"
+    )
+
+    categoria = produto_referencia.get(
+        "categoria"
+    )
+
+    modelagem = produto_referencia.get(
+        "modelagem"
+    )
+
+    if not nome:
+        return []
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            id,
+            nome,
+            preco,
+            tamanho,
+            cor,
+            categoria,
+            largura_cm,
+            comprimento_cm,
+            modelagem
+        FROM produtos
+        WHERE
+            unaccent(nome) = unaccent(%s)
+            AND unaccent(cor) = unaccent(%s)
+            AND unaccent(categoria) = unaccent(%s)
+            AND unaccent(modelagem) = unaccent(%s)
+        ORDER BY
+            CASE tamanho
+                WHEN 'PP' THEN 1
+                WHEN 'P' THEN 2
+                WHEN 'M' THEN 3
+                WHEN 'G' THEN 4
+                WHEN 'GG' THEN 5
+                WHEN 'XG' THEN 6
+                WHEN 'XGG' THEN 7
+                ELSE 99
+            END,
+            id
+        """,
+        (
+            nome,
+            cor,
+            categoria,
+            modelagem,
+        ),
+    )
+
+    resultados = (
+        cursor.fetchall()
+    )
+
+    produtos = [
+        _converter_linha_para_produto(
+            linha
+        )
+        for linha in resultados
+    ]
+
+    cursor.close()
+    conexao.close()
+
+    return produtos

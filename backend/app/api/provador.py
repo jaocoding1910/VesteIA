@@ -6,6 +6,7 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    Query,
     UploadFile,
 )
 
@@ -14,10 +15,31 @@ from app.perfil import perfil_usuario
 
 from app.services.catalogo import (
     buscar_produto_por_id,
+    buscar_variacoes_produto,
 )
 
 from app.services.contexto_corpo_produto import (
     gerar_contexto_corpo_produto,
+)
+
+from app.services.compatibilidade_corpo_produto import (
+    analisar_compatibilidade_corpo_produto,
+)
+
+from app.services.compatibilidade_dimensional import (
+    analisar_compatibilidade_dimensional,
+)
+
+from app.services.resultado_dimensional import (
+    gerar_resultado_dimensional,
+)
+
+from app.services.decisao_provador import (
+    gerar_decisao_provador,
+)
+
+from app.services.recomendacao_tamanho_provador import (
+    gerar_recomendacao_tamanho_provador,
 )
 
 from app.services.deteccao_pessoa import (
@@ -76,6 +98,51 @@ PASTA_UPLOADS_PROVADOR = (
 )
 
 
+def normalizar_preferencia_caimento(
+    preferencia_caimento,
+):
+    """
+    Normaliza a preferência recebida
+    pelo frontend.
+
+    Valores internos:
+    - justo
+    - padrao
+    - solto
+    """
+
+    if not preferencia_caimento:
+        return "padrao"
+
+    preferencia = (
+        str(
+            preferencia_caimento
+        )
+        .strip()
+        .lower()
+    )
+
+    mapa = {
+        "justo": "justo",
+        "ajustado": "justo",
+        "slim": "justo",
+
+        "padrao": "padrao",
+        "padrão": "padrao",
+        "normal": "padrao",
+        "regular": "padrao",
+
+        "solto": "solto",
+        "amplo": "solto",
+        "oversized": "solto",
+    }
+
+    return mapa.get(
+        preferencia,
+        "padrao",
+    )
+
+
 def salvar_foto_localmente(
     conteudo: bytes,
     tipo_arquivo: str,
@@ -122,7 +189,7 @@ def salvar_foto_localmente(
 
 
 def verificar_arquivo_sessao(
-    sessao
+    sessao,
 ):
     """
     Verifica se a sessão possui
@@ -329,7 +396,7 @@ def listar_sessoes():
     "/sessoes/{sessao_id}"
 )
 def obter_sessao(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Busca uma sessão e verifica
@@ -388,7 +455,7 @@ def obter_sessao(
     "/sessoes/{sessao_id}/processar"
 )
 def iniciar_processamento(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Valida a sessão e inicia
@@ -494,7 +561,7 @@ def iniciar_processamento(
     "/sessoes/{sessao_id}/concluir"
 )
 def concluir_processamento(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Finaliza com sucesso
@@ -588,7 +655,7 @@ def concluir_processamento(
     "/sessoes/{sessao_id}/falhar"
 )
 def registrar_falha_processamento(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Marca como erro
@@ -684,7 +751,7 @@ def registrar_falha_processamento(
     "/sessoes/{sessao_id}/analisar-imagem"
 )
 def analisar_imagem_sessao(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Analisa tecnicamente
@@ -784,7 +851,7 @@ def analisar_imagem_sessao(
     "/sessoes/{sessao_id}/normalizar-imagem"
 )
 def normalizar_imagem_sessao(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Cria uma versão JPEG/RGB
@@ -940,7 +1007,7 @@ def normalizar_imagem_sessao(
     "/sessoes/{sessao_id}/entrada-visual"
 )
 def preparar_entrada_visual(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Recupera e valida
@@ -1053,7 +1120,7 @@ def preparar_entrada_visual(
     "/sessoes/{sessao_id}/avaliar-foto"
 )
 def avaliar_foto_provador(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Avalia se a imagem normalizada
@@ -1154,7 +1221,7 @@ def avaliar_foto_provador(
     "/sessoes/{sessao_id}/detectar-pessoa"
 )
 def detectar_pessoa_sessao(
-    sessao_id: int
+    sessao_id: int,
 ):
     """
     Executa a detecção corporal
@@ -1262,30 +1329,14 @@ def detectar_pessoa_sessao(
         ),
 
         "produto": {
-            "id": (
-                produto["id"]
-            ),
-            "nome": (
-                produto["nome"]
-            ),
-            "tamanho": (
-                produto["tamanho"]
-            ),
-            "categoria": (
-                produto["categoria"]
-            ),
-            "cor": (
-                produto["cor"]
-            ),
-            "largura_cm": (
-                produto["largura_cm"]
-            ),
-            "comprimento_cm": (
-                produto["comprimento_cm"]
-            ),
-            "modelagem": (
-                produto["modelagem"]
-            ),
+            "id": produto["id"],
+            "nome": produto["nome"],
+            "tamanho": produto["tamanho"],
+            "categoria": produto["categoria"],
+            "cor": produto["cor"],
+            "largura_cm": produto["largura_cm"],
+            "comprimento_cm": produto["comprimento_cm"],
+            "modelagem": produto["modelagem"],
         },
 
         "deteccao_humana": (
@@ -1309,21 +1360,25 @@ def detectar_pessoa_sessao(
     "/sessoes/{sessao_id}/executar"
 )
 def executar_pipeline_provador(
-    sessao_id: int
+    sessao_id: int,
+    preferencia_caimento: str = Query(
+        default="padrao",
+        description=(
+            "Preferência de caimento: "
+            "justo, padrao ou solto."
+        ),
+    ),
 ):
     """
-    Executa automaticamente o fluxo principal
-    da sessão do Provador VesteIA.
-
-    Primeira versão da orquestração:
-    - busca sessão
-    - garante imagem normalizada
-    - executa detecção corporal
-    - devolve resultado completo
-
-    O frontend passa a precisar chamar
-    apenas este endpoint.
+    Orquestra automaticamente
+    o pipeline principal do VesteIA.
     """
+
+    preferencia_caimento = (
+        normalizar_preferencia_caimento(
+            preferencia_caimento
+        )
+    )
 
     try:
         sessao = (
@@ -1354,6 +1409,8 @@ def executar_pipeline_provador(
         "caminho_normalizado"
     )
 
+    normalizacao_executada = False
+
     if not caminho_normalizado:
 
         caminho_original = sessao.get(
@@ -1374,7 +1431,10 @@ def executar_pipeline_provador(
             / caminho_original
         )
 
-        if not caminho_absoluto_original.is_file():
+        if not (
+            caminho_absoluto_original
+            .is_file()
+        ):
             raise HTTPException(
                 status_code=404,
                 detail=(
@@ -1409,10 +1469,13 @@ def executar_pipeline_provador(
                 ),
             )
 
-        except (
-            FileNotFoundError,
-            ValueError,
-        ) as erro:
+        except FileNotFoundError as erro:
+            raise HTTPException(
+                status_code=404,
+                detail=str(erro),
+            ) from erro
+
+        except ValueError as erro:
             raise HTTPException(
                 status_code=422,
                 detail=str(erro),
@@ -1446,6 +1509,8 @@ def executar_pipeline_provador(
             .as_posix()
         )
 
+        normalizacao_executada = True
+
     caminho_absoluto = (
         BACKEND_DIR
         / caminho_normalizado
@@ -1471,13 +1536,150 @@ def executar_pipeline_provador(
             detail=str(erro),
         ) from erro
 
+    try:
+        produto = (
+            buscar_produto_por_id(
+                sessao["produto_id"]
+            )
+        )
+
+    except Exception as erro:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "o produto da sessão."
+            ),
+        ) from erro
+
+    if produto is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "O produto associado à sessão "
+                "não foi encontrado."
+            ),
+        )
+
+    contexto_corpo_produto = (
+        gerar_contexto_corpo_produto(
+            produto,
+            deteccao,
+        )
+    )
+
+    compatibilidade_corpo_produto = (
+        analisar_compatibilidade_corpo_produto(
+            contexto_corpo_produto
+        )
+    )
+
+    compatibilidade_dimensional = (
+        analisar_compatibilidade_dimensional(
+            contexto_corpo_produto,
+            deteccao,
+        )
+    )
+
+    resultado_dimensional = (
+        gerar_resultado_dimensional(
+            compatibilidade_dimensional
+        )
+    )
+
+    try:
+        variacoes_produto = (
+            buscar_variacoes_produto(
+                produto
+            )
+        )
+
+    except Exception as erro:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "as variações de tamanho "
+                "do produto."
+            ),
+        ) from erro
+
+    recomendacao_tamanho_provador = (
+        gerar_recomendacao_tamanho_provador(
+            variacoes_produto=(
+                variacoes_produto
+            ),
+            deteccao=(
+                deteccao
+            ),
+            preferencia_caimento=(
+                preferencia_caimento
+            ),
+        )
+    )
+
+    decisao_provador = (
+        gerar_decisao_provador(
+            resumo_provador=(
+                deteccao.get(
+                    "resumo_provador"
+                )
+            ),
+            compatibilidade_corpo_produto=(
+                compatibilidade_corpo_produto
+            ),
+            compatibilidade_dimensional=(
+                compatibilidade_dimensional
+            ),
+            resultado_dimensional=(
+                resultado_dimensional
+            ),
+            recomendacao_tamanho_provador=(
+                recomendacao_tamanho_provador
+            ),
+        )
+    )
+
     return {
-        "sessao_id": sessao_id,
+        "sessao_id": (
+            sessao_id
+        ),
+
+        "preferencia_caimento": (
+            preferencia_caimento
+        ),
 
         "pipeline": {
-            "normalizacao": "concluida",
+            "normalizacao": (
+                "executada"
+                if normalizacao_executada
+                else "ja_disponivel"
+            ),
             "deteccao": "concluida",
+            "contexto_corpo_produto": "concluido",
+            "compatibilidade_corpo_produto": "concluida",
+            "compatibilidade_dimensional": "concluida",
+            "resultado_dimensional": "concluido",
+            "variacoes_produto": "concluidas",
+            "preferencia_caimento": "aplicada",
+            "recomendacao_tamanho_provador": "concluida",
+            "decisao_provador": "concluida",
         },
+
+        "produto": {
+            "id": produto["id"],
+            "nome": produto["nome"],
+            "tamanho": produto["tamanho"],
+            "categoria": produto["categoria"],
+            "cor": produto["cor"],
+            "largura_cm": produto["largura_cm"],
+            "comprimento_cm": produto["comprimento_cm"],
+            "modelagem": produto["modelagem"],
+        },
+
+        "variacoes_produto": (
+            variacoes_produto
+        ),
 
         "resumo_provador": (
             deteccao.get(
@@ -1497,11 +1699,45 @@ def executar_pipeline_provador(
             )
         ),
 
-        "deteccao_humana": deteccao,
+        "contexto_corpo_produto": (
+            contexto_corpo_produto
+        ),
+
+        "compatibilidade_corpo_produto": (
+            compatibilidade_corpo_produto
+        ),
+
+        "compatibilidade_dimensional": (
+            compatibilidade_dimensional
+        ),
+
+        "resultado_dimensional": (
+            resultado_dimensional
+        ),
+
+        "recomendacao_tamanho_provador": (
+            recomendacao_tamanho_provador
+        ),
+
+        "decisao_provador": (
+            decisao_provador
+        ),
+
+        "deteccao_humana": (
+            deteccao
+        ),
 
         "mensagem": (
             "Pipeline automático do "
             "Provador VesteIA executado "
-            "com sucesso."
+            "com análise corporal, produto, "
+            "compatibilidade visual, "
+            "compatibilidade dimensional, "
+            "interpretação dimensional, "
+            "comparação entre tamanhos, "
+            "preferência de caimento "
+            "e sugestão experimental "
+            "personalizada de tamanho "
+            "preparados com sucesso."
         ),
     }

@@ -1,91 +1,314 @@
 import camisetaOversized from "./assets/produtos/camiseta-oversized.jpeg"
-import { useEffect, useRef, useState } from "react"
-import { analisarCapturaProvador } from "./services/provadorService"
+
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react"
+
+import {
+  analisarCapturaProvador,
+} from "./services/provadorService"
+
 import "./App.css"
 
+
 function App() {
-  const [altura, setAltura] = useState("")
-  const [peso, setPeso] = useState("")
-  const [cintura, setCintura] = useState("")
-  const [preferencia, setPreferencia] = useState("")
+  const [
+    altura,
+    setAltura,
+  ] = useState("")
 
-  const [resultado, setResultado] = useState(null)
-  const [produtoSelecionado, setProdutoSelecionado] = useState(null)
+  const [
+    peso,
+    setPeso,
+  ] = useState("")
 
-  const [provadorIniciado, setProvadorIniciado] = useState(false)
-  const [modoExperimentacao, setModoExperimentacao] = useState(null)
+  const [
+    cintura,
+    setCintura,
+  ] = useState("")
 
-  const [fotoUsuario, setFotoUsuario] = useState(null)
-  const [fotoPreview, setFotoPreview] = useState(null)
+  const [
+    preferencia,
+    setPreferencia,
+  ] = useState("padrao")
 
-  const [sessaoProvador, setSessaoProvador] = useState(null)
-  const [enviandoSessao, setEnviandoSessao] = useState(false)
+  const [
+    resultado,
+    setResultado,
+  ] = useState(null)
 
-  const [analiseCaptura, setAnaliseCaptura] = useState(null)
-  const [analisandoCaptura, setAnalisandoCaptura] = useState(false)
+  const [
+    produtoSelecionado,
+    setProdutoSelecionado,
+  ] = useState(null)
 
-  const [erro, setErro] = useState("")
+  const [
+    provadorIniciado,
+    setProvadorIniciado,
+  ] = useState(false)
 
-  const inputFotoRef = useRef(null)
+  const [
+    modoExperimentacao,
+    setModoExperimentacao,
+  ] = useState(null)
+
+  const [
+    fotoUsuario,
+    setFotoUsuario,
+  ] = useState(null)
+
+  const [
+    fotoPreview,
+    setFotoPreview,
+  ] = useState(null)
+
+  const [
+    sessaoProvador,
+    setSessaoProvador,
+  ] = useState(null)
+
+  const [
+    enviandoSessao,
+    setEnviandoSessao,
+  ] = useState(false)
+
+  const [
+    analiseCaptura,
+    setAnaliseCaptura,
+  ] = useState(null)
+
+  const [
+    analisandoCaptura,
+    setAnalisandoCaptura,
+  ] = useState(false)
+
+  const [
+    compatibilidadeProduto,
+    setCompatibilidadeProduto,
+  ] = useState(null)
+
+  const [
+    resultadoDimensional,
+    setResultadoDimensional,
+  ] = useState(null)
+
+  const [
+    recomendacaoTamanho,
+    setRecomendacaoTamanho,
+  ] = useState(null)
+
+  const [
+    decisaoProvador,
+    setDecisaoProvador,
+  ] = useState(null)
+
+  const [
+    erro,
+    setErro,
+  ] = useState("")
+
+  const inputFotoRef =
+    useRef(null)
+
 
   useEffect(() => {
     return () => {
       if (fotoPreview) {
-        URL.revokeObjectURL(fotoPreview)
+        URL.revokeObjectURL(
+          fotoPreview
+        )
       }
     }
   }, [fotoPreview])
 
-  function limparAnaliseCaptura() {
-    setAnaliseCaptura(null)
-    setAnalisandoCaptura(false)
-  }
 
-  function formatarData(data) {
-    if (!data) {
-      return "-"
+  useEffect(() => {
+    if (
+      modoExperimentacao ===
+        "foto" &&
+      fotoUsuario &&
+      produtoSelecionado &&
+      !sessaoProvador &&
+      !enviandoSessao
+    ) {
+      prepararExperiencia()
+    }
+  }, [fotoUsuario])
+
+
+  function normalizarPreferencia(
+    valor
+  ) {
+    if (!valor) {
+      return "padrao"
     }
 
-    return new Date(data).toLocaleString("pt-BR")
+    const preferenciaNormalizada =
+      String(
+        valor
+      )
+        .trim()
+        .toLowerCase()
+
+    const mapa = {
+      justo: "justo",
+      ajustado: "justo",
+      slim: "justo",
+
+      padrao: "padrao",
+      padrão: "padrao",
+      normal: "padrao",
+      regular: "padrao",
+
+      solto: "solto",
+      amplo: "solto",
+      oversized: "solto",
+    }
+
+    return (
+      mapa[
+        preferenciaNormalizada
+      ] ?? "padrao"
+    )
   }
 
+
+  function formatarPreferencia(
+    valor
+  ) {
+    const traducoes = {
+      justo:
+        "Mais justo",
+
+      padrao:
+        "Padrão",
+
+      solto:
+        "Mais solto",
+    }
+
+    return (
+      traducoes[
+        normalizarPreferencia(
+          valor
+        )
+      ] ?? "Padrão"
+    )
+  }
+
+
+  function limparAnaliseCaptura() {
+    setAnaliseCaptura(
+      null
+    )
+
+    setAnalisandoCaptura(
+      false
+    )
+
+    setCompatibilidadeProduto(
+      null
+    )
+
+    setResultadoDimensional(
+      null
+    )
+
+    setRecomendacaoTamanho(
+      null
+    )
+
+    setDecisaoProvador(
+      null
+    )
+  }
+
+
   async function buscarRecomendacao() {
-    if (!altura || !peso) {
-      setErro("Informe altura e peso para gerar a recomendação.")
-      setResultado(null)
-      setProdutoSelecionado(null)
+    if (
+      !altura ||
+      !peso
+    ) {
+      setErro(
+        "Informe altura e peso para gerar a recomendação."
+      )
+
+      setResultado(
+        null
+      )
+
+      setProdutoSelecionado(
+        null
+      )
+
       return
     }
 
-    const parametros = new URLSearchParams({
-      altura_cm: altura,
-      peso_kg: peso,
-    })
+    const preferenciaNormalizada =
+      normalizarPreferencia(
+        preferencia
+      )
+
+    const parametros =
+      new URLSearchParams({
+        altura_cm:
+          altura,
+
+        peso_kg:
+          peso,
+
+        preferencia_caimento:
+          preferenciaNormalizada,
+      })
 
     if (cintura) {
-      parametros.append("cintura_cm", cintura)
-    }
-
-    if (preferencia) {
       parametros.append(
-        "preferencia_caimento",
-        preferencia
+        "cintura_cm",
+        cintura
       )
     }
 
     try {
       setErro("")
-      setProdutoSelecionado(null)
-      setProvadorIniciado(false)
-      setModoExperimentacao(null)
-      setFotoUsuario(null)
-      setFotoPreview(null)
-      setSessaoProvador(null)
+
+      setProdutoSelecionado(
+        null
+      )
+
+      setProvadorIniciado(
+        false
+      )
+
+      setModoExperimentacao(
+        null
+      )
+
+      setFotoUsuario(
+        null
+      )
+
+      if (fotoPreview) {
+        URL.revokeObjectURL(
+          fotoPreview
+        )
+      }
+
+      setFotoPreview(
+        null
+      )
+
+      setSessaoProvador(
+        null
+      )
+
       limparAnaliseCaptura()
 
-      const resposta = await fetch(
-        `http://127.0.0.1:8000/recomendar-produtos?${parametros}`
-      )
+      const resposta =
+        await fetch(
+          `http://127.0.0.1:8000/recomendar-produtos?${parametros.toString()}`
+        )
 
       if (!resposta.ok) {
         throw new Error(
@@ -93,99 +316,308 @@ function App() {
         )
       }
 
-      const dados = await resposta.json()
+      const dados =
+        await resposta.json()
 
-      setResultado(dados)
+      setResultado(
+        dados
+      )
     } catch (erro) {
-      setResultado(null)
-      setProdutoSelecionado(null)
-      setErro(erro.message)
+      setResultado(
+        null
+      )
+
+      setProdutoSelecionado(
+        null
+      )
+
+      setErro(
+        erro.message ||
+          "Não foi possível gerar a recomendação."
+      )
     }
   }
 
-  function experimentarProduto(produto) {
-    setProdutoSelecionado(produto)
 
-    setProvadorIniciado(false)
-    setModoExperimentacao(null)
+  function experimentarProduto(
+    produto
+  ) {
+    setProdutoSelecionado(
+      produto
+    )
 
-    setFotoUsuario(null)
-    setFotoPreview(null)
+    setProvadorIniciado(
+      false
+    )
 
-    setSessaoProvador(null)
+    setModoExperimentacao(
+      null
+    )
+
+    setFotoUsuario(
+      null
+    )
+
+    if (fotoPreview) {
+      URL.revokeObjectURL(
+        fotoPreview
+      )
+    }
+
+    setFotoPreview(
+      null
+    )
+
+    setSessaoProvador(
+      null
+    )
+
     limparAnaliseCaptura()
+
+    setErro("")
   }
+
 
   function iniciarProvador() {
-    setProvadorIniciado(true)
+    setProvadorIniciado(
+      true
+    )
 
-    setModoExperimentacao(null)
+    setModoExperimentacao(
+      null
+    )
 
-    setFotoUsuario(null)
-    setFotoPreview(null)
+    setFotoUsuario(
+      null
+    )
 
-    setSessaoProvador(null)
+    if (fotoPreview) {
+      URL.revokeObjectURL(
+        fotoPreview
+      )
+    }
+
+    setFotoPreview(
+      null
+    )
+
+    setSessaoProvador(
+      null
+    )
+
     limparAnaliseCaptura()
+
+    setErro("")
   }
+
 
   function escolherFoto() {
-    setModoExperimentacao("foto")
-    setSessaoProvador(null)
+    setModoExperimentacao(
+      "foto"
+    )
+
+    setSessaoProvador(
+      null
+    )
+
     limparAnaliseCaptura()
 
-    inputFotoRef.current?.click()
+    setErro("")
+
+    inputFotoRef.current
+      ?.click()
   }
 
-  function receberFoto(event) {
-    const arquivo = event.target.files?.[0]
+
+  function receberFoto(
+    event
+  ) {
+    const arquivo =
+      event.target
+        .files?.[0]
 
     if (!arquivo) {
       return
     }
 
-    if (!arquivo.type.startsWith("image/")) {
+    if (
+      !arquivo.type
+        .startsWith(
+          "image/"
+        )
+    ) {
       setErro(
         "Selecione um arquivo de imagem válido."
       )
 
       event.target.value = ""
+
       return
     }
 
-    if (arquivo.size > 10 * 1024 * 1024) {
+    if (
+      arquivo.size >
+      10 * 1024 * 1024
+    ) {
       setErro(
         "A imagem deve ter no máximo 10 MB."
       )
 
       event.target.value = ""
+
       return
     }
 
     setErro("")
-    setFotoUsuario(arquivo)
-    setSessaoProvador(null)
+
+    setSessaoProvador(
+      null
+    )
+
     limparAnaliseCaptura()
 
     if (fotoPreview) {
-      URL.revokeObjectURL(fotoPreview)
+      URL.revokeObjectURL(
+        fotoPreview
+      )
     }
 
-    const preview = URL.createObjectURL(arquivo)
+    setFotoUsuario(
+      arquivo
+    )
 
-    setFotoPreview(preview)
+    const preview =
+      URL.createObjectURL(
+        arquivo
+      )
+
+    setFotoPreview(
+      preview
+    )
 
     event.target.value = ""
   }
 
+
   function escolherAvatar() {
-    setModoExperimentacao("avatar")
+    setModoExperimentacao(
+      "avatar"
+    )
 
-    setFotoUsuario(null)
-    setFotoPreview(null)
+    setFotoUsuario(
+      null
+    )
 
-    setSessaoProvador(null)
+    if (fotoPreview) {
+      URL.revokeObjectURL(
+        fotoPreview
+      )
+    }
+
+    setFotoPreview(
+      null
+    )
+
+    setSessaoProvador(
+      null
+    )
+
     limparAnaliseCaptura()
+
+    setErro("")
   }
+
+
+  async function executarAnaliseAutomatica(
+    sessaoId
+  ) {
+    if (!sessaoId) {
+      return
+    }
+
+    try {
+      setErro("")
+
+      setAnalisandoCaptura(
+        true
+      )
+
+      setAnaliseCaptura(
+        null
+      )
+
+      setCompatibilidadeProduto(
+        null
+      )
+
+      setResultadoDimensional(
+        null
+      )
+
+      setRecomendacaoTamanho(
+        null
+      )
+
+      setDecisaoProvador(
+        null
+      )
+
+      const preferenciaNormalizada =
+        normalizarPreferencia(
+          preferencia
+        )
+
+      const analise =
+        await analisarCapturaProvador(
+          sessaoId,
+          preferenciaNormalizada
+        )
+
+      setAnaliseCaptura(
+        analise
+      )
+
+      const respostaCompleta =
+        analise
+          ?.respostaCompleta
+
+      setCompatibilidadeProduto(
+        respostaCompleta
+          ?.compatibilidade_corpo_produto ??
+          null
+      )
+
+      setResultadoDimensional(
+        respostaCompleta
+          ?.resultado_dimensional ??
+          null
+      )
+
+      setRecomendacaoTamanho(
+        respostaCompleta
+          ?.recomendacao_tamanho_provador ??
+          null
+      )
+
+      setDecisaoProvador(
+        respostaCompleta
+          ?.decisao_provador ??
+          null
+      )
+    } catch (erro) {
+      limparAnaliseCaptura()
+
+      setErro(
+        erro.message ||
+          "Não foi possível analisar a captura."
+      )
+    } finally {
+      setAnalisandoCaptura(
+        false
+      )
+    }
+  }
+
 
   async function prepararExperiencia() {
     if (!fotoUsuario) {
@@ -204,7 +636,8 @@ function App() {
       return
     }
 
-    const formData = new FormData()
+    const formData =
+      new FormData()
 
     formData.append(
       "foto",
@@ -233,19 +666,28 @@ function App() {
 
     try {
       setErro("")
-      setSessaoProvador(null)
-      limparAnaliseCaptura()
-      setEnviandoSessao(true)
 
-      const resposta = await fetch(
-        "http://127.0.0.1:8000/provador/preparar",
-        {
-          method: "POST",
-          body: formData,
-        }
+      setSessaoProvador(
+        null
       )
 
-      const dados = await resposta.json()
+      limparAnaliseCaptura()
+
+      setEnviandoSessao(
+        true
+      )
+
+      const resposta =
+        await fetch(
+          "http://127.0.0.1:8000/provador/preparar",
+          {
+            method: "POST",
+            body: formData,
+          }
+        )
+
+      const dados =
+        await resposta.json()
 
       if (!resposta.ok) {
         throw new Error(
@@ -254,76 +696,177 @@ function App() {
         )
       }
 
-      setSessaoProvador(dados)
-    } catch (erro) {
-      setErro(erro.message)
-      setSessaoProvador(null)
-      limparAnaliseCaptura()
-    } finally {
-      setEnviandoSessao(false)
-    }
-  }
-
-  async function analisarFotoRegistrada() {
-    const sessaoId = sessaoProvador?.sessao_id
-
-    if (!sessaoId) {
-      setErro(
-        "Nenhuma sessão registrada foi encontrada."
-      )
-      return
-    }
-
-    try {
-      setErro("")
-      setAnaliseCaptura(null)
-      setAnalisandoCaptura(true)
-
-      const analise = await analisarCapturaProvador(
-        sessaoId
+      setSessaoProvador(
+        dados
       )
 
-      setAnaliseCaptura(analise)
+      await executarAnaliseAutomatica(
+        dados.sessao_id
+      )
     } catch (erro) {
-      setAnaliseCaptura(null)
       setErro(
         erro.message ||
-          "Não foi possível analisar a captura."
+          "Não foi possível preparar a experiência."
       )
+
+      setSessaoProvador(
+        null
+      )
+
+      limparAnaliseCaptura()
     } finally {
-      setAnalisandoCaptura(false)
+      setEnviandoSessao(
+        false
+      )
     }
   }
 
+
   function voltarAosProdutos() {
-    setProdutoSelecionado(null)
+    setProdutoSelecionado(
+      null
+    )
 
-    setProvadorIniciado(false)
-    setModoExperimentacao(null)
+    setProvadorIniciado(
+      false
+    )
 
-    setFotoUsuario(null)
-    setFotoPreview(null)
+    setModoExperimentacao(
+      null
+    )
 
-    setSessaoProvador(null)
+    setFotoUsuario(
+      null
+    )
+
+    if (fotoPreview) {
+      URL.revokeObjectURL(
+        fotoPreview
+      )
+    }
+
+    setFotoPreview(
+      null
+    )
+
+    setSessaoProvador(
+      null
+    )
+
     limparAnaliseCaptura()
+
+    setErro("")
   }
+
+
+  function formatarQualidade(
+    nivel
+  ) {
+    const traducoes = {
+      excelente:
+        "Excelente",
+
+      boa:
+        "Boa",
+
+      moderada:
+        "Moderada",
+
+      baixa:
+        "Baixa",
+
+      insuficiente:
+        "Insuficiente",
+    }
+
+    return (
+      traducoes[nivel] ||
+      nivel ||
+      "-"
+    )
+  }
+
+
+  function formatarResultadoRanking(
+    resultadoRanking
+  ) {
+    const traducoes = {
+      melhor_equilibrio:
+        "Melhor equilíbrio",
+
+      alternativa:
+        "Alternativa",
+
+      alternativa_mais_ampla:
+        "Mais amplo",
+
+      alternativa_mais_ajustada:
+        "Mais ajustado",
+    }
+
+    return (
+      traducoes[
+        resultadoRanking
+      ] ||
+      resultadoRanking ||
+      "-"
+    )
+  }
+
+
+  function formatarCaimento(
+    valor
+  ) {
+    const traducoes = {
+      ajustado:
+        "Ajustado",
+
+      equilibrado:
+        "Equilibrado",
+
+      amplo:
+        "Amplo",
+
+      curto:
+        "Curto",
+
+      alongado:
+        "Alongado",
+
+      indisponivel:
+        "Indisponível",
+    }
+
+    return (
+      traducoes[valor] ||
+      valor ||
+      "-"
+    )
+  }
+
 
   return (
     <main className="container">
-      <h1>VesteIA</h1>
+      <h1>
+        VesteIA
+      </h1>
 
       <p>
-        Descubra o tamanho ideal para você com uma recomendação
-        personalizada.
+        Descubra o tamanho ideal para você
+        com uma recomendação personalizada.
       </p>
+
 
       <div className="formulario">
         <input
           type="number"
           placeholder="Altura (cm)"
           value={altura}
-          onChange={(event) =>
-            setAltura(event.target.value)
+          onChange={
+            (event) =>
+              setAltura(
+                event.target.value
+              )
           }
         />
 
@@ -331,8 +874,11 @@ function App() {
           type="number"
           placeholder="Peso (kg)"
           value={peso}
-          onChange={(event) =>
-            setPeso(event.target.value)
+          onChange={
+            (event) =>
+              setPeso(
+                event.target.value
+              )
           }
         />
 
@@ -340,145 +886,263 @@ function App() {
           type="number"
           placeholder="Cintura (cm)"
           value={cintura}
-          onChange={(event) =>
-            setCintura(event.target.value)
+          onChange={
+            (event) =>
+              setCintura(
+                event.target.value
+              )
           }
         />
 
         <select
           value={preferencia}
-          onChange={(event) =>
-            setPreferencia(event.target.value)
+          onChange={
+            (event) =>
+              setPreferencia(
+                event.target.value
+              )
           }
         >
-          <option value="">
+          <option value="padrao">
             Caimento padrão
           </option>
 
           <option value="justo">
-            Justo
+            Mais justo
           </option>
 
           <option value="solto">
-            Solto
+            Mais solto
           </option>
         </select>
 
         <button
           type="button"
-          onClick={buscarRecomendacao}
+          onClick={
+            buscarRecomendacao
+          }
         >
           Descobrir meu tamanho
         </button>
       </div>
 
+
       {resultado && (
         <section className="resultado">
-          <h2>Resultado</h2>
+          <h2>
+            Resultado
+          </h2>
 
           <p>
             Tamanho recomendado:{" "}
             <strong>
-              {resultado.tamanho_recomendado}
+              {
+                resultado
+                  .tamanho_recomendado
+              }
             </strong>
           </p>
 
           <p>
             Confiança:{" "}
             <strong>
-              {resultado.confianca}
+              {
+                resultado
+                  .confianca
+              }
             </strong>
           </p>
 
-          {resultado.explicacao?.motivos?.map(
-            (motivo, index) => (
-              <p key={index}>
-                {motivo}
-              </p>
-            )
-          )}
-
           <p>
-            {resultado.mensagem}
+            Preferência:{" "}
+            <strong>
+              {formatarPreferencia(
+                preferencia
+              )}
+            </strong>
           </p>
 
-          {resultado.produtos?.length > 0 && (
+          {resultado
+            .explicacao
+            ?.motivos
+            ?.map(
+              (
+                motivo,
+                index
+              ) => (
+                <p
+                  key={
+                    index
+                  }
+                >
+                  {motivo}
+                </p>
+              )
+            )}
+
+          <p>
+            {
+              resultado
+                .mensagem
+            }
+          </p>
+
+
+          {resultado
+            .produtos
+            ?.length >
+            0 && (
             <div className="produtos">
-              <h3>Produtos compatíveis</h3>
+              <h3>
+                Produtos compatíveis
+              </h3>
 
-              {resultado.produtos.map(
-                (produto) => (
-                  <article
-                    className="produto-card"
-                    key={produto.id}
-                  >
-                    <div className="produto-imagem">
-                      <img
-                        src={camisetaOversized}
-                        alt={produto.nome}
-                      />
-                    </div>
-
-                    <h4>
-                      {produto.nome}
-                    </h4>
-
-                    <p className="preco">
-                      R${" "}
-                      {Number(produto.preco)
-                        .toFixed(2)
-                        .replace(".", ",")}
-                    </p>
-
-                    <div className="produto-detalhes">
-                      <span>
-                        Tamanho: {produto.tamanho}
-                      </span>
-
-                      <span>
-                        Cor: {produto.cor}
-                      </span>
-
-                      <span>
-                        Categoria: {produto.categoria}
-                      </span>
-
-                      <span>
-                        Modelagem: {produto.modelagem}
-                      </span>
-                    </div>
-
-                    {produto.observacoes?.length > 0 && (
-                      <div className="observacoes">
-                        {produto.observacoes.map(
-                          (observacao, index) => (
-                            <span key={index}>
-                              {observacao}
-                            </span>
-                          )
-                        )}
-                      </div>
-                    )}
-
-                    <button
-                      type="button"
-                      className="botao-experimentar"
-                      onClick={() =>
-                        experimentarProduto(produto)
+              {resultado
+                .produtos
+                .map(
+                  (
+                    produto
+                  ) => (
+                    <article
+                      className="produto-card"
+                      key={
+                        produto.id
                       }
                     >
-                      Experimentar com VesteIA
-                    </button>
-                  </article>
-                )
-              )}
+                      <div className="produto-imagem">
+                        <img
+                          src={
+                            camisetaOversized
+                          }
+                          alt={
+                            produto.nome
+                          }
+                        />
+                      </div>
+
+                      <h4>
+                        {
+                          produto.nome
+                        }
+                      </h4>
+
+                      <p className="preco">
+                        R${" "}
+                        {Number(
+                          produto.preco
+                        )
+                          .toFixed(
+                            2
+                          )
+                          .replace(
+                            ".",
+                            ","
+                          )}
+                      </p>
+
+                      <div className="produto-detalhes">
+                        <span>
+                          Tamanho recomendado:{" "}
+                          {
+                            produto
+                              .tamanho
+                          }
+                        </span>
+
+                        <span>
+                          Cor:{" "}
+                          {
+                            produto
+                              .cor
+                          }
+                        </span>
+
+                        <span>
+                          Categoria:{" "}
+                          {
+                            produto
+                              .categoria
+                          }
+                        </span>
+
+                        <span>
+                          Modelagem:{" "}
+                          {
+                            produto
+                              .modelagem
+                          }
+                        </span>
+                      </div>
+
+
+                      {produto
+                        .tamanhos_disponiveis
+                        ?.length >
+                        0 && (
+                        <div className="observacoes">
+                          <span>
+                            Tamanhos disponíveis:{" "}
+                            {
+                              produto
+                                .tamanhos_disponiveis
+                                .join(" • ")
+                            }
+                          </span>
+                        </div>
+                      )}
+
+
+                      {produto
+                        .observacoes
+                        ?.length >
+                        0 && (
+                        <div className="observacoes">
+                          {produto
+                            .observacoes
+                            .map(
+                              (
+                                observacao,
+                                index
+                              ) => (
+                                <span
+                                  key={
+                                    index
+                                  }
+                                >
+                                  {
+                                    observacao
+                                  }
+                                </span>
+                              )
+                            )}
+                        </div>
+                      )}
+
+
+                      <button
+                        type="button"
+                        className="botao-experimentar"
+                        onClick={
+                          () =>
+                            experimentarProduto(
+                              produto
+                            )
+                        }
+                      >
+                        Experimentar com VesteIA
+                      </button>
+                    </article>
+                  )
+                )}
             </div>
           )}
         </section>
       )}
 
+
       {produtoSelecionado && (
         <section className="provador">
+
           <p className="provador-etapa">
             PROVADOR VESTEIA
           </p>
@@ -487,339 +1151,743 @@ function App() {
             Produto selecionado
           </h2>
 
+
           <div className="provador-conteudo">
             <div className="provador-imagem">
               <img
-                src={camisetaOversized}
-                alt={produtoSelecionado.nome}
+                src={
+                  camisetaOversized
+                }
+                alt={
+                  produtoSelecionado
+                    .nome
+                }
               />
             </div>
 
+
             <div className="provador-informacoes">
               <h3>
-                {produtoSelecionado.nome}
+                {
+                  produtoSelecionado
+                    .nome
+                }
               </h3>
 
               <p>
-                Tamanho recomendado:{" "}
+                Tamanho analisado:{" "}
                 <strong>
-                  {produtoSelecionado.tamanho}
+                  {
+                    produtoSelecionado
+                      .tamanho
+                  }
                 </strong>
               </p>
 
               <p>
                 Cor:{" "}
                 <strong>
-                  {produtoSelecionado.cor}
+                  {
+                    produtoSelecionado
+                      .cor
+                  }
                 </strong>
               </p>
 
               <p>
                 Modelagem:{" "}
                 <strong>
-                  {produtoSelecionado.modelagem}
+                  {
+                    produtoSelecionado
+                      .modelagem
+                  }
+                </strong>
+              </p>
+
+              <p>
+                Preferência:{" "}
+                <strong>
+                  {formatarPreferencia(
+                    preferencia
+                  )}
                 </strong>
               </p>
             </div>
           </div>
 
+
           {!provadorIniciado && (
             <button
               type="button"
               className="botao-iniciar-provador"
-              onClick={iniciarProvador}
+              onClick={
+                iniciarProvador
+              }
             >
               Iniciar provador
             </button>
           )}
 
-          {provadorIniciado && (
-            <div className="escolha-provador">
-              <h3>
-                Como você deseja experimentar?
-              </h3>
 
-              <p>
-                Escolha a forma de entrada para continuar
-                no Provador VesteIA.
-              </p>
+          {provadorIniciado &&
+            !fotoUsuario &&
+            modoExperimentacao !==
+              "avatar" && (
+              <div className="escolha-provador">
+                <h3>
+                  Como você deseja experimentar?
+                </h3>
 
-              <div className="opcoes-provador">
-                <button
-                  type="button"
-                  onClick={escolherFoto}
-                >
-                  Usar minha foto
-                </button>
+                <p>
+                  Escolha a forma de entrada
+                  para continuar no Provador
+                  VesteIA.
+                </p>
 
-                <button
-                  type="button"
-                  onClick={escolherAvatar}
-                >
-                  Usar avatar
-                </button>
+                <div className="opcoes-provador">
+                  <button
+                    type="button"
+                    onClick={
+                      escolherFoto
+                    }
+                  >
+                    Usar minha foto
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={
+                      escolherAvatar
+                    }
+                  >
+                    Usar avatar
+                  </button>
+                </div>
               </div>
+            )}
 
-              <input
-                ref={inputFotoRef}
-                className="input-foto-oculto"
-                type="file"
-                accept="image/png, image/jpeg, image/webp"
-                onChange={receberFoto}
-              />
-            </div>
-          )}
 
-          {modoExperimentacao === "foto" &&
+          <input
+            ref={
+              inputFotoRef
+            }
+            className="input-foto-oculto"
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            onChange={
+              receberFoto
+            }
+          />
+
+
+          {modoExperimentacao ===
+            "foto" &&
             fotoPreview && (
               <div className="modo-selecionado">
+
                 <h3>
-                  Foto selecionada
+                  Sua foto
                 </h3>
 
                 <div className="foto-preview">
                   <img
-                    src={fotoPreview}
+                    src={
+                      fotoPreview
+                    }
                     alt="Prévia do usuário"
                   />
                 </div>
 
-                <p className="nome-arquivo">
-                  {fotoUsuario?.name}
+                {!enviandoSessao &&
+                  !analisandoCaptura && (
+                    <button
+                      type="button"
+                      className="trocar-foto"
+                      onClick={
+                        escolherFoto
+                      }
+                    >
+                      Escolher outra foto
+                    </button>
+                  )}
+              </div>
+            )}
+
+
+          {(enviandoSessao ||
+            analisandoCaptura) && (
+            <div className="modo-selecionado">
+
+              <h3>
+                ✨ VesteIA analisando sua foto
+              </h3>
+
+              <p>
+                Estamos analisando sua foto,
+                a peça selecionada e sua
+                preferência de caimento.
+              </p>
+
+              <p>
+                Isso pode levar alguns
+                instantes.
+              </p>
+            </div>
+          )}
+
+
+          {decisaoProvador &&
+            decisaoProvador.status ===
+              "analise_consolidada" && (
+              <div className="modo-selecionado">
+
+                <p className="provador-etapa">
+                  VESTEIA — SEU RESULTADO
+                </p>
+
+                <h3>
+                  {
+                    decisaoProvador
+                      .titulo
+                  }
+                </h3>
+
+                <p>
+                  {
+                    decisaoProvador
+                      .descricao
+                  }
+                </p>
+
+
+                {recomendacaoTamanho
+                  ?.disponivel && (
+                  <>
+
+                    <div className="tamanho-sugerido-card">
+
+                      <p className="provador-etapa">
+                        TAMANHO SUGERIDO
+                      </p>
+
+                      <div className="tamanho-sugerido-bolha">
+                        {
+                          recomendacaoTamanho
+                            .tamanho_sugerido
+                        }
+                      </div>
+
+                      <h3>
+                        Melhor equilíbrio
+                        para seu perfil
+                      </h3>
+
+                      <p>
+                        Preferência:{" "}
+                        <strong>
+                          {formatarPreferencia(
+                            recomendacaoTamanho
+                              .preferencia_caimento
+                          )}
+                        </strong>
+                      </p>
+
+                      <p>
+                        Pontuação de ajuste experimental:{" "}
+                        <strong>
+                          {Math.round(
+                            (
+                              recomendacaoTamanho
+                                .pontuacao_melhor_tamanho ||
+                              0
+                            ) *
+                              100
+                          )}
+                          /100
+                        </strong>
+                      </p>
+
+
+                      <div className="produto-detalhes">
+
+                        <span>
+                          Você selecionou:{" "}
+                          <strong>
+                            {
+                              produtoSelecionado
+                                ?.tamanho
+                            }
+                          </strong>
+                        </span>
+
+                        <span>
+                          Sugestão VesteIA:{" "}
+                          <strong>
+                            {
+                              recomendacaoTamanho
+                                .tamanho_sugerido
+                            }
+                          </strong>
+                        </span>
+
+                      </div>
+
+                    </div>
+
+
+                    {recomendacaoTamanho
+                      ?.ranking
+                      ?.length >
+                      0 && (
+                      <div className="ranking-tamanhos">
+
+                        <h3>
+                          Comparação entre tamanhos
+                        </h3>
+
+                        <p>
+                          Veja como cada tamanho
+                          se posiciona para o seu perfil.
+                        </p>
+
+
+                        {recomendacaoTamanho
+                          .ranking
+                          .map(
+                            (
+                              item
+                            ) => (
+                              <div
+                                className={
+                                  item.posicao ===
+                                  1
+                                    ? "ranking-item ranking-item-melhor"
+                                    : "ranking-item"
+                                }
+                                key={
+                                  item
+                                    .produto_id
+                                }
+                              >
+
+                                <span>
+                                  <strong>
+                                    {
+                                      item
+                                        .posicao
+                                    }
+                                    º
+                                  </strong>
+                                </span>
+
+                                <span>
+                                  <strong>
+                                    {
+                                      item
+                                        .tamanho
+                                    }
+                                  </strong>
+                                </span>
+
+                                <span>
+                                  <strong>
+                                    {Math.round(
+                                      (
+                                        item
+                                          .pontuacao ||
+                                        0
+                                      ) *
+                                        100
+                                    )}
+                                    /100
+                                  </strong>
+                                </span>
+
+                                <span>
+                                  {formatarResultadoRanking(
+                                    item
+                                      .resultado
+                                  )}
+
+                                  {item
+                                    .tamanho ===
+                                    produtoSelecionado
+                                      ?.tamanho && (
+                                    <small>
+                                      Seu tamanho selecionado
+                                    </small>
+                                  )}
+                                </span>
+
+                                {item.posicao ===
+                                  1 && (
+                                  <span>
+                                    ⭐
+                                  </span>
+                                )}
+
+                              </div>
+                            )
+                          )}
+
+                      </div>
+                    )}
+
+
+                    {recomendacaoTamanho
+                      ?.ranking?.[0] && (
+                      <div className="produto-detalhes">
+
+                        <span>
+                          <strong>
+                            Largura sugerida:
+                          </strong>{" "}
+                          {
+                            recomendacaoTamanho
+                              .ranking[0]
+                              .largura_peca_cm
+                          }{" "}
+                          cm
+                        </span>
+
+                        <span>
+                          <strong>
+                            Comprimento sugerido:
+                          </strong>{" "}
+                          {
+                            recomendacaoTamanho
+                              .ranking[0]
+                              .comprimento_peca_cm
+                          }{" "}
+                          cm
+                        </span>
+
+                        <span>
+                          <strong>
+                            Caimento na largura:
+                          </strong>{" "}
+                          {formatarCaimento(
+                            recomendacaoTamanho
+                              .ranking[0]
+                              .caimento_largura
+                          )}
+                        </span>
+
+                        <span>
+                          <strong>
+                            Caimento no comprimento:
+                          </strong>{" "}
+                          {formatarCaimento(
+                            recomendacaoTamanho
+                              .ranking[0]
+                              .caimento_comprimento
+                          )}
+                        </span>
+
+                      </div>
+                    )}
+
+                  </>
+                )}
+
+
+                {decisaoProvador
+                  .destaques
+                  ?.length >
+                  0 && (
+                  <div className="observacoes">
+
+                    {decisaoProvador
+                      .destaques
+                      .map(
+                        (
+                          destaque,
+                          index
+                        ) => (
+                          <span
+                            key={
+                              index
+                            }
+                          >
+                            ✓{" "}
+                            {
+                              destaque
+                            }
+                          </span>
+                        )
+                      )}
+
+                  </div>
+                )}
+
+
+                <div className="produto-detalhes">
+
+                  <span>
+                    <strong>
+                      Peça:
+                    </strong>{" "}
+                    {
+                      produtoSelecionado
+                        ?.nome
+                    }
+                  </span>
+
+                  <span>
+                    <strong>
+                      Tamanho analisado:
+                    </strong>{" "}
+                    {
+                      produtoSelecionado
+                        ?.tamanho
+                    }
+                  </span>
+
+                  <span>
+                    <strong>
+                      Qualidade da foto:
+                    </strong>{" "}
+                    {formatarQualidade(
+                      decisaoProvador
+                        .qualidade_foto
+                    )}
+                  </span>
+
+                  <span>
+                    <strong>
+                      Confiança visual:
+                    </strong>{" "}
+                    {
+                      decisaoProvador
+                        .confianca_visual ||
+                      "-"
+                    }
+                  </span>
+
+                </div>
+
+
+                <p>
+                  ✨ Análise personalizada
+                  pelo VesteIA.
+                </p>
+
+
+                {recomendacaoTamanho
+                  ?.mensagem && (
+                  <p>
+                    {
+                      recomendacaoTamanho
+                        .mensagem
+                    }
+                  </p>
+                )}
+
+
+                {recomendacaoTamanho
+                  ?.mensagem_transparencia && (
+                  <p>
+                    {
+                      recomendacaoTamanho
+                        .mensagem_transparencia
+                    }
+                  </p>
+                )}
+
+              </div>
+            )}
+
+
+          {decisaoProvador &&
+            decisaoProvador.status ===
+              "analise_visual_disponivel" && (
+              <div className="modo-selecionado">
+
+                <p className="provador-etapa">
+                  VESTEIA — SEU RESULTADO
+                </p>
+
+                <h3>
+                  {
+                    decisaoProvador
+                      .titulo
+                  }
+                </h3>
+
+                <p>
+                  {
+                    decisaoProvador
+                      .descricao
+                  }
                 </p>
 
                 <p>
-                  Foto carregada localmente e pronta
-                  para entrar no fluxo de experimentação.
+                  ✨ O VesteIA conseguiu
+                  realizar uma análise
+                  visual da peça.
                 </p>
+
+              </div>
+            )}
+
+
+          {decisaoProvador &&
+            decisaoProvador.status ===
+              "analise_parcial" && (
+              <div className="modo-selecionado">
+
+                <p className="provador-etapa">
+                  VESTEIA — ANÁLISE PARCIAL
+                </p>
+
+                <h3>
+                  {
+                    decisaoProvador
+                      .titulo
+                  }
+                </h3>
+
+                <p>
+                  {
+                    decisaoProvador
+                      .descricao
+                  }
+                </p>
+
+              </div>
+            )}
+
+
+          {decisaoProvador &&
+            decisaoProvador.status ===
+              "nova_foto_necessaria" && (
+              <div className="modo-selecionado">
+
+                <p className="provador-etapa">
+                  VESTEIA — NOVA FOTO
+                </p>
+
+                <h3>
+                  {
+                    decisaoProvador
+                      .titulo
+                  }
+                </h3>
+
+                <p>
+                  {
+                    decisaoProvador
+                      .descricao
+                  }
+                </p>
+
+
+                {decisaoProvador
+                  .destaques
+                  ?.length >
+                  0 && (
+                  <div className="observacoes">
+
+                    {decisaoProvador
+                      .destaques
+                      .map(
+                        (
+                          destaque,
+                          index
+                        ) => (
+                          <span
+                            key={
+                              index
+                            }
+                          >
+                            {
+                              destaque
+                            }
+                          </span>
+                        )
+                      )}
+
+                  </div>
+                )}
+
 
                 <button
                   type="button"
-                  className="trocar-foto"
-                  onClick={escolherFoto}
+                  className="botao-iniciar-provador"
+                  onClick={
+                    escolherFoto
+                  }
                 >
                   Escolher outra foto
                 </button>
 
-                {!sessaoProvador && (
-                  <button
-                    type="button"
-                    className="botao-iniciar-provador"
-                    onClick={prepararExperiencia}
-                    disabled={enviandoSessao}
-                  >
-                    {enviandoSessao
-                      ? "Registrando experiência..."
-                      : "✨ Preparar experiência VesteIA"}
-                  </button>
-                )}
               </div>
             )}
 
-          {sessaoProvador && (
-            <div className="modo-selecionado">
-              <h3>
-                ✅ Experiência registrada
-              </h3>
 
-              <p>
-                <strong>
-                  Sessão VesteIA:
-                </strong>{" "}
-                #{sessaoProvador.sessao_id}
-              </p>
+          {!decisaoProvador &&
+            analiseCaptura &&
+            analiseCaptura
+              .novaFotoNecessaria && (
+              <div className="modo-selecionado">
 
-              <p>
-                <strong>
-                  Status da requisição:
-                </strong>{" "}
-                {sessaoProvador.status}
-              </p>
+                <h3>
+                  Precisamos de outra foto
+                </h3>
 
-              <p>
-                <strong>
-                  Status do processamento:
-                </strong>{" "}
-                {sessaoProvador.status_processamento}
-              </p>
+                <p>
+                  {
+                    analiseCaptura
+                      .mensagem
+                  }
+                </p>
 
-              <p>
-                <strong>
-                  Pronto para processar:
-                </strong>{" "}
-                {sessaoProvador.pronto_para_processar
-                  ? "Sim"
-                  : "Não"}
-              </p>
-
-              <p>
-                <strong>
-                  Produto:
-                </strong>{" "}
-                {sessaoProvador.produto.nome}
-              </p>
-
-              <p>
-                <strong>
-                  Tamanho:
-                </strong>{" "}
-                {sessaoProvador.produto.tamanho}
-              </p>
-
-              <p>
-                <strong>
-                  Modo:
-                </strong>{" "}
-                {sessaoProvador.modo}
-              </p>
-
-              <p>
-                <strong>
-                  Arquivo:
-                </strong>{" "}
-                {sessaoProvador.arquivo.nome}
-              </p>
-
-              <p>
-                <strong>
-                  Formato:
-                </strong>{" "}
-                {sessaoProvador.arquivo.tipo}
-              </p>
-
-              <p>
-                <strong>
-                  Tamanho do arquivo:
-                </strong>{" "}
-                {sessaoProvador.arquivo.tamanho_bytes} bytes
-              </p>
-
-              <p>
-                <strong>
-                  Registrada em:
-                </strong>{" "}
-                {formatarData(
-                  sessaoProvador.criado_em
-                )}
-              </p>
-
-              <p>
-                {sessaoProvador.mensagem}
-              </p>
-
-              {!analiseCaptura && (
                 <button
                   type="button"
                   className="botao-iniciar-provador"
-                  onClick={analisarFotoRegistrada}
-                  disabled={analisandoCaptura}
+                  onClick={
+                    escolherFoto
+                  }
                 >
-                  {analisandoCaptura
-                    ? "Analisando captura..."
-                    : "Analisar foto com VesteIA"}
+                  Escolher outra foto
                 </button>
-              )}
-            </div>
-          )}
 
-          {analiseCaptura && (
-            <div className="modo-selecionado">
-              <p className="provador-etapa">
-                ANÁLISE DA CAPTURA
-              </p>
+              </div>
+            )}
 
-              <h3>
-                {analiseCaptura.titulo}
-              </h3>
 
-              <p>
-                {analiseCaptura.mensagem}
-              </p>
+          {modoExperimentacao ===
+            "avatar" && (
+              <div className="modo-selecionado">
 
-              <p>
-                <strong>
-                  Estado:
-                </strong>{" "}
-                {analiseCaptura.estado}
-              </p>
+                <h3>
+                  Avatar selecionado
+                </h3>
 
-              <p>
-                <strong>
-                  Qualidade:
-                </strong>{" "}
-                {analiseCaptura.qualidade?.nivel || "-"}
-              </p>
-
-              <p>
-                <strong>
-                  Pontuação:
-                </strong>{" "}
-                {analiseCaptura.qualidade?.pontuacao ?? "-"}
-              </p>
-
-              <p>
-                <strong>
-                  Pode continuar:
-                </strong>{" "}
-                {analiseCaptura.podeContinuar
-                  ? "Sim"
-                  : "Não"}
-              </p>
-
-              {analiseCaptura.orientacoes?.length > 0 && (
-                <div className="observacoes">
-                  {analiseCaptura.orientacoes.map(
-                    (orientacao, index) => (
-                      <span key={index}>
-                        {orientacao}
-                      </span>
-                    )
-                  )}
-                </div>
-              )}
-
-              {analiseCaptura.novaFotoNecessaria && (
-                <button
-                  type="button"
-                  className="trocar-foto"
-                  onClick={escolherFoto}
-                >
-                  Enviar uma nova foto
-                </button>
-              )}
-
-              {analiseCaptura.podeContinuar && (
                 <p>
-                  ✅ Captura liberada para a próxima etapa
-                  do Provador VesteIA.
+                  Na próxima etapa,
+                  você poderá utilizar
+                  uma representação virtual
+                  para experimentar esta peça.
                 </p>
-              )}
-            </div>
-          )}
 
-          {modoExperimentacao === "avatar" && (
-            <div className="modo-selecionado">
-              <h3>
-                Avatar selecionado
-              </h3>
+              </div>
+            )}
 
-              <p>
-                Na próxima etapa, o usuário poderá
-                utilizar uma representação virtual para
-                experimentar esta peça.
-              </p>
-            </div>
-          )}
 
           <button
             type="button"
             className="fechar-provador"
-            onClick={voltarAosProdutos}
+            onClick={
+              voltarAosProdutos
+            }
           >
             Voltar aos produtos
           </button>
+
         </section>
       )}
+
 
       {erro && (
         <p className="erro">
@@ -829,5 +1897,6 @@ function App() {
     </main>
   )
 }
+
 
 export default App

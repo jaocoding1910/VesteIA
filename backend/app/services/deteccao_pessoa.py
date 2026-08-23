@@ -66,6 +66,283 @@ MODEL_PATH = (
 )
 
 
+# ==========================================================
+# COMPRIMENTO VISUAL DO TRONCO
+# ==========================================================
+
+def calcular_comprimento_tronco_relativo(
+    pontos_corporais: dict,
+):
+    """
+    Calcula o comprimento visual relativo do tronco.
+
+    Referências:
+    centro dos ombros
+    até
+    centro dos quadris.
+
+    O resultado permanece em coordenadas
+    normalizadas da imagem.
+    """
+
+    pontos_necessarios = (
+        "ombro_esquerdo",
+        "ombro_direito",
+        "quadril_esquerdo",
+        "quadril_direito",
+    )
+
+    for nome in pontos_necessarios:
+        ponto = pontos_corporais.get(nome)
+
+        if not ponto:
+            return None
+
+        if not ponto.get(
+            "confiavel",
+            False,
+        ):
+            return None
+
+    ombro_esquerdo = pontos_corporais[
+        "ombro_esquerdo"
+    ]
+
+    ombro_direito = pontos_corporais[
+        "ombro_direito"
+    ]
+
+    quadril_esquerdo = pontos_corporais[
+        "quadril_esquerdo"
+    ]
+
+    quadril_direito = pontos_corporais[
+        "quadril_direito"
+    ]
+
+    centro_ombros_x = (
+        ombro_esquerdo["x"]
+        + ombro_direito["x"]
+    ) / 2
+
+    centro_ombros_y = (
+        ombro_esquerdo["y"]
+        + ombro_direito["y"]
+    ) / 2
+
+    centro_quadris_x = (
+        quadril_esquerdo["x"]
+        + quadril_direito["x"]
+    ) / 2
+
+    centro_quadris_y = (
+        quadril_esquerdo["y"]
+        + quadril_direito["y"]
+    ) / 2
+
+    diferenca_x = (
+        centro_quadris_x
+        - centro_ombros_x
+    )
+
+    diferenca_y = (
+        centro_quadris_y
+        - centro_ombros_y
+    )
+
+    comprimento_relativo = (
+        (
+            diferenca_x ** 2
+            + diferenca_y ** 2
+        )
+        ** 0.5
+    )
+
+    return round(
+        comprimento_relativo,
+        4,
+    )
+
+
+def converter_comprimento_tronco_cm(
+    comprimento_tronco_relativo,
+    escala_corporal: dict,
+):
+    """
+    Converte o comprimento relativo do tronco
+    para centímetros usando a escala corporal.
+
+    Continua sendo uma estimativa visual
+    experimental.
+    """
+
+    if comprimento_tronco_relativo is None:
+        return None
+
+    if not escala_corporal:
+        return None
+
+    if not escala_corporal.get(
+        "conversao_disponivel",
+        False,
+    ):
+        return None
+
+    escala_cm_por_unidade = (
+        escala_corporal.get(
+            "escala_cm_por_unidade"
+        )
+    )
+
+    if escala_cm_por_unidade is None:
+        return None
+
+    comprimento_tronco_cm = (
+        comprimento_tronco_relativo
+        * escala_cm_por_unidade
+    )
+
+    return round(
+        comprimento_tronco_cm,
+        2,
+    )
+
+
+# ==========================================================
+# LARGURA VISUAL DO TÓRAX
+# ==========================================================
+
+def calcular_largura_torax_relativa(
+    pontos_corporais: dict,
+):
+    """
+    Estima visualmente a largura do tórax.
+
+    O MediaPipe Pose não fornece landmarks
+    específicos das laterais do tórax.
+
+    Nesta versão experimental, a linha do tórax
+    é interpolada entre ombros e quadris.
+
+    Utilizamos aproximadamente 35% do trajeto:
+
+    ombros
+       ↓
+    linha estimada do tórax
+       ↓
+    quadris
+    """
+
+    pontos_necessarios = (
+        "ombro_esquerdo",
+        "ombro_direito",
+        "quadril_esquerdo",
+        "quadril_direito",
+    )
+
+    for nome in pontos_necessarios:
+        ponto = pontos_corporais.get(nome)
+
+        if not ponto:
+            return None
+
+        if not ponto.get(
+            "confiavel",
+            False,
+        ):
+            return None
+
+    ombro_esquerdo = pontos_corporais[
+        "ombro_esquerdo"
+    ]
+
+    ombro_direito = pontos_corporais[
+        "ombro_direito"
+    ]
+
+    quadril_esquerdo = pontos_corporais[
+        "quadril_esquerdo"
+    ]
+
+    quadril_direito = pontos_corporais[
+        "quadril_direito"
+    ]
+
+    fator_interpolacao = 0.35
+
+    torax_esquerdo_x = (
+        ombro_esquerdo["x"]
+        + (
+            quadril_esquerdo["x"]
+            - ombro_esquerdo["x"]
+        )
+        * fator_interpolacao
+    )
+
+    torax_direito_x = (
+        ombro_direito["x"]
+        + (
+            quadril_direito["x"]
+            - ombro_direito["x"]
+        )
+        * fator_interpolacao
+    )
+
+    largura_torax_relativa = abs(
+        torax_esquerdo_x
+        - torax_direito_x
+    )
+
+    return round(
+        largura_torax_relativa,
+        4,
+    )
+
+
+def converter_largura_torax_cm(
+    largura_torax_relativa,
+    escala_corporal: dict,
+):
+    """
+    Converte a largura visual relativa do tórax
+    para centímetros.
+
+    A medida é experimental e não deve ser
+    tratada como medida antropométrica precisa.
+    """
+
+    if largura_torax_relativa is None:
+        return None
+
+    if not escala_corporal:
+        return None
+
+    if not escala_corporal.get(
+        "conversao_disponivel",
+        False,
+    ):
+        return None
+
+    escala_cm_por_unidade = (
+        escala_corporal.get(
+            "escala_cm_por_unidade"
+        )
+    )
+
+    if escala_cm_por_unidade is None:
+        return None
+
+    largura_torax_cm = (
+        largura_torax_relativa
+        * escala_cm_por_unidade
+    )
+
+    return round(
+        largura_torax_cm,
+        2,
+    )
+
+
 def detectar_pessoa(
     caminho_imagem,
     altura_cm=None,
@@ -73,13 +350,15 @@ def detectar_pessoa(
     """
     Executa o pipeline visual corporal do VesteIA.
 
-    Pipeline atual:
+    Pipeline:
     - detecção humana
     - landmarks corporais
     - qualidade das regiões
     - referência relativa de altura
     - calibração corporal
-    - geometria e proporções
+    - geometria corporal
+    - comprimento visual do tronco
+    - largura visual estimada do tórax
     - escala visual
     - medidas experimentais em centímetros
     - consistência geométrica
@@ -87,17 +366,14 @@ def detectar_pessoa(
     - distorção de perspectiva
     - qualidade geral da captura
     - controle central do fluxo
-    - resultado amigável da captura
-    - resumo estável para o frontend
+    - resultado amigável
+    - resumo para frontend
     - calibração anatômica
     - fator métrico
     - medidas corporais consolidadas
     - contexto de ajuste
     - confiança
     - vestibilidade
-
-    Quando a qualidade da captura não é suficiente,
-    as etapas posteriores são bloqueadas.
     """
 
     caminho = Path(
@@ -283,6 +559,8 @@ def detectar_pessoa(
         geometria_corporal = {
             "largura_ombros": None,
             "largura_quadril": None,
+            "largura_torax_relativa": None,
+            "comprimento_tronco_relativo": None,
         }
 
         proporcoes_corporais = {
@@ -300,6 +578,8 @@ def detectar_pessoa(
             "status": "medidas_indisponiveis",
             "largura_ombros_cm": None,
             "largura_quadril_cm": None,
+            "largura_torax_cm": None,
+            "comprimento_tronco_cm": None,
             "uso_para_recomendacao_tamanho": False,
         }
 
@@ -344,6 +624,8 @@ def detectar_pessoa(
             "medidas_liberadas": False,
             "largura_ombros_cm": None,
             "largura_quadril_cm": None,
+            "largura_torax_cm": None,
+            "comprimento_tronco_cm": None,
             "medidas_corrigidas_anatomicamente": False,
             "uso_para_recomendacao_tamanho": False,
         }
@@ -376,21 +658,18 @@ def detectar_pessoa(
                     "total_pontos": 0,
                     "percentual_confiavel": 0,
                 },
-
                 "bracos": {
                     "status": "insuficiente",
                     "pontos_confiaveis": 0,
                     "total_pontos": 0,
                     "percentual_confiavel": 0,
                 },
-
                 "pernas": {
                     "status": "insuficiente",
                     "pontos_confiaveis": 0,
                     "total_pontos": 0,
                     "percentual_confiavel": 0,
                 },
-
                 "pes": {
                     "status": "insuficiente",
                     "pontos_confiaveis": 0,
@@ -410,6 +689,10 @@ def detectar_pessoa(
             "geometria_corporal": (
                 geometria_corporal
             ),
+
+            "largura_torax_relativa": None,
+
+            "comprimento_tronco_relativo": None,
 
             "proporcoes_corporais": (
                 proporcoes_corporais
@@ -501,24 +784,20 @@ def detectar_pessoa(
     landmarks_convertidos = []
 
     for landmark in landmarks:
-
         landmarks_convertidos.append(
             {
                 "x": round(
                     landmark.x,
                     4,
                 ),
-
                 "y": round(
                     landmark.y,
                     4,
                 ),
-
                 "z": round(
                     landmark.z,
                     4,
                 ),
-
                 "visibilidade": round(
                     landmark.visibility,
                     4,
@@ -606,13 +885,30 @@ def detectar_pessoa(
         )
     )
 
+    largura_torax_relativa = (
+        calcular_largura_torax_relativa(
+            pontos_corporais
+        )
+    )
+
+    comprimento_tronco_relativo = (
+        calcular_comprimento_tronco_relativo(
+            pontos_corporais
+        )
+    )
+
     geometria_corporal = {
         "largura_ombros": (
             largura_ombros
         ),
-
         "largura_quadril": (
             largura_quadril
+        ),
+        "largura_torax_relativa": (
+            largura_torax_relativa
+        ),
+        "comprimento_tronco_relativo": (
+            comprimento_tronco_relativo
         ),
     }
 
@@ -650,13 +946,11 @@ def detectar_pessoa(
         calibracao_pronta
         and referencia_pronta
     ):
-
         escala_corporal = (
             calcular_escala_corporal(
                 altura_usuario_cm=(
                     altura_cm
                 ),
-
                 altura_corpo_relativa=(
                     altura_corpo_relativa
                 ),
@@ -664,7 +958,6 @@ def detectar_pessoa(
         )
 
     else:
-
         escala_corporal = {
             "status": "escala_indisponivel",
             "escala_cm_por_unidade": None,
@@ -674,6 +967,32 @@ def detectar_pessoa(
                 "corporal_indisponivel"
             ),
         }
+
+    # ======================================================
+    # NOVAS MEDIDAS EM CM
+    # ======================================================
+
+    comprimento_tronco_cm = (
+        converter_comprimento_tronco_cm(
+            comprimento_tronco_relativo=(
+                comprimento_tronco_relativo
+            ),
+            escala_corporal=(
+                escala_corporal
+            ),
+        )
+    )
+
+    largura_torax_cm = (
+        converter_largura_torax_cm(
+            largura_torax_relativa=(
+                largura_torax_relativa
+            ),
+            escala_corporal=(
+                escala_corporal
+            ),
+        )
+    )
 
     # ======================================================
     # MEDIDAS EXPERIMENTAIS EM CM
@@ -691,25 +1010,40 @@ def detectar_pessoa(
         )
         and escala_cm_por_unidade is not None
     ):
-
         medidas_corporais_estimadas = (
             estimar_medidas_corporais(
                 geometria_corporal=(
                     geometria_corporal
                 ),
-
                 escala_cm_por_unidade=(
                     escala_cm_por_unidade
                 ),
             )
         )
 
-    else:
+        medidas_corporais_estimadas = {
+            **medidas_corporais_estimadas,
 
+            "largura_torax_cm": (
+                largura_torax_cm
+            ),
+
+            "comprimento_tronco_cm": (
+                comprimento_tronco_cm
+            ),
+
+            "origem_largura_torax": (
+                "estimativa_visual_interpolada"
+            ),
+        }
+
+    else:
         medidas_corporais_estimadas = {
             "status": "escala_indisponivel",
             "largura_ombros_cm": None,
             "largura_quadril_cm": None,
+            "largura_torax_cm": None,
+            "comprimento_tronco_cm": None,
             "unidade": "cm",
             "tipo_medida": (
                 "estimativa_visual_provisoria"
@@ -726,11 +1060,9 @@ def detectar_pessoa(
             geometria_corporal=(
                 geometria_corporal
             ),
-
             proporcoes_corporais=(
                 proporcoes_corporais
             ),
-
             referencia_altura_corporal=(
                 referencia_altura_corporal
             ),
@@ -746,7 +1078,6 @@ def detectar_pessoa(
             pontos_corporais=(
                 pontos_corporais
             ),
-
             consistencia_geometrica=(
                 consistencia_geometrica
             ),
@@ -774,15 +1105,12 @@ def detectar_pessoa(
             qualidade_regioes=(
                 qualidade_regioes
             ),
-
             calibracao_corporal=(
                 calibracao_corporal
             ),
-
             pose_para_correcao_anatomica=(
                 pose_para_correcao_anatomica
             ),
-
             indice_distorcao_perspectiva=(
                 indice_distorcao_perspectiva
             ),
@@ -802,7 +1130,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # RESULTADO AMIGÁVEL DA CAPTURA
+    # RESULTADO AMIGÁVEL
     # ======================================================
 
     resultado_captura = (
@@ -810,7 +1138,6 @@ def detectar_pessoa(
             qualidade_captura=(
                 qualidade_captura
             ),
-
             controle_fluxo_provador=(
                 controle_fluxo_provador
             ),
@@ -818,7 +1145,7 @@ def detectar_pessoa(
     )
 
     # ======================================================
-    # CONTRATO FINAL PARA O FRONTEND
+    # RESUMO PARA FRONTEND
     # ======================================================
 
     resumo_provador = (
@@ -826,7 +1153,6 @@ def detectar_pessoa(
             resultado_captura=(
                 resultado_captura
             ),
-
             controle_fluxo_provador=(
                 controle_fluxo_provador
             ),
@@ -864,6 +1190,8 @@ def detectar_pessoa(
             "medidas_liberadas": False,
             "largura_ombros_cm": None,
             "largura_quadril_cm": None,
+            "largura_torax_cm": None,
+            "comprimento_tronco_cm": None,
             "medidas_corrigidas_anatomicamente": False,
             "uso_para_recomendacao_tamanho": False,
             "motivos": [
@@ -953,15 +1281,12 @@ def detectar_pessoa(
                 calibracao_corporal=(
                     calibracao_corporal
                 ),
-
                 escala_corporal=(
                     escala_corporal
                 ),
-
                 medidas_corporais_estimadas=(
                     medidas_corporais_estimadas
                 ),
-
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -973,13 +1298,11 @@ def detectar_pessoa(
                 altura_usuario_cm=(
                     altura_cm
                 ),
-
                 altura_corpo_relativa=(
                     referencia_altura_corporal.get(
                         "altura_corpo_relativa"
                     )
                 ),
-
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
@@ -991,20 +1314,33 @@ def detectar_pessoa(
                 medidas_corporais_estimadas=(
                     medidas_corporais_estimadas
                 ),
-
                 calibracao_anatomica=(
                     calibracao_anatomica
                 ),
-
                 fator_calibracao_metrica=(
                     fator_calibracao_metrica
                 ),
-
                 consistencia_geometrica=(
                     consistencia_geometrica
                 ),
             )
         )
+
+        medidas_corporais_calibradas = {
+            **medidas_corporais_calibradas,
+
+            "largura_torax_cm": (
+                largura_torax_cm
+            ),
+
+            "comprimento_tronco_cm": (
+                comprimento_tronco_cm
+            ),
+
+            "origem_largura_torax": (
+                "estimativa_visual_interpolada"
+            ),
+        }
 
         conversao_cm_executada = (
             medidas_corporais_estimadas.get(
@@ -1098,6 +1434,14 @@ def detectar_pessoa(
             geometria_corporal
         ),
 
+        "largura_torax_relativa": (
+            largura_torax_relativa
+        ),
+
+        "comprimento_tronco_relativo": (
+            comprimento_tronco_relativo
+        ),
+
         "proporcoes_corporais": (
             proporcoes_corporais
         ),
@@ -1174,6 +1518,9 @@ def detectar_pessoa(
             "Presença humana detectada, "
             "qualidade da captura avaliada, "
             "fluxo do provador decidido, "
+            "comprimento visual do tronco e "
+            "largura visual estimada do tórax "
+            "calculados quando disponíveis, "
             "resultado amigável gerado, "
             "contrato resumido preparado "
             "para o frontend e etapas posteriores "
