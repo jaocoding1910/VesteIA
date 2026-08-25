@@ -210,6 +210,314 @@ def _resultado_ranking(
     return "alternativa"
 
 
+def _calcular_confianca_ranking(
+    ranking,
+):
+    """
+    Calcula a confiança relativa do ranking
+    utilizando a diferença entre o primeiro
+    e o segundo colocado.
+
+    A confiança aqui não representa
+    precisão antropométrica.
+
+    Ela indica apenas o quanto o primeiro
+    colocado se destacou das demais opções.
+    """
+
+    if not ranking:
+        return {
+            "nivel": "indisponivel",
+            "diferenca_primeiro_segundo": None,
+            "primeiro_colocado": None,
+            "segundo_colocado": None,
+            "observacao": (
+                "Não existem opções suficientes "
+                "para calcular a confiança do ranking."
+            ),
+        }
+
+    primeiro = ranking[0]
+
+    if len(ranking) == 1:
+        return {
+            "nivel": "baixa",
+            "diferenca_primeiro_segundo": None,
+            "primeiro_colocado": (
+                primeiro.get(
+                    "tamanho"
+                )
+            ),
+            "segundo_colocado": None,
+            "observacao": (
+                "Existe apenas uma opção válida "
+                "de tamanho para comparação."
+            ),
+        }
+
+    segundo = ranking[1]
+
+    pontuacao_primeiro = float(
+        primeiro.get(
+            "pontuacao",
+            0,
+        )
+        or 0
+    )
+
+    pontuacao_segundo = float(
+        segundo.get(
+            "pontuacao",
+            0,
+        )
+        or 0
+    )
+
+    diferenca = (
+        pontuacao_primeiro
+        - pontuacao_segundo
+    )
+
+    diferenca = round(
+        max(
+            diferenca,
+            0,
+        ),
+        4,
+    )
+
+    if diferenca >= 0.10:
+        nivel = "alta"
+
+    elif diferenca >= 0.04:
+        nivel = "media"
+
+    else:
+        nivel = "baixa"
+
+    if nivel == "alta":
+        observacao = (
+            "O primeiro tamanho apresentou "
+            "vantagem clara sobre a segunda opção."
+        )
+
+    elif nivel == "media":
+        observacao = (
+            "O primeiro tamanho apresentou "
+            "vantagem moderada sobre a segunda opção."
+        )
+
+    else:
+        observacao = (
+            "Os dois melhores tamanhos ficaram "
+            "muito próximos no ranking."
+        )
+
+    return {
+        "nivel": nivel,
+
+        "diferenca_primeiro_segundo": (
+            diferenca
+        ),
+
+        "primeiro_colocado": (
+            primeiro.get(
+                "tamanho"
+            )
+        ),
+
+        "segundo_colocado": (
+            segundo.get(
+                "tamanho"
+            )
+        ),
+
+        "pontuacao_primeiro": round(
+            pontuacao_primeiro,
+            4,
+        ),
+
+        "pontuacao_segundo": round(
+            pontuacao_segundo,
+            4,
+        ),
+
+        "observacao": (
+            observacao
+        ),
+    }
+
+
+def _gerar_explicacao_decisao(
+    melhor,
+    segundo,
+    preferencia,
+):
+    """
+    Gera uma explicação resumida
+    da escolha do primeiro colocado.
+
+    A explicação não afirma que o tamanho
+    é definitivo; apenas descreve
+    o comportamento do ranking experimental.
+    """
+
+    if not melhor:
+        return {
+            "motivo_principal": (
+                "indisponivel"
+            ),
+
+            "largura": (
+                "indisponivel"
+            ),
+
+            "comprimento": (
+                "indisponivel"
+            ),
+
+            "preferencia_caimento": (
+                preferencia
+            ),
+
+            "mensagem": (
+                "Não foi possível explicar "
+                "a decisão de tamanho."
+            ),
+        }
+
+    score_largura = float(
+        melhor.get(
+            "score_largura",
+            0,
+        )
+        or 0
+    )
+
+    score_comprimento = float(
+        melhor.get(
+            "score_comprimento",
+            0,
+        )
+        or 0
+    )
+
+    caimento_largura = (
+        melhor.get(
+            "caimento_largura"
+        )
+    )
+
+    caimento_comprimento = (
+        melhor.get(
+            "caimento_comprimento"
+        )
+    )
+
+    if abs(
+        score_largura
+        - score_comprimento
+    ) <= 0.08:
+        motivo_principal = (
+            "melhor_equilibrio_largura_comprimento"
+        )
+
+    elif score_largura > score_comprimento:
+        motivo_principal = (
+            "largura_mais_proxima_do_alvo"
+        )
+
+    else:
+        motivo_principal = (
+            "comprimento_mais_proximo_do_alvo"
+        )
+
+    mensagens_preferencia = {
+        "justo": (
+            "com prioridade para um "
+            "caimento mais ajustado"
+        ),
+
+        "padrao": (
+            "buscando equilíbrio entre "
+            "ajuste e conforto"
+        ),
+
+        "solto": (
+            "com prioridade para um "
+            "caimento mais solto"
+        ),
+    }
+
+    mensagem = (
+        f"O tamanho {melhor.get('tamanho')} "
+        "obteve o melhor equilíbrio entre "
+        "largura e comprimento "
+        f"{mensagens_preferencia[preferencia]}."
+    )
+
+    if segundo:
+        diferenca = round(
+            (
+                float(
+                    melhor.get(
+                        "pontuacao",
+                        0,
+                    )
+                    or 0
+                )
+                -
+                float(
+                    segundo.get(
+                        "pontuacao",
+                        0,
+                    )
+                    or 0
+                )
+            ),
+            4,
+        )
+
+        if diferenca < 0.04:
+            mensagem += (
+                f" O tamanho {segundo.get('tamanho')} "
+                "ficou muito próximo e também pode "
+                "ser uma alternativa válida."
+            )
+
+    return {
+        "motivo_principal": (
+            motivo_principal
+        ),
+
+        "largura": (
+            caimento_largura
+        ),
+
+        "comprimento": (
+            caimento_comprimento
+        ),
+
+        "score_largura": round(
+            score_largura,
+            4,
+        ),
+
+        "score_comprimento": round(
+            score_comprimento,
+            4,
+        ),
+
+        "preferencia_caimento": (
+            preferencia
+        ),
+
+        "mensagem": (
+            mensagem
+        ),
+    }
+
+
 def gerar_recomendacao_tamanho_provador(
     variacoes_produto,
     deteccao,
@@ -254,6 +562,13 @@ def gerar_recomendacao_tamanho_provador(
             "pontuacao_melhor_tamanho": None,
 
             "ranking": [],
+
+            "confianca_ranking": {
+                "nivel": "indisponivel",
+                "diferenca_primeiro_segundo": None,
+            },
+
+            "explicacao_decisao": None,
 
             "nivel": "indisponivel",
 
@@ -321,6 +636,13 @@ def gerar_recomendacao_tamanho_provador(
 
             "ranking": [],
 
+            "confianca_ranking": {
+                "nivel": "indisponivel",
+                "diferenca_primeiro_segundo": None,
+            },
+
+            "explicacao_decisao": None,
+
             "nivel": "indisponivel",
 
             "recomendacao_definitiva": False,
@@ -374,6 +696,13 @@ def gerar_recomendacao_tamanho_provador(
 
             "ranking": [],
 
+            "confianca_ranking": {
+                "nivel": "indisponivel",
+                "diferenca_primeiro_segundo": None,
+            },
+
+            "explicacao_decisao": None,
+
             "nivel": "indisponivel",
 
             "recomendacao_definitiva": False,
@@ -415,6 +744,13 @@ def gerar_recomendacao_tamanho_provador(
             "pontuacao_melhor_tamanho": None,
 
             "ranking": [],
+
+            "confianca_ranking": {
+                "nivel": "indisponivel",
+                "diferenca_primeiro_segundo": None,
+            },
+
+            "explicacao_decisao": None,
 
             "nivel": "indisponivel",
 
@@ -651,6 +987,13 @@ def gerar_recomendacao_tamanho_provador(
 
             "ranking": [],
 
+            "confianca_ranking": {
+                "nivel": "indisponivel",
+                "diferenca_primeiro_segundo": None,
+            },
+
+            "explicacao_decisao": None,
+
             "nivel": "indisponivel",
 
             "recomendacao_definitiva": False,
@@ -700,10 +1043,30 @@ def gerar_recomendacao_tamanho_provador(
 
     melhor = ranking[0]
 
+    segundo = (
+        ranking[1]
+        if len(ranking) > 1
+        else None
+    )
+
     tamanho_sugerido = (
         melhor[
             "tamanho"
         ]
+    )
+
+    confianca_ranking = (
+        _calcular_confianca_ranking(
+            ranking
+        )
+    )
+
+    explicacao_decisao = (
+        _gerar_explicacao_decisao(
+            melhor=melhor,
+            segundo=segundo,
+            preferencia=preferencia,
+        )
     )
 
     mensagens_preferencia = {
@@ -761,18 +1124,14 @@ def gerar_recomendacao_tamanho_provador(
         },
 
         "medidas_corporais_referencia": {
-            "largura_torax_cm": (
-                round(
-                    largura_torax_cm,
-                    2,
-                )
+            "largura_torax_cm": round(
+                largura_torax_cm,
+                2,
             ),
 
-            "comprimento_tronco_cm": (
-                round(
-                    comprimento_tronco_cm,
-                    2,
-                )
+            "comprimento_tronco_cm": round(
+                comprimento_tronco_cm,
+                2,
             ),
         },
 
@@ -790,6 +1149,14 @@ def gerar_recomendacao_tamanho_provador(
 
         "ranking": (
             ranking
+        ),
+
+        "confianca_ranking": (
+            confianca_ranking
+        ),
+
+        "explicacao_decisao": (
+            explicacao_decisao
         ),
 
         "nivel": (
