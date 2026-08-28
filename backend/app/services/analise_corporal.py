@@ -35,21 +35,37 @@ LANDMARKS_CORPORAIS = {
 }
 
 
-def extrair_landmarks_corporais(landmarks: list) -> dict:
+def extrair_landmarks_corporais(
+    landmarks: list,
+) -> dict:
     pontos_corporais = {}
 
-    for nome, indice in LANDMARKS_CORPORAIS.items():
+    for nome, indice in (
+        LANDMARKS_CORPORAIS.items()
+    ):
 
-        if indice >= len(landmarks):
+        if indice >= len(
+            landmarks
+        ):
             continue
 
-        ponto = landmarks[indice]
+        ponto = (
+            landmarks[
+                indice
+            ]
+        )
 
-        pontos_corporais[nome] = {
+        pontos_corporais[
+            nome
+        ] = {
             "x": ponto["x"],
             "y": ponto["y"],
             "z": ponto["z"],
-            "visibilidade": ponto["visibilidade"],
+            "visibilidade": (
+                ponto[
+                    "visibilidade"
+                ]
+            ),
         }
 
     return pontos_corporais
@@ -57,107 +73,171 @@ def extrair_landmarks_corporais(landmarks: list) -> dict:
 
 def avaliar_visibilidade_ponto(
     ponto: dict,
-    limite: float = 0.5
+    limite: float = 0.5,
 ) -> bool:
     """
-    Verifica se um landmark possui visibilidade
-    suficiente para ser utilizado na análise corporal.
+    Verifica se um landmark possui
+    visibilidade suficiente para ser
+    utilizado na análise corporal.
     """
 
-    visibilidade = ponto.get(
-        "visibilidade",
-        0,
+    visibilidade = (
+        ponto.get(
+            "visibilidade",
+            0,
+        )
     )
 
-    return visibilidade >= limite
+    return (
+        visibilidade
+        >= limite
+    )
 
 
 def classificar_pontos_corporais(
     pontos_corporais: dict,
-    limite: float = 0.5
+    limite: float = 0.5,
 ) -> dict:
     """
-    Classifica os pontos corporais de acordo
-    com a qualidade de visibilidade.
+    Classifica os pontos corporais
+    de acordo com a qualidade
+    de visibilidade.
     """
 
     classificacao = {}
 
-    for nome, ponto in pontos_corporais.items():
+    for nome, ponto in (
+        pontos_corporais.items()
+    ):
 
-        confiavel = avaliar_visibilidade_ponto(
-            ponto,
-            limite,
+        confiavel = (
+            avaliar_visibilidade_ponto(
+                ponto,
+                limite,
+            )
         )
 
-        classificacao[nome] = {
+        classificacao[
+            nome
+        ] = {
             **ponto,
-            "confiavel": confiavel,
+            "confiavel": (
+                confiavel
+            ),
         }
 
     return classificacao
 
 
 def avaliar_aptidao_por_categoria(
-    pontos_corporais
+    pontos_corporais,
 ):
     """
-    Avalia quais categorias de produto podem utilizar
-    os pontos corporais detectados com confiança.
+    Avalia quais categorias
+    podem utilizar os pontos
+    corporais detectados.
     """
 
-    def ponto_confiavel(nome):
-        ponto = pontos_corporais.get(
-            nome
+    def ponto_confiavel(
+        nome,
+    ):
+        ponto = (
+            pontos_corporais.get(
+                nome
+            )
         )
 
         if not ponto:
             return False
 
-        return ponto.get(
-            "confiavel",
-            False,
+        return (
+            ponto.get(
+                "confiavel",
+                False,
+            )
         )
 
-    aptidao = {
+    return {
         "camiseta": (
-            ponto_confiavel("ombro_esquerdo")
-            and ponto_confiavel("ombro_direito")
+            ponto_confiavel(
+                "ombro_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "ombro_direito"
+            )
         ),
 
         "calca": (
-            ponto_confiavel("quadril_esquerdo")
-            and ponto_confiavel("quadril_direito")
-            and ponto_confiavel("joelho_esquerdo")
-            and ponto_confiavel("joelho_direito")
+            ponto_confiavel(
+                "quadril_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "quadril_direito"
+            )
+            and
+            ponto_confiavel(
+                "joelho_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "joelho_direito"
+            )
         ),
 
         "vestido": (
-            ponto_confiavel("ombro_esquerdo")
-            and ponto_confiavel("ombro_direito")
-            and ponto_confiavel("quadril_esquerdo")
-            and ponto_confiavel("quadril_direito")
+            ponto_confiavel(
+                "ombro_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "ombro_direito"
+            )
+            and
+            ponto_confiavel(
+                "quadril_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "quadril_direito"
+            )
         ),
 
         "calcado": (
-            ponto_confiavel("tornozelo_esquerdo")
-            and ponto_confiavel("tornozelo_direito")
-            and ponto_confiavel("calcanhar_esquerdo")
-            and ponto_confiavel("calcanhar_direito")
-            and ponto_confiavel("ponta_pe_esquerdo")
-            and ponto_confiavel("ponta_pe_direito")
+            ponto_confiavel(
+                "tornozelo_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "tornozelo_direito"
+            )
+            and
+            ponto_confiavel(
+                "calcanhar_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "calcanhar_direito"
+            )
+            and
+            ponto_confiavel(
+                "ponta_pe_esquerdo"
+            )
+            and
+            ponto_confiavel(
+                "ponta_pe_direito"
+            )
         ),
     }
 
-    return aptidao
-
 
 def organizar_regioes_corporais(
-    pontos_corporais
+    pontos_corporais,
 ):
     """
-    Organiza os pontos corporais detectados em regiões
-    úteis para o pipeline do VesteIA.
+    Organiza landmarks em regiões
+    úteis para o pipeline.
     """
 
     regioes = {
@@ -196,40 +276,52 @@ def organizar_regioes_corporais(
 
     resultado = {}
 
-    for nome_regiao, nomes_pontos in regioes.items():
+    for (
+        nome_regiao,
+        nomes_pontos,
+    ) in regioes.items():
 
         pontos_disponiveis = {}
 
-        for nome_ponto in nomes_pontos:
+        for nome_ponto in (
+            nomes_pontos
+        ):
 
-            if nome_ponto in pontos_corporais:
-                pontos_disponiveis[nome_ponto] = (
-                    pontos_corporais[nome_ponto]
+            if (
+                nome_ponto
+                in pontos_corporais
+            ):
+                pontos_disponiveis[
+                    nome_ponto
+                ] = (
+                    pontos_corporais[
+                        nome_ponto
+                    ]
                 )
 
-        resultado[nome_regiao] = (
-            pontos_disponiveis
-        )
+        resultado[
+            nome_regiao
+        ] = pontos_disponiveis
 
     return resultado
 
 
 def avaliar_qualidade_regioes(
-    regioes_corporais
+    regioes_corporais,
 ):
     """
-    Avalia a qualidade de cada região corporal
-    com base na quantidade de pontos confiáveis.
-
-    Retorna:
-    - apta
-    - parcial
-    - insuficiente
+    Avalia a qualidade de cada
+    região corporal.
     """
 
     resultado = {}
 
-    for nome_regiao, pontos in regioes_corporais.items():
+    for (
+        nome_regiao,
+        pontos,
+    ) in (
+        regioes_corporais.items()
+    ):
 
         total_pontos = len(
             pontos
@@ -237,14 +329,18 @@ def avaliar_qualidade_regioes(
 
         pontos_confiaveis = sum(
             1
-            for ponto in pontos.values()
+            for ponto
+            in pontos.values()
             if ponto.get(
                 "confiavel",
                 False,
             )
         )
 
-        if total_pontos == 0:
+        if (
+            total_pontos
+            == 0
+        ):
             percentual = 0
 
         else:
@@ -260,12 +356,25 @@ def avaliar_qualidade_regioes(
             status = "parcial"
 
         else:
-            status = "insuficiente"
+            status = (
+                "insuficiente"
+            )
 
-        resultado[nome_regiao] = {
-            "status": status,
-            "pontos_confiaveis": pontos_confiaveis,
-            "total_pontos": total_pontos,
+        resultado[
+            nome_regiao
+        ] = {
+            "status": (
+                status
+            ),
+
+            "pontos_confiaveis": (
+                pontos_confiaveis
+            ),
+
+            "total_pontos": (
+                total_pontos
+            ),
+
             "percentual_confiavel": round(
                 percentual,
                 2,
@@ -275,16 +384,94 @@ def avaliar_qualidade_regioes(
     return resultado
 
 
-def calcular_distancia_2d(
-    ponto_a,
-    ponto_b
+# ==========================================================
+# GEOMETRIA CORRIGIDA DA IMAGEM
+# ==========================================================
+
+def normalizar_aspect_ratio(
+    aspect_ratio,
 ):
     """
-    Calcula a distância bidimensional entre dois
-    pontos corporais usando as coordenadas x e y.
+    Garante um aspect ratio utilizável.
+
+    O valor representa:
+
+        largura_imagem / altura_imagem
+
+    Para manter compatibilidade,
+    valores ausentes ou inválidos
+    retornam 1.0.
     """
 
-    if not ponto_a or not ponto_b:
+    if aspect_ratio is None:
+        return 1.0
+
+    try:
+        aspect_ratio = float(
+            aspect_ratio
+        )
+
+    except (
+        TypeError,
+        ValueError,
+    ):
+        return 1.0
+
+    if aspect_ratio <= 0:
+        return 1.0
+
+    return aspect_ratio
+
+
+def corrigir_delta_x(
+    delta_x,
+    aspect_ratio=1.0,
+):
+    """
+    Corrige uma distância normalizada
+    no eixo X para o sistema relativo
+    ao eixo Y.
+
+    MediaPipe normaliza:
+    - X pela largura da imagem
+    - Y pela altura da imagem
+
+    Portanto:
+
+        delta_x_corrigido
+        =
+        delta_x * largura/altura
+    """
+
+    aspect_ratio = (
+        normalizar_aspect_ratio(
+            aspect_ratio
+        )
+    )
+
+    return (
+        delta_x
+        * aspect_ratio
+    )
+
+
+def calcular_distancia_2d(
+    ponto_a,
+    ponto_b,
+    aspect_ratio=1.0,
+):
+    """
+    Calcula distância 2D corrigindo
+    a diferença de escala entre X e Y.
+
+    O resultado fica relativo
+    à dimensão vertical da imagem.
+    """
+
+    if (
+        not ponto_a
+        or not ponto_b
+    ):
         return None
 
     delta_x = (
@@ -297,9 +484,23 @@ def calcular_distancia_2d(
         - ponto_a["y"]
     )
 
+    delta_x_corrigido = (
+        corrigir_delta_x(
+            delta_x,
+            aspect_ratio,
+        )
+    )
+
     distancia = math.sqrt(
-        delta_x ** 2
-        + delta_y ** 2
+        (
+            delta_x_corrigido
+            ** 2
+        )
+        +
+        (
+            delta_y
+            ** 2
+        )
     )
 
     return round(
@@ -309,94 +510,117 @@ def calcular_distancia_2d(
 
 
 def calcular_largura_ombros(
-    pontos_corporais
+    pontos_corporais,
+    aspect_ratio=1.0,
 ):
     """
-    Calcula a largura relativa dos ombros
-    usando os landmarks esquerdo e direito.
+    Calcula a largura relativa
+    dos ombros com correção
+    geométrica X/Y.
     """
 
-    ombro_esquerdo = pontos_corporais.get(
-        "ombro_esquerdo"
+    ombro_esquerdo = (
+        pontos_corporais.get(
+            "ombro_esquerdo"
+        )
     )
 
-    ombro_direito = pontos_corporais.get(
-        "ombro_direito"
+    ombro_direito = (
+        pontos_corporais.get(
+            "ombro_direito"
+        )
     )
 
     if (
         not ombro_esquerdo
-        or not ombro_direito
+        or
+        not ombro_direito
     ):
         return None
 
-    if not ombro_esquerdo.get(
-        "confiavel",
-        False,
+    if not (
+        ombro_esquerdo.get(
+            "confiavel",
+            False,
+        )
     ):
         return None
 
-    if not ombro_direito.get(
-        "confiavel",
-        False,
+    if not (
+        ombro_direito.get(
+            "confiavel",
+            False,
+        )
     ):
         return None
 
     return calcular_distancia_2d(
         ombro_esquerdo,
         ombro_direito,
+        aspect_ratio=aspect_ratio,
     )
 
 
 def calcular_largura_quadril(
-    pontos_corporais
+    pontos_corporais,
+    aspect_ratio=1.0,
 ):
     """
-    Calcula a largura relativa do quadril
-    usando os landmarks esquerdo e direito.
+    Calcula a largura relativa
+    do quadril com correção
+    geométrica X/Y.
     """
 
-    quadril_esquerdo = pontos_corporais.get(
-        "quadril_esquerdo"
+    quadril_esquerdo = (
+        pontos_corporais.get(
+            "quadril_esquerdo"
+        )
     )
 
-    quadril_direito = pontos_corporais.get(
-        "quadril_direito"
+    quadril_direito = (
+        pontos_corporais.get(
+            "quadril_direito"
+        )
     )
 
     if (
         not quadril_esquerdo
-        or not quadril_direito
+        or
+        not quadril_direito
     ):
         return None
 
-    if not quadril_esquerdo.get(
-        "confiavel",
-        False,
+    if not (
+        quadril_esquerdo.get(
+            "confiavel",
+            False,
+        )
     ):
         return None
 
-    if not quadril_direito.get(
-        "confiavel",
-        False,
+    if not (
+        quadril_direito.get(
+            "confiavel",
+            False,
+        )
     ):
         return None
 
     return calcular_distancia_2d(
         quadril_esquerdo,
         quadril_direito,
+        aspect_ratio=aspect_ratio,
     )
 
 
 def calcular_proporcoes_corporais(
-    geometria_corporal
+    geometria_corporal,
 ):
     """
-    Calcula proporções corporais relativas
-    a partir da geometria detectada na imagem.
+    Calcula proporções corporais
+    a partir da geometria corrigida.
 
-    Não representa medidas reais
-    em centímetros.
+    Continua sendo uma análise visual.
     """
 
     largura_ombros = (
@@ -413,11 +637,14 @@ def calcular_proporcoes_corporais(
 
     if (
         not largura_ombros
-        or not largura_quadril
+        or
+        not largura_quadril
     ):
         return {
             "proporcao_ombros_quadril": None,
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
         }
 
     proporcao = (
@@ -430,23 +657,25 @@ def calcular_proporcoes_corporais(
             proporcao,
             4,
         ),
-        "status": "calculada",
+
+        "status": (
+            "calculada"
+        ),
     }
 
 
 def interpretar_proporcoes_corporais(
-    proporcoes_corporais
+    proporcoes_corporais,
 ):
     """
-    Interpreta as proporções corporais relativas
-    calculadas pelo pipeline visual do VesteIA.
-
-    A interpretação é geométrica e não representa
-    medidas corporais reais em centímetros.
+    Interpreta as proporções
+    corporais relativas.
     """
 
-    proporcao = proporcoes_corporais.get(
-        "proporcao_ombros_quadril"
+    proporcao = (
+        proporcoes_corporais.get(
+            "proporcao_ombros_quadril"
+        )
     )
 
     if proporcao is None:
@@ -454,14 +683,20 @@ def interpretar_proporcoes_corporais(
             "relacao_ombros_quadril": (
                 "indeterminada"
             ),
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
         }
 
     if proporcao > 1.10:
-        relacao = "ombros_mais_largos"
+        relacao = (
+            "ombros_mais_largos"
+        )
 
     elif proporcao < 0.90:
-        relacao = "quadril_mais_largo"
+        relacao = (
+            "quadril_mais_largo"
+        )
 
     else:
         relacao = (
@@ -469,8 +704,13 @@ def interpretar_proporcoes_corporais(
         )
 
     return {
-        "relacao_ombros_quadril": relacao,
-        "status": "interpretada",
+        "relacao_ombros_quadril": (
+            relacao
+        ),
+
+        "status": (
+            "interpretada"
+        ),
     }
 
 
@@ -479,15 +719,14 @@ def gerar_contexto_ajuste(
     aptidao_produtos,
 ):
     """
-    Gera contexto estrutural para futuras análises
-    de ajuste das peças no VesteIA.
-
-    Não recomenda tamanho e não representa
-    medidas corporais reais.
+    Gera contexto estrutural
+    para análise de ajuste.
     """
 
-    relacao = interpretacao_corporal.get(
-        "relacao_ombros_quadril"
+    relacao = (
+        interpretacao_corporal.get(
+            "relacao_ombros_quadril"
+        )
     )
 
     contexto = {}
@@ -496,14 +735,22 @@ def gerar_contexto_ajuste(
         "camiseta"
     ):
         contexto["camiseta"] = {
-            "regiao_prioritaria": "tronco",
-            "relacao_corporal": relacao,
-            "status": "pronta_para_analise",
+            "regiao_prioritaria": (
+                "tronco"
+            ),
+            "relacao_corporal": (
+                relacao
+            ),
+            "status": (
+                "pronta_para_analise"
+            ),
         }
 
     else:
         contexto["camiseta"] = {
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
         }
 
     if aptidao_produtos.get(
@@ -513,13 +760,19 @@ def gerar_contexto_ajuste(
             "regiao_prioritaria": (
                 "pernas_quadril"
             ),
-            "relacao_corporal": relacao,
-            "status": "pronta_para_analise",
+            "relacao_corporal": (
+                relacao
+            ),
+            "status": (
+                "pronta_para_analise"
+            ),
         }
 
     else:
         contexto["calca"] = {
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
         }
 
     if aptidao_produtos.get(
@@ -529,26 +782,38 @@ def gerar_contexto_ajuste(
             "regiao_prioritaria": (
                 "corpo_integrado"
             ),
-            "relacao_corporal": relacao,
-            "status": "pronta_para_analise",
+            "relacao_corporal": (
+                relacao
+            ),
+            "status": (
+                "pronta_para_analise"
+            ),
         }
 
     else:
         contexto["vestido"] = {
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
         }
 
     if aptidao_produtos.get(
         "calcado"
     ):
         contexto["calcado"] = {
-            "regiao_prioritaria": "pes",
-            "status": "pronta_para_analise",
+            "regiao_prioritaria": (
+                "pes"
+            ),
+            "status": (
+                "pronta_para_analise"
+            ),
         }
 
     else:
         contexto["calcado"] = {
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
         }
 
     return contexto
@@ -559,12 +824,8 @@ def gerar_analise_ajuste(
     qualidade_regioes,
 ):
     """
-    Gera uma análise preliminar de ajuste
-    para cada categoria de produto.
-
-    Esta função ainda não recomenda tamanho
-    nem determina se uma peça ficará apertada
-    ou folgada.
+    Gera análise preliminar
+    para cada categoria.
     """
 
     analise = {}
@@ -590,7 +851,12 @@ def gerar_analise_ajuste(
         ],
     }
 
-    for categoria, regioes in mapa_regioes.items():
+    for (
+        categoria,
+        regioes,
+    ) in (
+        mapa_regioes.items()
+    ):
 
         contexto_categoria = (
             contexto_ajuste.get(
@@ -603,13 +869,19 @@ def gerar_analise_ajuste(
             contexto_categoria.get(
                 "status"
             )
-            != "pronta_para_analise"
+            !=
+            "pronta_para_analise"
         ):
-            analise[categoria] = {
+            analise[
+                categoria
+            ] = {
                 "status": (
                     "dados_insuficientes"
                 ),
-                "regioes_analisadas": regioes,
+
+                "regioes_analisadas": (
+                    regioes
+                ),
             }
 
             continue
@@ -617,7 +889,9 @@ def gerar_analise_ajuste(
         qualidade_categoria = {}
 
         for regiao in regioes:
-            qualidade_categoria[regiao] = (
+            qualidade_categoria[
+                regiao
+            ] = (
                 qualidade_regioes.get(
                     regiao,
                     {
@@ -628,19 +902,29 @@ def gerar_analise_ajuste(
                 )
             )
 
-        analise[categoria] = {
-            "status": "analise_preparada",
+        analise[
+            categoria
+        ] = {
+            "status": (
+                "analise_preparada"
+            ),
+
             "regiao_prioritaria": (
                 contexto_categoria.get(
                     "regiao_prioritaria"
                 )
             ),
+
             "relacao_corporal": (
                 contexto_categoria.get(
                     "relacao_corporal"
                 )
             ),
-            "regioes_analisadas": regioes,
+
+            "regioes_analisadas": (
+                regioes
+            ),
+
             "qualidade_regioes": (
                 qualidade_categoria
             ),
@@ -653,28 +937,32 @@ def calcular_confianca_analise(
     analise_ajuste,
 ):
     """
-    Calcula o nível de confiança da análise
-    visual para cada categoria de produto.
-
-    A confiança representa a qualidade dos
-    dados corporais disponíveis na imagem.
-
-    Não representa confiança de tamanho
-    nem de medidas físicas reais.
+    Calcula confiança visual
+    por categoria.
     """
 
     resultado = {}
 
-    for categoria, analise in (
+    for (
+        categoria,
+        analise,
+    ) in (
         analise_ajuste.items()
     ):
 
         if (
-            analise.get("status")
-            != "analise_preparada"
+            analise.get(
+                "status"
+            )
+            !=
+            "analise_preparada"
         ):
-            resultado[categoria] = {
-                "nivel": "indisponivel",
+            resultado[
+                categoria
+            ] = {
+                "nivel": (
+                    "indisponivel"
+                ),
                 "pontuacao": 0,
                 "status": (
                     "dados_insuficientes"
@@ -695,18 +983,20 @@ def calcular_confianca_analise(
         for qualidade in (
             qualidade_regioes.values()
         ):
-            percentual = qualidade.get(
-                "percentual_confiavel",
-                0,
-            )
-
             percentuais.append(
-                percentual
+                qualidade.get(
+                    "percentual_confiavel",
+                    0,
+                )
             )
 
         if not percentuais:
-            resultado[categoria] = {
-                "nivel": "indisponivel",
+            resultado[
+                categoria
+            ] = {
+                "nivel": (
+                    "indisponivel"
+                ),
                 "pontuacao": 0,
                 "status": (
                     "dados_insuficientes"
@@ -716,8 +1006,12 @@ def calcular_confianca_analise(
             continue
 
         pontuacao = round(
-            sum(percentuais)
-            / len(percentuais),
+            sum(
+                percentuais
+            )
+            / len(
+                percentuais
+            ),
             2,
         )
 
@@ -730,10 +1024,18 @@ def calcular_confianca_analise(
         else:
             nivel = "baixa"
 
-        resultado[categoria] = {
-            "nivel": nivel,
-            "pontuacao": pontuacao,
-            "status": "calculada",
+        resultado[
+            categoria
+        ] = {
+            "nivel": (
+                nivel
+            ),
+            "pontuacao": (
+                pontuacao
+            ),
+            "status": (
+                "calculada"
+            ),
         }
 
     return resultado
@@ -745,47 +1047,54 @@ def avaliar_vestibilidade(
     confianca_analise,
 ):
     """
-    Avalia a disponibilidade e a qualidade
-    da análise visual de vestibilidade para
-    determinada categoria de produto.
-
-    Esta etapa ainda não determina tamanho,
-    aperto ou folga da peça.
-
-    A avaliação representa somente a qualidade
-    dos dados corporais disponíveis para que
-    uma análise de vestibilidade seja realizada.
+    Avalia disponibilidade da
+    análise visual de vestibilidade.
     """
 
-    contexto = contexto_ajuste.get(
-        categoria,
-        {},
+    contexto = (
+        contexto_ajuste.get(
+            categoria,
+            {},
+        )
     )
 
-    confianca = confianca_analise.get(
-        categoria,
-        {},
+    confianca = (
+        confianca_analise.get(
+            categoria,
+            {},
+        )
     )
 
-    nivel_confianca = confianca.get(
-        "nivel",
-        "indisponivel",
+    nivel_confianca = (
+        confianca.get(
+            "nivel",
+            "indisponivel",
+        )
     )
 
-    pontuacao = confianca.get(
-        "pontuacao",
-        0,
+    pontuacao = (
+        confianca.get(
+            "pontuacao",
+            0,
+        )
     )
 
     if (
-        contexto.get("status")
-        != "pronta_para_analise"
-        or nivel_confianca
-        == "indisponivel"
+        contexto.get(
+            "status"
+        )
+        !=
+        "pronta_para_analise"
+        or
+        nivel_confianca
+        ==
+        "indisponivel"
     ):
         return {
             "categoria": categoria,
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
             "nivel_confianca": (
                 nivel_confianca
             ),
@@ -795,7 +1104,10 @@ def avaliar_vestibilidade(
             "vestibilidade": None,
         }
 
-    if nivel_confianca == "alta":
+    if (
+        nivel_confianca
+        == "alta"
+    ):
         vestibilidade = (
             "avaliacao_visual_confiavel"
         )
@@ -804,7 +1116,10 @@ def avaliar_vestibilidade(
             "apta_para_analise"
         )
 
-    elif nivel_confianca == "moderada":
+    elif (
+        nivel_confianca
+        == "moderada"
+    ):
         vestibilidade = (
             "avaliacao_visual_parcial"
         )
@@ -823,17 +1138,37 @@ def avaliar_vestibilidade(
         )
 
     return {
-        "categoria": categoria,
-        "status": status,
-        "nivel_confianca": nivel_confianca,
-        "pontuacao_confianca": pontuacao,
-        "regiao_prioritaria": contexto.get(
-            "regiao_prioritaria"
+        "categoria": (
+            categoria
         ),
-        "relacao_corporal": contexto.get(
-            "relacao_corporal"
+
+        "status": (
+            status
         ),
-        "vestibilidade": vestibilidade,
+
+        "nivel_confianca": (
+            nivel_confianca
+        ),
+
+        "pontuacao_confianca": (
+            pontuacao
+        ),
+
+        "regiao_prioritaria": (
+            contexto.get(
+                "regiao_prioritaria"
+            )
+        ),
+
+        "relacao_corporal": (
+            contexto.get(
+                "relacao_corporal"
+            )
+        ),
+
+        "vestibilidade": (
+            vestibilidade
+        ),
     }
 
 
@@ -843,49 +1178,56 @@ def avaliar_calibracao_corporal(
     altura_cm=None,
 ):
     """
-    Avalia se a imagem possui dados corporais
-    suficientes para uma futura calibração física.
-
-    Esta etapa NÃO converte coordenadas normalizadas
-    para centímetros.
-
-    Ela apenas verifica se existe informação visual
-    adequada para uma futura estimativa corporal.
+    Avalia se a imagem possui
+    dados suficientes para
+    calibração corporal.
     """
 
-    def ponto_confiavel(nome):
-        ponto = pontos_corporais.get(
-            nome,
+    def ponto_confiavel(
+        nome,
+    ):
+        ponto = (
+            pontos_corporais.get(
+                nome,
+                {},
+            )
+        )
+
+        return (
+            ponto.get(
+                "confiavel",
+                False,
+            )
+        )
+
+    tronco_status = (
+        qualidade_regioes.get(
+            "tronco",
             {},
+        ).get(
+            "status",
+            "insuficiente",
         )
-
-        return ponto.get(
-            "confiavel",
-            False,
-        )
-
-    tronco_status = qualidade_regioes.get(
-        "tronco",
-        {},
-    ).get(
-        "status",
-        "insuficiente",
     )
 
-    pernas_status = qualidade_regioes.get(
-        "pernas",
-        {},
-    ).get(
-        "status",
-        "insuficiente",
+    pernas_status = (
+        qualidade_regioes.get(
+            "pernas",
+            {},
+        ).get(
+            "status",
+            "insuficiente",
+        )
     )
 
-    pes_status = qualidade_regioes.get(
-        "pes",
-        {},
-    ).get(
-        "status",
-        "insuficiente",
+    pes_status = (
+        qualidade_regioes.get(
+            "pes",
+            {},
+        ).get(
+            "status",
+            "insuficiente",
+        )
     )
 
     altura_usuario_disponivel = (
@@ -894,22 +1236,26 @@ def avaliar_calibracao_corporal(
     )
 
     tronco_confiavel = (
-        tronco_status == "apta"
+        tronco_status
+        == "apta"
     )
 
     pernas_confiaveis = (
-        pernas_status == "apta"
+        pernas_status
+        == "apta"
     )
 
     pes_confiaveis = (
-        pes_status == "apta"
+        pes_status
+        == "apta"
     )
 
     tornozelos_confiaveis = (
         ponto_confiavel(
             "tornozelo_esquerdo"
         )
-        and ponto_confiavel(
+        and
+        ponto_confiavel(
             "tornozelo_direito"
         )
     )
@@ -918,7 +1264,8 @@ def avaliar_calibracao_corporal(
         ponto_confiavel(
             "ponta_pe_esquerdo"
         )
-        and ponto_confiavel(
+        and
+        ponto_confiavel(
             "ponta_pe_direito"
         )
     )
@@ -932,7 +1279,9 @@ def avaliar_calibracao_corporal(
 
     motivos = []
 
-    if not altura_usuario_disponivel:
+    if not (
+        altura_usuario_disponivel
+    ):
         motivos.append(
             "altura do usuário não informada"
         )
@@ -961,15 +1310,21 @@ def avaliar_calibracao_corporal(
 
     if (
         altura_usuario_disponivel
-        and corpo_inteiro_visivel
+        and
+        corpo_inteiro_visivel
     ):
-        status = "pronta_para_calibracao"
+        status = (
+            "pronta_para_calibracao"
+        )
 
     elif (
         altura_usuario_disponivel
-        and tronco_confiavel
+        and
+        tronco_confiavel
     ):
-        status = "calibracao_parcial"
+        status = (
+            "calibracao_parcial"
+        )
 
     else:
         status = (
@@ -977,35 +1332,52 @@ def avaliar_calibracao_corporal(
         )
 
     return {
-        "status": status,
+        "status": (
+            status
+        ),
+
         "altura_usuario_disponivel": (
             altura_usuario_disponivel
         ),
+
         "altura_cm": (
             altura_cm
             if altura_usuario_disponivel
             else None
         ),
+
         "corpo_inteiro_visivel": (
             corpo_inteiro_visivel
         ),
+
         "tronco_confiavel": (
             tronco_confiavel
         ),
+
         "pernas_confiaveis": (
             pernas_confiaveis
         ),
+
         "pes_confiaveis": (
             pes_confiaveis
         ),
+
         "tornozelos_confiaveis": (
             tornozelos_confiaveis
         ),
+
         "pontas_pes_confiaveis": (
             pontas_pes_confiaveis
         ),
-        "conversao_cm_executada": False,
-        "motivos": motivos,
+
+        "conversao_cm_executada": (
+            False
+        ),
+
+        "motivos": (
+            motivos
+        ),
+
         "mensagem": (
             "Qualidade da imagem avaliada "
             "para futura calibração corporal."
@@ -1017,32 +1389,42 @@ def calcular_altura_corpo_relativa(
     pontos_corporais,
 ):
     """
-    Calcula uma referência vertical corporal
-    mais completa usando pontos superiores
-    da cabeça/rosto e pontos inferiores dos pés.
+    Calcula referência vertical
+    entre cabeça/rosto observável
+    e pontas dos pés.
 
-    Esta medida continua sendo relativa e
-    NÃO representa altura real em centímetros.
+    Ainda NÃO representa
+    altura anatômica exata.
     """
 
-    nariz = pontos_corporais.get(
-        "nariz"
+    nariz = (
+        pontos_corporais.get(
+            "nariz"
+        )
     )
 
-    orelha_esquerda = pontos_corporais.get(
-        "orelha_esquerda"
+    orelha_esquerda = (
+        pontos_corporais.get(
+            "orelha_esquerda"
+        )
     )
 
-    orelha_direita = pontos_corporais.get(
-        "orelha_direita"
+    orelha_direita = (
+        pontos_corporais.get(
+            "orelha_direita"
+        )
     )
 
-    ponta_pe_esquerdo = pontos_corporais.get(
-        "ponta_pe_esquerdo"
+    ponta_pe_esquerdo = (
+        pontos_corporais.get(
+            "ponta_pe_esquerdo"
+        )
     )
 
-    ponta_pe_direito = pontos_corporais.get(
-        "ponta_pe_direito"
+    ponta_pe_direito = (
+        pontos_corporais.get(
+            "ponta_pe_direito"
+        )
     )
 
     pontos_superiores = [
@@ -1054,7 +1436,8 @@ def calcular_altura_corpo_relativa(
         )
         if (
             ponto
-            and ponto.get(
+            and
+            ponto.get(
                 "confiavel",
                 False,
             )
@@ -1069,7 +1452,8 @@ def calcular_altura_corpo_relativa(
         )
         if (
             ponto
-            and ponto.get(
+            and
+            ponto.get(
                 "confiavel",
                 False,
             )
@@ -1094,12 +1478,14 @@ def calcular_altura_corpo_relativa(
 
     y_superior = min(
         ponto["y"]
-        for ponto in pontos_superiores
+        for ponto
+        in pontos_superiores
     )
 
     y_inferior = max(
         ponto["y"]
-        for ponto in pontos_inferiores
+        for ponto
+        in pontos_inferiores
     )
 
     altura_relativa = (
@@ -1116,18 +1502,27 @@ def calcular_altura_corpo_relativa(
         }
 
     return {
-        "status": "referencia_calculada",
+        "status": (
+            "referencia_calculada"
+        ),
+
         "altura_corpo_relativa": round(
             altura_relativa,
             4,
         ),
+
         "referencia_superior": (
             "face_cabeca_observavel"
         ),
-        "referencia_inferior": "pontas_dos_pes",
-        "unidade": (
-            "coordenadas_normalizadas"
+
+        "referencia_inferior": (
+            "pontas_dos_pes"
         ),
+
+        "unidade": (
+            "coordenadas_normalizadas_eixo_y"
+        ),
+
         "observacao": (
             "Referência corporal visual aproximada; "
             "não representa diretamente a altura "

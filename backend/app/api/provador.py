@@ -98,6 +98,10 @@ PASTA_UPLOADS_PROVADOR = (
 )
 
 
+# ==========================================================
+# PREFERÊNCIA DE CAIMENTO
+# ==========================================================
+
 def normalizar_preferencia_caimento(
     preferencia_caimento,
 ):
@@ -142,6 +146,10 @@ def normalizar_preferencia_caimento(
         "padrao",
     )
 
+
+# ==========================================================
+# ARMAZENAMENTO DA FOTO
+# ==========================================================
 
 def salvar_foto_localmente(
     conteudo: bytes,
@@ -210,6 +218,10 @@ def verificar_arquivo_sessao(
 
     return caminho_absoluto.is_file()
 
+
+# ==========================================================
+# PREPARAR SESSÃO
+# ==========================================================
 
 @router.post("/preparar")
 async def preparar_experiencia(
@@ -371,6 +383,10 @@ async def preparar_experiencia(
     }
 
 
+# ==========================================================
+# LISTAR SESSÕES
+# ==========================================================
+
 @router.get("/sessoes")
 def listar_sessoes():
     """
@@ -391,6 +407,10 @@ def listar_sessoes():
             ),
         ) from erro
 
+
+# ==========================================================
+# OBTER SESSÃO
+# ==========================================================
 
 @router.get(
     "/sessoes/{sessao_id}"
@@ -450,6 +470,10 @@ def obter_sessao(
         ),
     }
 
+
+# ==========================================================
+# INICIAR PROCESSAMENTO
+# ==========================================================
 
 @router.post(
     "/sessoes/{sessao_id}/processar"
@@ -557,6 +581,10 @@ def iniciar_processamento(
     }
 
 
+# ==========================================================
+# CONCLUIR PROCESSAMENTO
+# ==========================================================
+
 @router.post(
     "/sessoes/{sessao_id}/concluir"
 )
@@ -650,6 +678,10 @@ def concluir_processamento(
         ),
     }
 
+
+# ==========================================================
+# REGISTRAR FALHA
+# ==========================================================
 
 @router.post(
     "/sessoes/{sessao_id}/falhar"
@@ -746,6 +778,10 @@ def registrar_falha_processamento(
         ),
     }
 
+
+# ==========================================================
+# ANALISAR IMAGEM
+# ==========================================================
 
 @router.get(
     "/sessoes/{sessao_id}/analisar-imagem"
@@ -846,6 +882,10 @@ def analisar_imagem_sessao(
         ),
     }
 
+
+# ==========================================================
+# NORMALIZAR IMAGEM
+# ==========================================================
 
 @router.post(
     "/sessoes/{sessao_id}/normalizar-imagem"
@@ -1003,6 +1043,10 @@ def normalizar_imagem_sessao(
     }
 
 
+# ==========================================================
+# ENTRADA VISUAL
+# ==========================================================
+
 @router.get(
     "/sessoes/{sessao_id}/entrada-visual"
 )
@@ -1116,6 +1160,10 @@ def preparar_entrada_visual(
     }
 
 
+# ==========================================================
+# AVALIAÇÃO DA FOTO
+# ==========================================================
+
 @router.get(
     "/sessoes/{sessao_id}/avaliar-foto"
 )
@@ -1217,16 +1265,37 @@ def avaliar_foto_provador(
     }
 
 
+# ==========================================================
+# DETECÇÃO HUMANA
+# ==========================================================
+
 @router.get(
     "/sessoes/{sessao_id}/detectar-pessoa"
 )
 def detectar_pessoa_sessao(
     sessao_id: int,
+    preferencia_caimento: str = Query(
+        default="padrao",
+        description=(
+            "Preferência de caimento: "
+            "justo, padrao ou solto."
+        ),
+    ),
 ):
     """
     Executa a detecção corporal
     e integra o resultado ao produto.
+
+    A modelagem real do produto
+    e a preferência de caimento
+    são enviadas ao pipeline corporal.
     """
+
+    preferencia_caimento = (
+        normalizar_preferencia_caimento(
+            preferencia_caimento
+        )
+    )
 
     try:
         sessao = (
@@ -1252,6 +1321,10 @@ def detectar_pessoa_sessao(
                 "não encontrada."
             ),
         )
+
+    # ======================================================
+    # PRODUTO
+    # ======================================================
 
     try:
         produto = (
@@ -1296,11 +1369,24 @@ def detectar_pessoa_sessao(
         / caminho_normalizado
     )
 
+    # ======================================================
+    # DETECÇÃO COM CONTEXTO DO PRODUTO
+    # ======================================================
+
     try:
         deteccao = detectar_pessoa(
             caminho_absoluto,
+
             altura_cm=perfil_usuario.get(
                 "altura_cm"
+            ),
+
+            modelagem=produto.get(
+                "modelagem"
+            ),
+
+            preferencia_caimento=(
+                preferencia_caimento
             ),
         )
 
@@ -1328,6 +1414,10 @@ def detectar_pessoa_sessao(
             sessao["id"]
         ),
 
+        "preferencia_caimento": (
+            preferencia_caimento
+        ),
+
         "produto": {
             "id": produto["id"],
             "nome": produto["nome"],
@@ -1350,11 +1440,16 @@ def detectar_pessoa_sessao(
         "mensagem": (
             "Detecção humana executada "
             "pelo pipeline visual do VesteIA "
-            "com produto integrado ao catálogo "
-            "e contexto corpo-produto preparado."
+            "com modelagem do produto, "
+            "preferência de caimento "
+            "e contexto corpo-produto integrados."
         ),
     }
 
+
+# ==========================================================
+# PIPELINE AUTOMÁTICO
+# ==========================================================
 
 @router.post(
     "/sessoes/{sessao_id}/executar"
@@ -1372,6 +1467,20 @@ def executar_pipeline_provador(
     """
     Orquestra automaticamente
     o pipeline principal do VesteIA.
+
+    Ordem principal:
+
+    1. sessão;
+    2. normalização;
+    3. produto;
+    4. detecção com contexto da peça;
+    5. contexto corpo-produto;
+    6. compatibilidade visual;
+    7. compatibilidade dimensional;
+    8. resultado dimensional;
+    9. variações;
+    10. recomendação experimental;
+    11. decisão consolidada.
     """
 
     preferencia_caimento = (
@@ -1379,6 +1488,10 @@ def executar_pipeline_provador(
             preferencia_caimento
         )
     )
+
+    # ======================================================
+    # SESSÃO
+    # ======================================================
 
     try:
         sessao = (
@@ -1404,6 +1517,10 @@ def executar_pipeline_provador(
                 "não encontrada."
             ),
         )
+
+    # ======================================================
+    # NORMALIZAÇÃO
+    # ======================================================
 
     caminho_normalizado = sessao.get(
         "caminho_normalizado"
@@ -1516,25 +1633,15 @@ def executar_pipeline_provador(
         / caminho_normalizado
     )
 
-    try:
-        deteccao = detectar_pessoa(
-            caminho_absoluto,
-            altura_cm=perfil_usuario.get(
-                "altura_cm"
-            ),
-        )
-
-    except FileNotFoundError as erro:
-        raise HTTPException(
-            status_code=404,
-            detail=str(erro),
-        ) from erro
-
-    except ValueError as erro:
-        raise HTTPException(
-            status_code=422,
-            detail=str(erro),
-        ) from erro
+    # ======================================================
+    # PRODUTO
+    # ======================================================
+    #
+    # IMPORTANTE:
+    # O produto precisa ser carregado ANTES
+    # da detecção para que sua modelagem seja
+    # conhecida pelo pipeline corporal.
+    # ======================================================
 
     try:
         produto = (
@@ -1561,6 +1668,54 @@ def executar_pipeline_provador(
             ),
         )
 
+    # ======================================================
+    # DETECÇÃO CORPORAL
+    # ======================================================
+    #
+    # CORREÇÃO 1:
+    #
+    # A detecção recebe agora:
+    # - altura do usuário;
+    # - modelagem real da peça;
+    # - preferência de caimento.
+    #
+    # Isso impede que uma peça Oversized
+    # seja tratada internamente como Regular.
+    # ======================================================
+
+    try:
+        deteccao = detectar_pessoa(
+            caminho_absoluto,
+
+            altura_cm=perfil_usuario.get(
+                "altura_cm"
+            ),
+
+            modelagem=produto.get(
+                "modelagem"
+            ),
+
+            preferencia_caimento=(
+                preferencia_caimento
+            ),
+        )
+
+    except FileNotFoundError as erro:
+        raise HTTPException(
+            status_code=404,
+            detail=str(erro),
+        ) from erro
+
+    except ValueError as erro:
+        raise HTTPException(
+            status_code=422,
+            detail=str(erro),
+        ) from erro
+
+    # ======================================================
+    # CONTEXTO CORPO X PRODUTO
+    # ======================================================
+
     contexto_corpo_produto = (
         gerar_contexto_corpo_produto(
             produto,
@@ -1568,11 +1723,19 @@ def executar_pipeline_provador(
         )
     )
 
+    # ======================================================
+    # COMPATIBILIDADE VISUAL
+    # ======================================================
+
     compatibilidade_corpo_produto = (
         analisar_compatibilidade_corpo_produto(
             contexto_corpo_produto
         )
     )
+
+    # ======================================================
+    # COMPATIBILIDADE DIMENSIONAL
+    # ======================================================
 
     compatibilidade_dimensional = (
         analisar_compatibilidade_dimensional(
@@ -1581,11 +1744,19 @@ def executar_pipeline_provador(
         )
     )
 
+    # ======================================================
+    # RESULTADO DIMENSIONAL
+    # ======================================================
+
     resultado_dimensional = (
         gerar_resultado_dimensional(
             compatibilidade_dimensional
         )
     )
+
+    # ======================================================
+    # VARIAÇÕES DO PRODUTO
+    # ======================================================
 
     try:
         variacoes_produto = (
@@ -1604,19 +1775,29 @@ def executar_pipeline_provador(
             ),
         ) from erro
 
+    # ======================================================
+    # RECOMENDAÇÃO EXPERIMENTAL DE TAMANHO
+    # ======================================================
+
     recomendacao_tamanho_provador = (
         gerar_recomendacao_tamanho_provador(
             variacoes_produto=(
                 variacoes_produto
             ),
+
             deteccao=(
                 deteccao
             ),
+
             preferencia_caimento=(
                 preferencia_caimento
             ),
         )
     )
+
+    # ======================================================
+    # DECISÃO CONSOLIDADA
+    # ======================================================
 
     decisao_provador = (
         gerar_decisao_provador(
@@ -1625,20 +1806,28 @@ def executar_pipeline_provador(
                     "resumo_provador"
                 )
             ),
+
             compatibilidade_corpo_produto=(
                 compatibilidade_corpo_produto
             ),
+
             compatibilidade_dimensional=(
                 compatibilidade_dimensional
             ),
+
             resultado_dimensional=(
                 resultado_dimensional
             ),
+
             recomendacao_tamanho_provador=(
                 recomendacao_tamanho_provador
             ),
         )
     )
+
+    # ======================================================
+    # RESPOSTA FINAL
+    # ======================================================
 
     return {
         "sessao_id": (
@@ -1655,15 +1844,50 @@ def executar_pipeline_provador(
                 if normalizacao_executada
                 else "ja_disponivel"
             ),
-            "deteccao": "concluida",
-            "contexto_corpo_produto": "concluido",
-            "compatibilidade_corpo_produto": "concluida",
-            "compatibilidade_dimensional": "concluida",
-            "resultado_dimensional": "concluido",
-            "variacoes_produto": "concluidas",
-            "preferencia_caimento": "aplicada",
-            "recomendacao_tamanho_provador": "concluida",
-            "decisao_provador": "concluida",
+
+            "produto": (
+                "carregado"
+            ),
+
+            "modelagem_produto": (
+                "aplicada_na_deteccao"
+            ),
+
+            "deteccao": (
+                "concluida"
+            ),
+
+            "contexto_corpo_produto": (
+                "concluido"
+            ),
+
+            "compatibilidade_corpo_produto": (
+                "concluida"
+            ),
+
+            "compatibilidade_dimensional": (
+                "concluida"
+            ),
+
+            "resultado_dimensional": (
+                "concluido"
+            ),
+
+            "variacoes_produto": (
+                "concluidas"
+            ),
+
+            "preferencia_caimento": (
+                "aplicada"
+            ),
+
+            "recomendacao_tamanho_provador": (
+                "concluida"
+            ),
+
+            "decisao_provador": (
+                "concluida"
+            ),
         },
 
         "produto": {
@@ -1730,14 +1954,14 @@ def executar_pipeline_provador(
         "mensagem": (
             "Pipeline automático do "
             "Provador VesteIA executado "
-            "com análise corporal, produto, "
-            "compatibilidade visual, "
+            "com análise corporal, modelagem "
+            "real da peça, preferência de "
+            "caimento, compatibilidade visual, "
             "compatibilidade dimensional, "
             "interpretação dimensional, "
-            "comparação entre tamanhos, "
-            "preferência de caimento "
+            "comparação entre tamanhos "
             "e sugestão experimental "
-            "personalizada de tamanho "
-            "preparados com sucesso."
+            "personalizada preparados "
+            "com sucesso."
         ),
     }
