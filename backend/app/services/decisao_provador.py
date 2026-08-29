@@ -9,38 +9,44 @@ def gerar_decisao_provador(
     Consolida os principais resultados do VesteIA
     em um contrato final amigável para o frontend.
 
-    Inclui:
-    - qualidade da captura;
-    - comportamento visual da peça;
-    - comparação dimensional;
-    - sugestão experimental de tamanho;
-    - tamanho alternativo;
-    - empate técnico;
-    - alternativa forte;
-    - zona de decisão;
-    - confiança do ranking.
+    Responsabilidades desta camada:
+    - consolidar qualidade da captura;
+    - consolidar comportamento visual da peça;
+    - consolidar comparação dimensional;
+    - expor sugestão experimental de tamanho;
+    - expor alternativa de tamanho;
+    - expor empate técnico;
+    - expor alternativa forte;
+    - expor zona de decisão;
+    - expor confiança do ranking;
+    - preparar contrato para frontend e Avatar V1.
 
-    Esta camada NÃO recalcula o ranking.
+    IMPORTANTE:
+    Esta camada NÃO recalcula:
+    - calibração;
+    - medidas corporais;
+    - índices dimensionais;
+    - ranking;
+    - pesos;
+    - scores;
+    - regras da Sprint 48.
+
     Ela apenas consolida semanticamente
     o resultado produzido pelo motor.
     """
 
     resumo_provador = resumo_provador or {}
     compatibilidade_corpo_produto = (
-        compatibilidade_corpo_produto
-        or {}
+        compatibilidade_corpo_produto or {}
     )
     compatibilidade_dimensional = (
-        compatibilidade_dimensional
-        or {}
+        compatibilidade_dimensional or {}
     )
     resultado_dimensional = (
-        resultado_dimensional
-        or {}
+        resultado_dimensional or {}
     )
     recomendacao_tamanho_provador = (
-        recomendacao_tamanho_provador
-        or {}
+        recomendacao_tamanho_provador or {}
     )
 
     # ======================================================
@@ -58,15 +64,37 @@ def gerar_decisao_provador(
     )
 
     qualidade = (
-        resumo_provador.get(
-            "qualidade"
-        )
+        resumo_provador.get("qualidade")
         or {}
     )
 
     qualidade_foto = qualidade.get(
         "nivel"
     )
+
+    # ======================================================
+    # ORIGEM DA ANÁLISE
+    # ======================================================
+    #
+    # Na versão atual, o fluxo consolidado vem da foto.
+    #
+    # A estrutura já fica preparada para futuras origens:
+    # - foto
+    # - selecao_visual_avatar
+    # - manual
+    #
+    # sem alterar a calibração da Sprint 48.
+    # ======================================================
+
+    origem_analise = {
+        "tipo": "foto",
+        "descricao": (
+            "Análise corporal baseada em captura visual."
+        ),
+        "usa_visao_computacional": True,
+        "usa_calibracao_corporal": True,
+        "avatar_preparavel": True,
+    }
 
     # ======================================================
     # FOTO BLOQUEADA
@@ -77,73 +105,98 @@ def gerar_decisao_provador(
         or nova_foto_necessaria
     ):
         return {
-            "status": (
-                "nova_foto_necessaria"
-            ),
+            "status": "nova_foto_necessaria",
             "pode_continuar": False,
+
+            "origem_analise": origem_analise,
+
             "titulo": (
-                resumo_provador.get(
-                    "titulo"
-                )
+                resumo_provador.get("titulo")
                 or "Precisamos de outra foto"
             ),
+
             "descricao": (
-                resumo_provador.get(
-                    "mensagem"
-                )
+                resumo_provador.get("mensagem")
                 or (
                     "A captura atual não possui "
                     "qualidade suficiente para "
                     "continuar a análise."
                 )
             ),
-            "qualidade_foto": (
-                qualidade_foto
-            ),
+
+            "qualidade_foto": qualidade_foto,
+
             "resultado_caimento": None,
+
             "destaques": (
                 resumo_provador.get(
                     "orientacoes",
                     [],
                 )
             ),
+
             "confianca_visual": None,
+
             "comparacao_dimensional_completa": False,
+
             "nivel_decisao_dimensional": (
                 "indisponivel"
             ),
+
             "recomendacao_tamanho": {
                 "disponivel": False,
-                "liberada": False,
+
+                "sugestao_liberada": False,
+
+                "recomendacao_definitiva_liberada": False,
+
                 "tamanho": None,
+
                 "tamanho_alternativo": None,
+
                 "empate_tecnico": False,
+
                 "alternativa_forte": False,
+
                 "decisao_unica": False,
+
                 "status": (
                     "bloqueada_por_qualidade_captura"
                 ),
-                "nivel": (
-                    "indisponivel"
-                ),
+
+                "nivel": "indisponivel",
+
                 "pontuacao": None,
+
                 "preferencia_caimento": None,
+
                 "modelagem": None,
+
                 "ranking_parcial": False,
+
                 "dimensoes_utilizadas": [],
+
                 "ranking": [],
+
                 "alternativa": None,
+
                 "recomendacao_definitiva": False,
+
                 "sugestao_experimental": False,
+
                 "confianca_ranking": None,
+
                 "zona_decisao": None,
+
                 "explicacao_decisao": None,
+
                 "mensagem": (
                     "A análise de tamanho foi "
                     "bloqueada pela qualidade "
                     "da captura."
                 ),
             },
+
             "mensagem_transparencia": (
                 "Envie uma nova foto antes "
                 "de continuar a análise."
@@ -327,7 +380,7 @@ def gerar_decisao_provador(
         or []
     )
 
-    ranking_parcial = (
+    ranking_parcial = bool(
         recomendacao_tamanho_provador.get(
             "ranking_parcial",
             False,
@@ -445,21 +498,25 @@ def gerar_decisao_provador(
                     "tamanho"
                 )
             ),
+
             "pontuacao": (
                 segunda_opcao.get(
                     "pontuacao"
                 )
             ),
+
             "resultado": (
                 segunda_opcao.get(
                     "resultado"
                 )
             ),
+
             "caimento_largura": (
                 segunda_opcao.get(
                     "caimento_largura"
                 )
             ),
+
             "caimento_comprimento": (
                 segunda_opcao.get(
                     "caimento_comprimento"
@@ -482,7 +539,7 @@ def gerar_decisao_provador(
             )
 
     # ======================================================
-    # STATUS SEMÂNTICO DA RECOMENDAÇÃO
+    # STATUS SEMÂNTICO
     # ======================================================
 
     if not recomendacao_disponivel:
@@ -506,12 +563,29 @@ def gerar_decisao_provador(
         )
 
     # ======================================================
-    # LIBERAÇÃO PARA O FRONTEND
+    # LIBERAÇÃO SEMÂNTICA
+    # ======================================================
+    #
+    # Sprint 49:
+    #
+    # "sugestao_liberada":
+    # pode ser exibida ao usuário.
+    #
+    # "recomendacao_definitiva_liberada":
+    # somente será True quando houver
+    # recomendação definitiva validada.
     # ======================================================
 
-    liberada_frontend = (
+    sugestao_liberada = (
         recomendacao_disponivel
         and not ranking_parcial
+        and sugestao_experimental
+    )
+
+    recomendacao_definitiva_liberada = (
+        recomendacao_disponivel
+        and not ranking_parcial
+        and recomendacao_definitiva
     )
 
     recomendacao_tamanho = {
@@ -519,8 +593,12 @@ def gerar_decisao_provador(
             recomendacao_disponivel
         ),
 
-        "liberada": (
-            liberada_frontend
+        "sugestao_liberada": (
+            sugestao_liberada
+        ),
+
+        "recomendacao_definitiva_liberada": (
+            recomendacao_definitiva_liberada
         ),
 
         "tamanho": (
@@ -692,6 +770,7 @@ def gerar_decisao_provador(
                 "A diferença entre os dois resultados "
                 "foi moderada."
             )
+
         else:
             descricao = (
                 recomendacao_tamanho_provador.get(
@@ -772,6 +851,10 @@ def gerar_decisao_provador(
         ),
 
         "pode_continuar": True,
+
+        "origem_analise": (
+            origem_analise
+        ),
 
         "titulo": (
             titulo

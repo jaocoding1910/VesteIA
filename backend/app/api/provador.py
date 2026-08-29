@@ -38,6 +38,10 @@ from app.services.decisao_provador import (
     gerar_decisao_provador,
 )
 
+from app.services.contrato_provador import (
+    gerar_contrato_provador_v1,
+)
+
 from app.services.recomendacao_tamanho_provador import (
     gerar_recomendacao_tamanho_provador,
 )
@@ -1322,10 +1326,6 @@ def detectar_pessoa_sessao(
             ),
         )
 
-    # ======================================================
-    # PRODUTO
-    # ======================================================
-
     try:
         produto = (
             buscar_produto_por_id(
@@ -1368,10 +1368,6 @@ def detectar_pessoa_sessao(
         BACKEND_DIR
         / caminho_normalizado
     )
-
-    # ======================================================
-    # DETECÇÃO COM CONTEXTO DO PRODUTO
-    # ======================================================
 
     try:
         deteccao = detectar_pessoa(
@@ -1480,7 +1476,8 @@ def executar_pipeline_provador(
     8. resultado dimensional;
     9. variações;
     10. recomendação experimental;
-    11. decisão consolidada.
+    11. decisão consolidada;
+    12. contrato Provador V1.
     """
 
     preferencia_caimento = (
@@ -1636,12 +1633,6 @@ def executar_pipeline_provador(
     # ======================================================
     # PRODUTO
     # ======================================================
-    #
-    # IMPORTANTE:
-    # O produto precisa ser carregado ANTES
-    # da detecção para que sua modelagem seja
-    # conhecida pelo pipeline corporal.
-    # ======================================================
 
     try:
         produto = (
@@ -1670,17 +1661,6 @@ def executar_pipeline_provador(
 
     # ======================================================
     # DETECÇÃO CORPORAL
-    # ======================================================
-    #
-    # CORREÇÃO 1:
-    #
-    # A detecção recebe agora:
-    # - altura do usuário;
-    # - modelagem real da peça;
-    # - preferência de caimento.
-    #
-    # Isso impede que uma peça Oversized
-    # seja tratada internamente como Regular.
     # ======================================================
 
     try:
@@ -1826,6 +1806,50 @@ def executar_pipeline_provador(
     )
 
     # ======================================================
+    # CONTRATO PROVADOR V1
+    # ======================================================
+    #
+    # Camada enxuta destinada ao frontend
+    # e preparada para a futura integração
+    # com o Avatar V1.
+    #
+    # Não recalcula calibração, ranking,
+    # scores ou recomendação.
+    # ======================================================
+
+    contrato_provador = (
+        gerar_contrato_provador_v1(
+            sessao_id=(
+                sessao_id
+            ),
+
+            produto=(
+                produto
+            ),
+
+            variacoes_produto=(
+                variacoes_produto
+            ),
+
+            decisao_provador=(
+                decisao_provador
+            ),
+
+            recomendacao_tamanho_provador=(
+                recomendacao_tamanho_provador
+            ),
+
+            deteccao=(
+                deteccao
+            ),
+
+            preferencia_caimento=(
+                preferencia_caimento
+            ),
+        )
+    )
+
+    # ======================================================
     # RESPOSTA FINAL
     # ======================================================
 
@@ -1888,6 +1912,10 @@ def executar_pipeline_provador(
             "decisao_provador": (
                 "concluida"
             ),
+
+            "contrato_provador_v1": (
+                "concluido"
+            ),
         },
 
         "produto": {
@@ -1947,6 +1975,13 @@ def executar_pipeline_provador(
             decisao_provador
         ),
 
+        # Contrato enxuto para consumo do produto.
+        "contrato_provador": (
+            contrato_provador
+        ),
+
+        # Mantido integralmente para testes,
+        # diagnóstico e evolução do motor.
         "deteccao_humana": (
             deteccao
         ),
@@ -1959,9 +1994,137 @@ def executar_pipeline_provador(
             "caimento, compatibilidade visual, "
             "compatibilidade dimensional, "
             "interpretação dimensional, "
-            "comparação entre tamanhos "
-            "e sugestão experimental "
-            "personalizada preparados "
+            "comparação entre tamanhos, "
+            "sugestão experimental "
+            "personalizada e contrato "
+            "Provador V1 preparados "
             "com sucesso."
+        ),
+    }
+
+
+# ==========================================================
+# RESULTADO ENXUTO DO PROVADOR
+# ==========================================================
+
+@router.post(
+    "/sessoes/{sessao_id}/resultado"
+)
+def obter_resultado_provador(
+    sessao_id: int,
+    preferencia_caimento: str = Query(
+        default="padrao",
+        description=(
+            "Preferência de caimento: "
+            "justo, padrao ou solto."
+        ),
+    ),
+):
+    """
+    Executa o pipeline principal do VesteIA
+    e retorna somente o contrato Provador V1.
+
+    Este endpoint é destinado principalmente ao:
+    - frontend;
+    - futura camada de Avatar;
+    - integrações de produto.
+
+    Diferente de /executar, ele não expõe:
+    - landmarks;
+    - métricas internas;
+    - calibração completa;
+    - compatibilidades técnicas;
+    - estruturas de diagnóstico.
+
+    IMPORTANTE:
+    O motor executado é exatamente o mesmo
+    utilizado por /executar.
+
+    Nenhuma recomendação é recalculada
+    por uma lógica alternativa.
+    """
+
+    preferencia_caimento = (
+        normalizar_preferencia_caimento(
+            preferencia_caimento
+        )
+    )
+
+    # ======================================================
+    # EXECUÇÃO DO MESMO PIPELINE OFICIAL
+    # ======================================================
+
+    resultado_pipeline = (
+        executar_pipeline_provador(
+            sessao_id=(
+                sessao_id
+            ),
+            preferencia_caimento=(
+                preferencia_caimento
+            ),
+        )
+    )
+
+    # ======================================================
+    # CONTRATO
+    # ======================================================
+
+    contrato_provador = (
+        resultado_pipeline.get(
+            "contrato_provador"
+        )
+        or {}
+    )
+
+    if not contrato_provador:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "O pipeline foi executado, "
+                "mas o contrato Provador V1 "
+                "não foi gerado."
+            ),
+        )
+
+    # ======================================================
+    # RESPOSTA ENXUTA
+    # ======================================================
+
+    return {
+        "sessao_id": (
+            sessao_id
+        ),
+
+        "preferencia_caimento": (
+            preferencia_caimento
+        ),
+
+        "versao_contrato": (
+            contrato_provador.get(
+                "versao_contrato"
+            )
+        ),
+
+        "status": (
+            contrato_provador.get(
+                "status"
+            )
+        ),
+
+        "pode_continuar": (
+            contrato_provador.get(
+                "pode_continuar",
+                False,
+            )
+        ),
+
+        "contrato_provador": (
+            contrato_provador
+        ),
+
+        "mensagem": (
+            "Resultado enxuto do "
+            "Provador VesteIA preparado "
+            "para consumo do frontend."
         ),
     }
