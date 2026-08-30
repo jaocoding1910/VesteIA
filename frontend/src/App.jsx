@@ -85,24 +85,24 @@ function App() {
   ] = useState(false)
 
   const [
-    compatibilidadeProduto,
-    setCompatibilidadeProduto,
+    tamanhoVisualSelecionado,
+    setTamanhoVisualSelecionado,
   ] = useState(null)
 
   const [
-    resultadoDimensional,
-    setResultadoDimensional,
+    alturaVisualSelecionada,
+    setAlturaVisualSelecionada,
   ] = useState(null)
 
   const [
-    recomendacaoTamanho,
-    setRecomendacaoTamanho,
-  ] = useState(null)
+    alturaVisualIncerta,
+    setAlturaVisualIncerta,
+  ] = useState(false)
 
   const [
-    decisaoProvador,
-    setDecisaoProvador,
-  ] = useState(null)
+    avatarPreparacaoConcluida,
+    setAvatarPreparacaoConcluida,
+  ] = useState(false)
 
   const [
     erro,
@@ -112,6 +112,131 @@ function App() {
   const inputFotoRef =
     useRef(null)
 
+
+  /*
+   * =========================================================
+   * CONTRATO PROVADOR V1
+   * =========================================================
+   */
+
+  const contratoProvador =
+    analiseCaptura
+      ?.contratoProvador ??
+    null
+
+  const produtoProvador =
+    contratoProvador
+      ?.produto ??
+    null
+
+  const analiseProvador =
+    contratoProvador
+      ?.analise ??
+    null
+
+  const recomendacaoProvador =
+    contratoProvador
+      ?.recomendacao ??
+    null
+
+  const caimentoProvador =
+    contratoProvador
+      ?.caimento ??
+    null
+
+  const tamanhosProvador =
+    contratoProvador
+      ?.tamanhos ??
+    []
+
+  const variacoesProvador =
+    contratoProvador
+      ?.variacoes ??
+    []
+
+  const referenciaCorporal =
+    contratoProvador
+      ?.referencia_corporal ??
+    null
+
+  const avatarProvador =
+    contratoProvador
+      ?.avatar ??
+    null
+
+  const comunicacaoProvador =
+    contratoProvador
+      ?.comunicacao ??
+    null
+
+
+  /*
+   * =========================================================
+   * SELEÇÃO VISUAL DE TAMANHO
+   * =========================================================
+   */
+
+  const tamanhoRecomendado =
+    recomendacaoProvador
+      ?.tamanho ??
+    null
+
+  const tamanhoAtivo =
+    tamanhoVisualSelecionado ??
+    tamanhoRecomendado
+
+  const rankingAtivo =
+    tamanhosProvador
+      .find(
+        (item) =>
+          item?.tamanho ===
+          tamanhoAtivo
+      ) ??
+    null
+
+  const variacaoAtiva =
+    variacoesProvador
+      .find(
+        (item) =>
+          item?.tamanho ===
+          tamanhoAtivo
+      ) ??
+    null
+
+
+  /*
+   * =========================================================
+   * PREPARAÇÃO VISUAL DO AVATAR
+   * =========================================================
+   */
+
+  const selecaoVisualAltura =
+    avatarProvador
+      ?.selecao_visual_altura ??
+    null
+
+  const candidatosAltura =
+    selecaoVisualAltura
+      ?.candidatos ??
+    []
+
+  const alturaCentralReferencia =
+    selecaoVisualAltura
+      ?.altura_central_referencia_cm ??
+    null
+
+  const referenciaAvatarPronta =
+    Boolean(
+      alturaVisualSelecionada ||
+      alturaVisualIncerta
+    )
+
+
+  /*
+   * =========================================================
+   * EFEITOS
+   * =========================================================
+   */
 
   useEffect(() => {
     return () => {
@@ -137,6 +262,28 @@ function App() {
     }
   }, [fotoUsuario])
 
+
+  useEffect(() => {
+    if (
+      recomendacaoProvador
+        ?.tamanho
+    ) {
+      setTamanhoVisualSelecionado(
+        recomendacaoProvador
+          .tamanho
+      )
+    }
+  }, [
+    recomendacaoProvador
+      ?.tamanho,
+  ])
+
+
+  /*
+   * =========================================================
+   * FORMATAÇÕES
+   * =========================================================
+   */
 
   function normalizarPreferencia(
     valor
@@ -199,6 +346,196 @@ function App() {
   }
 
 
+  function formatarQualidade(
+    nivel
+  ) {
+    const traducoes = {
+      excelente:
+        "Excelente",
+
+      boa:
+        "Boa",
+
+      moderada:
+        "Moderada",
+
+      baixa:
+        "Baixa",
+
+      insuficiente:
+        "Insuficiente",
+    }
+
+    return (
+      traducoes[nivel] ||
+      nivel ||
+      "-"
+    )
+  }
+
+
+  function formatarConfianca(
+    nivel
+  ) {
+    const traducoes = {
+      alta:
+        "Alta",
+
+      media:
+        "Média",
+
+      média:
+        "Média",
+
+      baixa:
+        "Baixa",
+    }
+
+    return (
+      traducoes[nivel] ||
+      nivel ||
+      "-"
+    )
+  }
+
+
+  function formatarResultadoRanking(
+    resultadoRanking
+  ) {
+    const traducoes = {
+      melhor_equilibrio:
+        "Melhor equilíbrio",
+
+      alternativa:
+        "Alternativa",
+
+      alternativa_mais_ampla:
+        "Mais amplo",
+
+      alternativa_mais_ajustada:
+        "Mais ajustado",
+    }
+
+    return (
+      traducoes[
+        resultadoRanking
+      ] ||
+      resultadoRanking ||
+      "-"
+    )
+  }
+
+
+  function formatarCaimento(
+    valor
+  ) {
+    const traducoes = {
+      ajustado:
+        "Ajustado",
+
+      mais_ajustado_que_alvo:
+        "Mais ajustado",
+
+      equilibrado:
+        "Equilibrado",
+
+      amplo:
+        "Amplo",
+
+      mais_amplo_que_alvo:
+        "Mais amplo",
+
+      curto:
+        "Curto",
+
+      alongado:
+        "Alongado",
+
+      indisponivel:
+        "Indisponível",
+    }
+
+    return (
+      traducoes[valor] ||
+      valor ||
+      "-"
+    )
+  }
+
+
+  function obterVariacaoPorTamanho(
+    tamanho
+  ) {
+    return (
+      variacoesProvador
+        .find(
+          (variacao) =>
+            variacao
+              ?.tamanho ===
+            tamanho
+        ) ??
+      null
+    )
+  }
+
+
+  /*
+   * =========================================================
+   * AVATAR — SELEÇÃO DE REFERÊNCIA
+   * =========================================================
+   */
+
+  function selecionarReferenciaAltura(
+    alturaReferencia
+  ) {
+    setAlturaVisualSelecionada(
+      alturaReferencia
+    )
+
+    setAlturaVisualIncerta(
+      false
+    )
+
+    setAvatarPreparacaoConcluida(
+      false
+    )
+  }
+
+
+  function selecionarAlturaIncerta() {
+    setAlturaVisualSelecionada(
+      null
+    )
+
+    setAlturaVisualIncerta(
+      true
+    )
+
+    setAvatarPreparacaoConcluida(
+      false
+    )
+  }
+
+
+  function prepararReferenciaAvatar() {
+    if (
+      !referenciaAvatarPronta
+    ) {
+      return
+    }
+
+    setAvatarPreparacaoConcluida(
+      true
+    )
+  }
+
+
+  /*
+   * =========================================================
+   * LIMPEZA
+   * =========================================================
+   */
+
   function limparAnaliseCaptura() {
     setAnaliseCaptura(
       null
@@ -208,23 +545,29 @@ function App() {
       false
     )
 
-    setCompatibilidadeProduto(
+    setTamanhoVisualSelecionado(
       null
     )
 
-    setResultadoDimensional(
+    setAlturaVisualSelecionada(
       null
     )
 
-    setRecomendacaoTamanho(
-      null
+    setAlturaVisualIncerta(
+      false
     )
 
-    setDecisaoProvador(
-      null
+    setAvatarPreparacaoConcluida(
+      false
     )
   }
 
+
+  /*
+   * =========================================================
+   * RECOMENDAÇÃO INICIAL
+   * =========================================================
+   */
 
   async function buscarRecomendacao() {
     if (
@@ -338,6 +681,12 @@ function App() {
     }
   }
 
+
+  /*
+   * =========================================================
+   * PRODUTO / PROVADOR
+   * =========================================================
+   */
 
   function experimentarProduto(
     produto
@@ -528,6 +877,12 @@ function App() {
   }
 
 
+  /*
+   * =========================================================
+   * ANÁLISE AUTOMÁTICA
+   * =========================================================
+   */
+
   async function executarAnaliseAutomatica(
     sessaoId
   ) {
@@ -546,20 +901,20 @@ function App() {
         null
       )
 
-      setCompatibilidadeProduto(
+      setTamanhoVisualSelecionado(
         null
       )
 
-      setResultadoDimensional(
+      setAlturaVisualSelecionada(
         null
       )
 
-      setRecomendacaoTamanho(
-        null
+      setAlturaVisualIncerta(
+        false
       )
 
-      setDecisaoProvador(
-        null
+      setAvatarPreparacaoConcluida(
+        false
       )
 
       const preferenciaNormalizada =
@@ -576,34 +931,6 @@ function App() {
       setAnaliseCaptura(
         analise
       )
-
-      const respostaCompleta =
-        analise
-          ?.respostaCompleta
-
-      setCompatibilidadeProduto(
-        respostaCompleta
-          ?.compatibilidade_corpo_produto ??
-          null
-      )
-
-      setResultadoDimensional(
-        respostaCompleta
-          ?.resultado_dimensional ??
-          null
-      )
-
-      setRecomendacaoTamanho(
-        respostaCompleta
-          ?.recomendacao_tamanho_provador ??
-          null
-      )
-
-      setDecisaoProvador(
-        respostaCompleta
-          ?.decisao_provador ??
-          null
-      )
     } catch (erro) {
       limparAnaliseCaptura()
 
@@ -618,6 +945,12 @@ function App() {
     }
   }
 
+
+  /*
+   * =========================================================
+   * PREPARAÇÃO DA EXPERIÊNCIA
+   * =========================================================
+   */
 
   async function prepararExperiencia() {
     if (!fotoUsuario) {
@@ -759,91 +1092,11 @@ function App() {
   }
 
 
-  function formatarQualidade(
-    nivel
-  ) {
-    const traducoes = {
-      excelente:
-        "Excelente",
-
-      boa:
-        "Boa",
-
-      moderada:
-        "Moderada",
-
-      baixa:
-        "Baixa",
-
-      insuficiente:
-        "Insuficiente",
-    }
-
-    return (
-      traducoes[nivel] ||
-      nivel ||
-      "-"
-    )
-  }
-
-
-  function formatarResultadoRanking(
-    resultadoRanking
-  ) {
-    const traducoes = {
-      melhor_equilibrio:
-        "Melhor equilíbrio",
-
-      alternativa:
-        "Alternativa",
-
-      alternativa_mais_ampla:
-        "Mais amplo",
-
-      alternativa_mais_ajustada:
-        "Mais ajustado",
-    }
-
-    return (
-      traducoes[
-        resultadoRanking
-      ] ||
-      resultadoRanking ||
-      "-"
-    )
-  }
-
-
-  function formatarCaimento(
-    valor
-  ) {
-    const traducoes = {
-      ajustado:
-        "Ajustado",
-
-      equilibrado:
-        "Equilibrado",
-
-      amplo:
-        "Amplo",
-
-      curto:
-        "Curto",
-
-      alongado:
-        "Alongado",
-
-      indisponivel:
-        "Indisponível",
-    }
-
-    return (
-      traducoes[valor] ||
-      valor ||
-      "-"
-    )
-  }
-
+  /*
+   * =========================================================
+   * RENDER
+   * =========================================================
+   */
 
   return (
     <main className="container">
@@ -962,6 +1215,7 @@ function App() {
             </strong>
           </p>
 
+
           {resultado
             .explicacao
             ?.motivos
@@ -979,6 +1233,7 @@ function App() {
                 </p>
               )
             )}
+
 
           <p>
             {
@@ -1088,33 +1343,6 @@ function App() {
                                 .join(" • ")
                             }
                           </span>
-                        </div>
-                      )}
-
-
-                      {produto
-                        .observacoes
-                        ?.length >
-                        0 && (
-                        <div className="observacoes">
-                          {produto
-                            .observacoes
-                            .map(
-                              (
-                                observacao,
-                                index
-                              ) => (
-                                <span
-                                  key={
-                                    index
-                                  }
-                                >
-                                  {
-                                    observacao
-                                  }
-                                </span>
-                              )
-                            )}
                         </div>
                       )}
 
@@ -1336,34 +1564,36 @@ function App() {
           )}
 
 
-          {decisaoProvador &&
-            decisaoProvador.status ===
-              "analise_consolidada" && (
+          {contratoProvador &&
+            analiseCaptura
+              ?.podeContinuar && (
               <div className="modo-selecionado">
 
                 <p className="provador-etapa">
                   VESTEIA — SEU RESULTADO
                 </p>
 
+
                 <h3>
                   {
-                    decisaoProvador
-                      .titulo
+                    comunicacaoProvador
+                      ?.titulo ??
+                    "Análise concluída"
                   }
                 </h3>
 
+
                 <p>
                   {
-                    decisaoProvador
-                      .descricao
+                    comunicacaoProvador
+                      ?.descricao
                   }
                 </p>
 
 
-                {recomendacaoTamanho
+                {recomendacaoProvador
                   ?.disponivel && (
                   <>
-
                     <div className="tamanho-sugerido-card">
 
                       <p className="provador-etapa">
@@ -1372,40 +1602,63 @@ function App() {
 
                       <div className="tamanho-sugerido-bolha">
                         {
-                          recomendacaoTamanho
-                            .tamanho_sugerido
+                          recomendacaoProvador
+                            .tamanho
                         }
                       </div>
 
                       <h3>
-                        Melhor equilíbrio
-                        para seu perfil
+                        Melhor ajuste para
+                        sua preferência
                       </h3>
 
+
                       <p>
-                        Preferência:{" "}
+                        Preferência de caimento:{" "}
                         <strong>
                           {formatarPreferencia(
-                            recomendacaoTamanho
+                            recomendacaoProvador
                               .preferencia_caimento
                           )}
                         </strong>
                       </p>
 
+
                       <p>
-                        Pontuação de ajuste experimental:{" "}
+                        Compatibilidade com sua preferência:{" "}
                         <strong>
                           {Math.round(
                             (
-                              recomendacaoTamanho
-                                .pontuacao_melhor_tamanho ||
+                              recomendacaoProvador
+                                .pontuacao ||
                               0
                             ) *
                               100
                           )}
-                          /100
+                          %
                         </strong>
                       </p>
+
+
+                      <p>
+                        <small>
+                          Sugestão experimental VesteIA
+                        </small>
+                      </p>
+
+
+                      {recomendacaoProvador
+                        ?.tamanho_alternativo && (
+                        <p>
+                          Alternativa relevante:{" "}
+                          <strong>
+                            {
+                              recomendacaoProvador
+                                .tamanho_alternativo
+                            }
+                          </strong>
+                        </p>
+                      )}
 
 
                       <div className="produto-detalhes">
@@ -1424,165 +1677,374 @@ function App() {
                           Sugestão VesteIA:{" "}
                           <strong>
                             {
-                              recomendacaoTamanho
-                                .tamanho_sugerido
+                              recomendacaoProvador
+                                .tamanho
                             }
                           </strong>
                         </span>
+
+                        {recomendacaoProvador
+                          ?.alternativa_forte && (
+                          <span>
+                            <strong>
+                              Alternativa forte:
+                            </strong>{" "}
+                            {
+                              recomendacaoProvador
+                                .tamanho_alternativo
+                            }
+                          </span>
+                        )}
 
                       </div>
 
                     </div>
 
 
-                    {recomendacaoTamanho
-                      ?.ranking
-                      ?.length >
+                    {tamanhosProvador
+                      .length >
                       0 && (
                       <div className="ranking-tamanhos">
 
                         <h3>
-                          Comparação entre tamanhos
+                          Compare os tamanhos
                         </h3>
 
                         <p>
-                          Veja como cada tamanho
-                          se posiciona para o seu perfil.
+                          Clique em P, M, G ou GG
+                          para comparar cada opção.
+                          A recomendação principal
+                          continua destacada.
                         </p>
 
 
-                        {recomendacaoTamanho
-                          .ranking
+                        {tamanhosProvador
                           .map(
                             (
                               item
-                            ) => (
-                              <div
-                                className={
-                                  item.posicao ===
-                                  1
-                                    ? "ranking-item ranking-item-melhor"
-                                    : "ranking-item"
-                                }
-                                key={
-                                  item
-                                    .produto_id
-                                }
-                              >
+                            ) => {
+                              const variacao =
+                                obterVariacaoPorTamanho(
+                                  item.tamanho
+                                )
 
-                                <span>
-                                  <strong>
-                                    {
-                                      item
-                                        .posicao
-                                    }
-                                    º
-                                  </strong>
-                                </span>
+                              const estaSelecionado =
+                                item.tamanho ===
+                                tamanhoAtivo
 
-                                <span>
-                                  <strong>
-                                    {
-                                      item
-                                        .tamanho
-                                    }
-                                  </strong>
-                                </span>
-
-                                <span>
-                                  <strong>
-                                    {Math.round(
-                                      (
-                                        item
-                                          .pontuacao ||
-                                        0
-                                      ) *
-                                        100
-                                    )}
-                                    /100
-                                  </strong>
-                                </span>
-
-                                <span>
-                                  {formatarResultadoRanking(
+                              return (
+                                <button
+                                  type="button"
+                                  className={
+                                    [
+                                      "ranking-item",
+                                      item.posicao ===
+                                      1
+                                        ? "ranking-item-melhor"
+                                        : "",
+                                      estaSelecionado
+                                        ? "ranking-item-selecionado"
+                                        : "",
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" ")
+                                  }
+                                  key={
                                     item
-                                      .resultado
-                                  )}
+                                      .produto_id
+                                  }
+                                  onClick={
+                                    () =>
+                                      setTamanhoVisualSelecionado(
+                                        item.tamanho
+                                      )
+                                  }
+                                >
 
-                                  {item
-                                    .tamanho ===
-                                    produtoSelecionado
-                                      ?.tamanho && (
-                                    <small>
-                                      Seu tamanho selecionado
-                                    </small>
-                                  )}
-                                </span>
-
-                                {item.posicao ===
-                                  1 && (
                                   <span>
-                                    ⭐
+                                    <strong>
+                                      {
+                                        item
+                                          .posicao
+                                      }
+                                      º
+                                    </strong>
                                   </span>
-                                )}
 
-                              </div>
-                            )
+                                  <span>
+                                    <strong>
+                                      {
+                                        item
+                                          .tamanho
+                                      }
+                                    </strong>
+                                  </span>
+
+                                  <span>
+                                    <strong>
+                                      {Math.round(
+                                        (
+                                          item
+                                            .pontuacao ||
+                                          0
+                                        ) *
+                                          100
+                                      )}
+                                      /100
+                                    </strong>
+                                  </span>
+
+                                  <span>
+                                    {formatarResultadoRanking(
+                                      item
+                                        .resultado
+                                    )}
+
+                                    {item
+                                      .tamanho ===
+                                      tamanhoRecomendado && (
+                                      <small>
+                                        Recomendado pelo VesteIA
+                                      </small>
+                                    )}
+
+                                    {estaSelecionado &&
+                                      item
+                                        .tamanho !==
+                                        tamanhoRecomendado && (
+                                        <small>
+                                          Visualizando agora
+                                        </small>
+                                      )}
+                                  </span>
+
+                                  {variacao && (
+                                    <span>
+                                      {variacao
+                                        .largura_cm}
+                                      {" × "}
+                                      {variacao
+                                        .comprimento_cm}
+                                      {" cm"}
+                                    </span>
+                                  )}
+
+                                  {item.posicao ===
+                                    1 && (
+                                    <span>
+                                      ⭐
+                                    </span>
+                                  )}
+
+                                </button>
+                              )
+                            }
                           )}
 
                       </div>
                     )}
 
 
-                    {recomendacaoTamanho
-                      ?.ranking?.[0] && (
+                    {rankingAtivo &&
+                      variacaoAtiva && (
+                      <div className="tamanho-comparacao-card">
+
+                        <p className="provador-etapa">
+                          TAMANHO EM VISUALIZAÇÃO
+                        </p>
+
+                        <div className="tamanho-comparacao-topo">
+
+                          <div className="tamanho-comparacao-bolha">
+                            {
+                              tamanhoAtivo
+                            }
+                          </div>
+
+                          <div className="tamanho-comparacao-resumo">
+
+                            <h3>
+                              {tamanhoAtivo ===
+                              tamanhoRecomendado
+                                ? "Recomendação principal"
+                                : "Comparando outra opção"}
+                            </h3>
+
+                            <p>
+                              Compatibilidade com sua preferência:{" "}
+                              <strong>
+                                {Math.round(
+                                  (
+                                    rankingAtivo
+                                      ?.pontuacao ||
+                                    0
+                                  ) *
+                                    100
+                                )}
+                                %
+                              </strong>
+                            </p>
+
+                            <p>
+                              {formatarResultadoRanking(
+                                rankingAtivo
+                                  ?.resultado
+                              )}
+                            </p>
+
+                          </div>
+
+                        </div>
+
+
+                        <div className="produto-detalhes">
+
+                          <span>
+                            <strong>
+                              Largura da peça:
+                            </strong>{" "}
+                            {
+                              variacaoAtiva
+                                .largura_cm
+                            }{" "}
+                            cm
+                          </span>
+
+                          <span>
+                            <strong>
+                              Comprimento da peça:
+                            </strong>{" "}
+                            {
+                              variacaoAtiva
+                                .comprimento_cm
+                            }{" "}
+                            cm
+                          </span>
+
+                          <span>
+                            <strong>
+                              Caimento na largura:
+                            </strong>{" "}
+                            {formatarCaimento(
+                              rankingAtivo
+                                ?.caimento_largura
+                            )}
+                          </span>
+
+                          <span>
+                            <strong>
+                              Caimento no comprimento:
+                            </strong>{" "}
+                            {formatarCaimento(
+                              rankingAtivo
+                                ?.caimento_comprimento
+                            )}
+                          </span>
+
+                        </div>
+
+
+                        {tamanhoAtivo ===
+                          tamanhoRecomendado ? (
+                          <p className="tamanho-comparacao-status">
+                            ⭐ Este é o tamanho
+                            recomendado pelo VesteIA
+                            para sua preferência atual.
+                          </p>
+                        ) : (
+                          <>
+                            <p className="tamanho-comparacao-status">
+                              Você está apenas
+                              comparando o tamanho{" "}
+                              <strong>
+                                {tamanhoAtivo}
+                              </strong>
+                              . A recomendação principal
+                              continua sendo{" "}
+                              <strong>
+                                {tamanhoRecomendado}
+                              </strong>
+                              .
+                            </p>
+
+                            <button
+                              type="button"
+                              className="botao-iniciar-provador"
+                              onClick={
+                                () =>
+                                  setTamanhoVisualSelecionado(
+                                    tamanhoRecomendado
+                                  )
+                              }
+                            >
+                              Voltar para o recomendado
+                            </button>
+                          </>
+                        )}
+
+                      </div>
+                    )}
+
+
+                    {tamanhosProvador
+                      ?.length >
+                      0 && (
                       <div className="produto-detalhes">
 
                         <span>
                           <strong>
-                            Largura sugerida:
-                          </strong>{" "}
-                          {
-                            recomendacaoTamanho
-                              .ranking[0]
-                              .largura_peca_cm
-                          }{" "}
-                          cm
-                        </span>
-
-                        <span>
-                          <strong>
-                            Comprimento sugerido:
-                          </strong>{" "}
-                          {
-                            recomendacaoTamanho
-                              .ranking[0]
-                              .comprimento_peca_cm
-                          }{" "}
-                          cm
-                        </span>
-
-                        <span>
-                          <strong>
-                            Caimento na largura:
+                            Caimento recomendado na largura:
                           </strong>{" "}
                           {formatarCaimento(
-                            recomendacaoTamanho
-                              .ranking[0]
-                              .caimento_largura
+                            tamanhosProvador[0]
+                              ?.caimento_largura
                           )}
                         </span>
 
                         <span>
                           <strong>
-                            Caimento no comprimento:
+                            Caimento recomendado no comprimento:
                           </strong>{" "}
                           {formatarCaimento(
-                            recomendacaoTamanho
-                              .ranking[0]
-                              .caimento_comprimento
+                            tamanhosProvador[0]
+                              ?.caimento_comprimento
                           )}
                         </span>
+
+                        {obterVariacaoPorTamanho(
+                          recomendacaoProvador
+                            ?.tamanho
+                        ) && (
+                          <>
+                            <span>
+                              <strong>
+                                Largura recomendada:
+                              </strong>{" "}
+                              {
+                                obterVariacaoPorTamanho(
+                                  recomendacaoProvador
+                                    ?.tamanho
+                                )
+                                  ?.largura_cm
+                              }{" "}
+                              cm
+                            </span>
+
+                            <span>
+                              <strong>
+                                Comprimento recomendado:
+                              </strong>{" "}
+                              {
+                                obterVariacaoPorTamanho(
+                                  recomendacaoProvador
+                                    ?.tamanho
+                                )
+                                  ?.comprimento_cm
+                              }{" "}
+                              cm
+                            </span>
+                          </>
+                        )}
 
                       </div>
                     )}
@@ -1591,13 +2053,13 @@ function App() {
                 )}
 
 
-                {decisaoProvador
-                  .destaques
+                {caimentoProvador
+                  ?.destaques
                   ?.length >
                   0 && (
                   <div className="observacoes">
 
-                    {decisaoProvador
+                    {caimentoProvador
                       .destaques
                       .map(
                         (
@@ -1628,6 +2090,8 @@ function App() {
                       Peça:
                     </strong>{" "}
                     {
+                      produtoProvador
+                        ?.nome ??
                       produtoSelecionado
                         ?.nome
                     }
@@ -1635,11 +2099,12 @@ function App() {
 
                   <span>
                     <strong>
-                      Tamanho analisado:
+                      Sugestão:
                     </strong>{" "}
                     {
-                      produtoSelecionado
-                        ?.tamanho
+                      recomendacaoProvador
+                        ?.tamanho ??
+                      "-"
                     }
                   </span>
 
@@ -1648,8 +2113,8 @@ function App() {
                       Qualidade da foto:
                     </strong>{" "}
                     {formatarQualidade(
-                      decisaoProvador
-                        .qualidade_foto
+                      analiseProvador
+                        ?.qualidade_foto
                     )}
                   </span>
 
@@ -1657,14 +2122,323 @@ function App() {
                     <strong>
                       Confiança visual:
                     </strong>{" "}
-                    {
-                      decisaoProvador
-                        .confianca_visual ||
-                      "-"
-                    }
+                    {formatarConfianca(
+                      analiseProvador
+                        ?.confianca_visual
+                    )}
+                  </span>
+
+                  <span>
+                    <strong>
+                      Confiança do ranking:
+                    </strong>{" "}
+                    {formatarConfianca(
+                      recomendacaoProvador
+                        ?.confianca
+                        ?.nivel
+                    )}
                   </span>
 
                 </div>
+
+
+                {referenciaCorporal
+                  ?.disponivel && (
+                  <div className="produto-detalhes">
+
+                    <span>
+                      <strong>
+                        Referência corporal:
+                      </strong>{" "}
+                      disponível
+                    </span>
+
+                    <span>
+                      <strong>
+                        Origem:
+                      </strong>{" "}
+                      {
+                        referenciaCorporal
+                          .origem_corporal ===
+                        "foto"
+                          ? "Foto"
+                          : referenciaCorporal
+                              .origem_corporal
+                      }
+                    </span>
+
+                    <span>
+                      <strong>
+                        Confiança métrica:
+                      </strong>{" "}
+                      {formatarConfianca(
+                        referenciaCorporal
+                          .confianca_metrica
+                      )}
+                    </span>
+
+                  </div>
+                )}
+
+
+                {avatarProvador
+                  ?.preparavel &&
+                  selecaoVisualAltura
+                    ?.suportada_no_contrato &&
+                  candidatosAltura
+                    .length >
+                    0 && (
+                    <section className="avatar-preparacao">
+
+                      <p className="provador-etapa">
+                        PREPARAR REFERÊNCIA DO AVATAR
+                      </p>
+
+                      <h3>
+                        Qual referência visual
+                        mais se aproxima de você?
+                      </h3>
+
+                      <p className="avatar-preparacao-intro">
+                        Escolha uma das referências
+                        abaixo. Elas ajudam a preparar
+                        a futura representação visual
+                        do VesteIA.
+                      </p>
+
+
+                      <div className="avatar-referencia-resumo">
+
+                        <span>
+                          <strong>
+                            Origem corporal:
+                          </strong>{" "}
+                          {
+                            referenciaCorporal
+                              ?.origem_corporal ===
+                            "foto"
+                              ? "Foto"
+                              : referenciaCorporal
+                                  ?.origem_corporal ||
+                                "-"
+                          }
+                        </span>
+
+                        <span>
+                          <strong>
+                            Confiança:
+                          </strong>{" "}
+                          {formatarConfianca(
+                            referenciaCorporal
+                              ?.confianca_metrica
+                          )}
+                        </span>
+
+                        <span>
+                          <strong>
+                            Tamanho em visualização:
+                          </strong>{" "}
+                          {
+                            tamanhoAtivo ||
+                            tamanhoRecomendado ||
+                            "-"
+                          }
+                        </span>
+
+                      </div>
+
+
+                      <div className="avatar-alturas-grid">
+
+                        {candidatosAltura
+                          .map(
+                            (
+                              candidato
+                            ) => {
+                              const selecionado =
+                                alturaVisualSelecionada ===
+                                candidato
+                                  .altura_referencia_cm
+
+                              return (
+                                <button
+                                  type="button"
+                                  key={
+                                    candidato.id
+                                  }
+                                  className={
+                                    [
+                                      "avatar-altura-card",
+                                      candidato
+                                        .referencia_central
+                                        ? "avatar-altura-central"
+                                        : "",
+                                      selecionado
+                                        ? "avatar-altura-selecionada"
+                                        : "",
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" ")
+                                  }
+                                  onClick={
+                                    () =>
+                                      selecionarReferenciaAltura(
+                                        candidato
+                                          .altura_referencia_cm
+                                      )
+                                  }
+                                >
+
+                                  <span className="avatar-altura-numero">
+                                    {
+                                      candidato
+                                        .altura_referencia_cm
+                                    }
+                                  </span>
+
+                                  <span className="avatar-altura-unidade">
+                                    cm
+                                  </span>
+
+                                  {candidato
+                                    .referencia_central && (
+                                    <small>
+                                      Referência central
+                                    </small>
+                                  )}
+
+                                  {selecionado && (
+                                    <strong>
+                                      ✓ Selecionado
+                                    </strong>
+                                  )}
+
+                                </button>
+                              )
+                            }
+                          )}
+
+                      </div>
+
+
+                      <button
+                        type="button"
+                        className={
+                          alturaVisualIncerta
+                            ? "avatar-incerteza avatar-incerteza-selecionada"
+                            : "avatar-incerteza"
+                        }
+                        onClick={
+                          selecionarAlturaIncerta
+                        }
+                      >
+                        <strong>
+                          Não tenho certeza
+                        </strong>
+
+                        <span>
+                          Continuar sem escolher
+                          uma única referência.
+                        </span>
+                      </button>
+
+
+                      <div className="avatar-selecao-status">
+
+                        {!referenciaAvatarPronta && (
+                          <p>
+                            Selecione uma referência
+                            ou escolha “Não tenho certeza”.
+                          </p>
+                        )}
+
+
+                        {alturaVisualSelecionada && (
+                          <p>
+                            Referência selecionada:{" "}
+                            <strong>
+                              {
+                                alturaVisualSelecionada
+                              }{" "}
+                              cm
+                            </strong>
+                          </p>
+                        )}
+
+
+                        {alturaVisualIncerta && (
+                          <p>
+                            <strong>
+                              Referência aberta.
+                            </strong>{" "}
+                            O VesteIA manterá a incerteza
+                            em vez de assumir uma altura
+                            específica.
+                          </p>
+                        )}
+
+                      </div>
+
+
+                      <div className="avatar-aviso">
+                        <strong>
+                          Importante:
+                        </strong>{" "}
+                        essas opções são referências
+                        para personalização visual.
+                        Elas não representam uma
+                        medição anatômica exata da
+                        sua altura.
+                      </div>
+
+
+                      <button
+                        type="button"
+                        className="botao-preparar-avatar"
+                        disabled={
+                          !referenciaAvatarPronta
+                        }
+                        onClick={
+                          prepararReferenciaAvatar
+                        }
+                      >
+                        Preparar referência do Avatar
+                      </button>
+
+
+                      {avatarPreparacaoConcluida && (
+                        <div className="avatar-pronto">
+
+                          <strong>
+                            ✓ Referência visual preparada
+                          </strong>
+
+                          <p>
+                            {alturaVisualSelecionada
+                              ? `O Avatar poderá utilizar ${alturaVisualSelecionada} cm como referência visual selecionada pelo usuário.`
+                              : "O Avatar foi preparado mantendo a incerteza de altura informada pelo usuário."}
+                          </p>
+
+                          <p>
+                            Tamanho atualmente em
+                            visualização:{" "}
+                            <strong>
+                              {
+                                tamanhoAtivo
+                              }
+                            </strong>
+                          </p>
+
+                          <small>
+                            A geração do Avatar ainda
+                            não acontece nesta Sprint.
+                          </small>
+
+                        </div>
+                      )}
+
+                    </section>
+                  )}
 
 
                 <p>
@@ -1673,23 +2447,12 @@ function App() {
                 </p>
 
 
-                {recomendacaoTamanho
-                  ?.mensagem && (
+                {comunicacaoProvador
+                  ?.transparencia && (
                   <p>
                     {
-                      recomendacaoTamanho
-                        .mensagem
-                    }
-                  </p>
-                )}
-
-
-                {recomendacaoTamanho
-                  ?.mensagem_transparencia && (
-                  <p>
-                    {
-                      recomendacaoTamanho
-                        .mensagem_transparencia
+                      comunicacaoProvador
+                        .transparencia
                     }
                   </p>
                 )}
@@ -1698,69 +2461,10 @@ function App() {
             )}
 
 
-          {decisaoProvador &&
-            decisaoProvador.status ===
-              "analise_visual_disponivel" && (
-              <div className="modo-selecionado">
-
-                <p className="provador-etapa">
-                  VESTEIA — SEU RESULTADO
-                </p>
-
-                <h3>
-                  {
-                    decisaoProvador
-                      .titulo
-                  }
-                </h3>
-
-                <p>
-                  {
-                    decisaoProvador
-                      .descricao
-                  }
-                </p>
-
-                <p>
-                  ✨ O VesteIA conseguiu
-                  realizar uma análise
-                  visual da peça.
-                </p>
-
-              </div>
-            )}
-
-
-          {decisaoProvador &&
-            decisaoProvador.status ===
-              "analise_parcial" && (
-              <div className="modo-selecionado">
-
-                <p className="provador-etapa">
-                  VESTEIA — ANÁLISE PARCIAL
-                </p>
-
-                <h3>
-                  {
-                    decisaoProvador
-                      .titulo
-                  }
-                </h3>
-
-                <p>
-                  {
-                    decisaoProvador
-                      .descricao
-                  }
-                </p>
-
-              </div>
-            )}
-
-
-          {decisaoProvador &&
-            decisaoProvador.status ===
-              "nova_foto_necessaria" && (
+          {!contratoProvador &&
+            analiseCaptura &&
+            analiseCaptura
+              .novaFotoNecessaria && (
               <div className="modo-selecionado">
 
                 <p className="provador-etapa">
@@ -1769,70 +2473,10 @@ function App() {
 
                 <h3>
                   {
-                    decisaoProvador
-                      .titulo
+                    analiseCaptura
+                      .titulo ??
+                    "Precisamos de outra foto"
                   }
-                </h3>
-
-                <p>
-                  {
-                    decisaoProvador
-                      .descricao
-                  }
-                </p>
-
-
-                {decisaoProvador
-                  .destaques
-                  ?.length >
-                  0 && (
-                  <div className="observacoes">
-
-                    {decisaoProvador
-                      .destaques
-                      .map(
-                        (
-                          destaque,
-                          index
-                        ) => (
-                          <span
-                            key={
-                              index
-                            }
-                          >
-                            {
-                              destaque
-                            }
-                          </span>
-                        )
-                      )}
-
-                  </div>
-                )}
-
-
-                <button
-                  type="button"
-                  className="botao-iniciar-provador"
-                  onClick={
-                    escolherFoto
-                  }
-                >
-                  Escolher outra foto
-                </button>
-
-              </div>
-            )}
-
-
-          {!decisaoProvador &&
-            analiseCaptura &&
-            analiseCaptura
-              .novaFotoNecessaria && (
-              <div className="modo-selecionado">
-
-                <h3>
-                  Precisamos de outra foto
                 </h3>
 
                 <p>
@@ -1841,6 +2485,36 @@ function App() {
                       .mensagem
                   }
                 </p>
+
+
+                {analiseCaptura
+                  ?.orientacoes
+                  ?.length >
+                  0 && (
+                  <div className="observacoes">
+
+                    {analiseCaptura
+                      .orientacoes
+                      .map(
+                        (
+                          orientacao,
+                          index
+                        ) => (
+                          <span
+                            key={
+                              index
+                            }
+                          >
+                            {
+                              orientacao
+                            }
+                          </span>
+                        )
+                      )}
+
+                  </div>
+                )}
+
 
                 <button
                   type="button"
@@ -1865,10 +2539,16 @@ function App() {
                 </h3>
 
                 <p>
-                  Na próxima etapa,
-                  você poderá utilizar
-                  uma representação virtual
-                  para experimentar esta peça.
+                  A estrutura do VesteIA
+                  está sendo preparada para
+                  a futura experiência visual
+                  com Avatar.
+                </p>
+
+                <p>
+                  Nesta versão, a geração
+                  visual do Avatar ainda
+                  não está ativa.
                 </p>
 
               </div>

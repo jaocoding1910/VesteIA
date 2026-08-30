@@ -5,6 +5,11 @@ def _garantir_tabela_sessoes(cursor):
     """
     Garante a existência e a estrutura da tabela
     utilizada pelo Provador VesteIA.
+
+    O tamanho deixou de ser obrigatório porque,
+    no fluxo foto-first, o usuário escolhe primeiro
+    o produto e o VesteIA determina o tamanho
+    posteriormente.
     """
 
     cursor.execute(
@@ -13,7 +18,7 @@ def _garantir_tabela_sessoes(cursor):
             id BIGSERIAL PRIMARY KEY,
             produto_id BIGINT NOT NULL,
             produto_nome TEXT NOT NULL,
-            tamanho VARCHAR(10) NOT NULL,
+            tamanho VARCHAR(10),
             modo VARCHAR(20) NOT NULL,
             nome_arquivo TEXT NOT NULL,
             tipo_arquivo VARCHAR(100) NOT NULL,
@@ -37,6 +42,27 @@ def _garantir_tabela_sessoes(cursor):
         """
         ALTER TABLE sessoes_provador
         ADD COLUMN IF NOT EXISTS caminho_normalizado TEXT
+        """
+    )
+
+    # ======================================================
+    # MIGRAÇÃO FOTO-FIRST
+    # ======================================================
+    #
+    # Bancos criados pelas versões anteriores possuíam:
+    #
+    # tamanho VARCHAR(10) NOT NULL
+    #
+    # Agora a sessão pode existir antes de o VesteIA
+    # determinar o tamanho recomendado.
+    #
+    # DROP NOT NULL preserva todos os registros existentes.
+    # ======================================================
+
+    cursor.execute(
+        """
+        ALTER TABLE sessoes_provador
+        ALTER COLUMN tamanho DROP NOT NULL
         """
     )
 
@@ -66,6 +92,9 @@ def _converter_linha_para_sessao(linha):
 def adicionar_sessao_provador(sessao):
     """
     Registra uma nova sessão do Provador VesteIA.
+
+    O tamanho pode ser None quando a experiência
+    começa pela foto.
     """
 
     conexao = conectar()
@@ -126,6 +155,7 @@ def adicionar_sessao_provador(sessao):
             "id": resultado[0],
             "criado_em": resultado[1],
             "status": sessao.status,
+            "tamanho": sessao.tamanho,
             "caminho_arquivo": sessao.caminho_arquivo,
             "caminho_normalizado": (
                 sessao.caminho_normalizado

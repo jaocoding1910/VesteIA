@@ -25,14 +25,14 @@ body {
   background:
     radial-gradient(
       circle at top,
-      rgba(0, 238, 255, 0.16),
-      transparent 32%
+      rgba(0, 238, 255, 0.14),
+      transparent 30%
     ),
     linear-gradient(
       145deg,
-      #041a46 0%,
-      #063b83 46%,
-      #031b4b 100%
+      #031735 0%,
+      #063b83 48%,
+      #021631 100%
     );
 
   background-attachment: fixed;
@@ -80,27 +80,27 @@ button {
 
   font-size:
     clamp(
-      2.4rem,
+      2.5rem,
       6vw,
-      4.2rem
+      4.3rem
     );
 
   line-height: 1;
 
   letter-spacing:
-    -0.05em;
+    -0.055em;
 
   color: #ffffff;
 
   text-shadow:
     0
     0
-    26px
+    28px
     rgba(
       0,
       238,
       255,
-      0.28
+      0.25
     );
 }
 
@@ -118,7 +118,7 @@ button {
       238,
       249,
       255,
-      0.86
+      0.8
     );
 
   line-height: 1.6;
@@ -154,7 +154,7 @@ button {
       71,
       224,
       255,
-      0.5
+      0.42
     );
 
   border-radius: 24px;
@@ -163,38 +163,28 @@ button {
     linear-gradient(
       145deg,
       rgba(
-        4,
-        33,
-        80,
-        0.88
+        3,
+        28,
+        69,
+        0.92
       ),
       rgba(
-        6,
-        59,
-        131,
-        0.72
+        5,
+        54,
+        119,
+        0.74
       )
     );
 
   box-shadow:
     0
-    22px
-    50px
+    24px
+    60px
     rgba(
       0,
       0,
       0,
-      0.22
-    ),
-    inset
-    0
-    0
-    30px
-    rgba(
-      27,
-      222,
-      255,
-      0.04
+      0.26
     );
 
   backdrop-filter:
@@ -218,7 +208,7 @@ button {
       80,
       210,
       255,
-      0.28
+      0.26
     );
 
   border-radius: 12px;
@@ -236,11 +226,6 @@ button {
       100,
       0.88
     );
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
 }
 
 
@@ -250,7 +235,7 @@ button {
       255,
       255,
       255,
-      0.66
+      0.62
     );
 }
 
@@ -264,8 +249,7 @@ button {
 
 .formulario input:focus,
 .formulario select:focus {
-  border-color:
-    #35e9ff;
+  border-color: #35e9ff;
 
   box-shadow:
     0
@@ -276,7 +260,7 @@ button {
       53,
       233,
       255,
-      0.13
+      0.12
     );
 }
 
@@ -286,7 +270,8 @@ button {
 .botao-iniciar-provador,
 .trocar-foto,
 .fechar-provador,
-.opcoes-provador button {
+.opcoes-provador button,
+.botao-preparar-avatar {
   min-height: 54px;
 
   padding:
@@ -299,7 +284,7 @@ button {
       97,
       237,
       255,
-      0.55
+      0.52
     );
 
   border-radius: 13px;
@@ -338,23 +323,13 @@ button {
 .botao-iniciar-provador:hover,
 .trocar-foto:hover,
 .fechar-provador:hover,
-.opcoes-provador button:hover {
+.opcoes-provador button:hover,
+.botao-preparar-avatar:hover:not(:disabled) {
   transform:
     translateY(-2px);
 
   filter:
     brightness(1.08);
-
-  box-shadow:
-    0
-    16px
-    34px
-    rgba(
-      0,
-      212,
-      255,
-      0.22
-    );
 }
 
 
@@ -373,8 +348,7 @@ button {
     auto
     32px;
 
-  padding:
-    28px;
+  padding: 28px;
 
   border:
     1px solid
@@ -382,7 +356,7 @@ button {
       75,
       224,
       255,
-      0.48
+      0.42
     );
 
   border-radius: 26px;
@@ -392,22 +366,8 @@ button {
       3,
       38,
       91,
-      0.72
+      0.74
     );
-
-  box-shadow:
-    0
-    22px
-    50px
-    rgba(
-      0,
-      0,
-      0,
-      0.2
-    );
-
-  backdrop-filter:
-    blur(14px);
 }
 
 
@@ -416,13 +376,6 @@ button {
     0
     0
     24px;
-
-  font-size:
-    clamp(
-      1.9rem,
-      5vw,
-      2.7rem
-    );
 }
 
 
@@ -436,8 +389,7 @@ button {
 
 
 .resultado > p strong {
-  color:
-    #79f4ff;
+  color: #79f4ff;
 }
 
 
@@ -446,15 +398,8 @@ button {
 }
 
 
-.produtos > h3 {
-  margin-bottom: 20px;
-
-  font-size: 1.6rem;
-}
-
-
 /* ======================================================
-   CARD DE PRODUTO
+   PRODUTO
 ====================================================== */
 
 .produto-card {
@@ -478,7 +423,7 @@ button {
       55,
       211,
       255,
-      0.36
+      0.34
     );
 
   border-radius: 22px;
@@ -488,27 +433,16 @@ button {
       160deg,
       rgba(
         2,
-        31,
-        78,
+        27,
+        68,
         0.98
       ),
       rgba(
         4,
-        54,
-        117,
-        0.82
+        49,
+        108,
+        0.84
       )
-    );
-
-  box-shadow:
-    0
-    18px
-    38px
-    rgba(
-      0,
-      0,
-      0,
-      0.28
     );
 }
 
@@ -535,6 +469,7 @@ button {
   display: block;
 
   width: 100%;
+
   max-width: 380px;
 
   height: 280px;
@@ -554,13 +489,7 @@ button {
 
 
 .preco {
-  margin:
-    0
-    0
-    18px;
-
-  color:
-    #60f1ca;
+  color: #60f1ca;
 
   font-size: 1.65rem;
 
@@ -583,7 +512,7 @@ button {
   gap: 10px;
 
   margin:
-    16px
+    18px
     0;
 }
 
@@ -594,8 +523,8 @@ button {
   min-width: 0;
 
   padding:
-    12px
-    14px;
+    13px
+    15px;
 
   border:
     1px solid
@@ -603,20 +532,28 @@ button {
       74,
       215,
       255,
-      0.26
+      0.22
     );
 
-  border-radius: 11px;
+  border-radius: 13px;
+
+  color:
+    rgba(
+      246,
+      252,
+      255,
+      0.92
+    );
 
   background:
     rgba(
-      10,
-      93,
-      165,
+      7,
+      73,
+      137,
       0.26
     );
 
-  line-height: 1.35;
+  line-height: 1.4;
 
   overflow-wrap: anywhere;
 }
@@ -630,7 +567,7 @@ button {
   gap: 9px;
 
   margin:
-    14px
+    17px
     0;
 }
 
@@ -641,8 +578,8 @@ button {
   align-items: center;
 
   padding:
-    8px
-    12px;
+    9px
+    13px;
 
   border:
     1px solid
@@ -650,24 +587,23 @@ button {
       51,
       236,
       255,
-      0.5
+      0.46
     );
 
   border-radius: 999px;
 
-  color:
-    #dffcff;
+  color: #e5feff;
 
   font-size: 0.88rem;
 
-  font-weight: 700;
+  font-weight: 750;
 
   background:
     rgba(
       5,
       124,
       176,
-      0.24
+      0.2
     );
 }
 
@@ -686,7 +622,7 @@ button {
 .provador {
   width: min(
     100%,
-    760px
+    790px
   );
 
   margin:
@@ -694,7 +630,7 @@ button {
     auto
     0;
 
-  padding: 28px;
+  padding: 30px;
 
   text-align: left;
 
@@ -704,58 +640,32 @@ button {
       64,
       226,
       255,
-      0.56
+      0.48
     );
 
-  border-radius: 26px;
+  border-radius: 28px;
 
   background:
     linear-gradient(
       160deg,
       rgba(
-        2,
-        35,
-        84,
-        0.92
+        1,
+        29,
+        70,
+        0.95
       ),
       rgba(
-        5,
-        61,
-        133,
-        0.74
+        4,
+        54,
+        119,
+        0.78
       )
     );
-
-  box-shadow:
-    0
-    24px
-    60px
-    rgba(
-      0,
-      0,
-      0,
-      0.28
-    );
-
-  backdrop-filter:
-    blur(15px);
 }
 
 
 .provador > h2 {
-  margin:
-    4px
-    0
-    24px;
-
   text-align: center;
-
-  font-size:
-    clamp(
-      1.8rem,
-      5vw,
-      2.5rem
-    );
 }
 
 
@@ -763,18 +673,19 @@ button {
   margin:
     0
     0
-    8px !important;
+    10px !important;
 
   text-align: center;
 
-  color:
-    #64f4de;
+  color: #64f4de;
 
-  font-size: 0.96rem;
+  font-size: 0.86rem;
 
   font-weight: 900;
 
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
 }
 
 
@@ -823,28 +734,8 @@ button {
 }
 
 
-.provador-informacoes h3 {
-  margin:
-    0
-    0
-    18px;
-
-  font-size: 1.45rem;
-}
-
-
-.provador-informacoes p {
-  margin:
-    10px
-    0;
-
-  line-height: 1.5;
-}
-
-
 .provador-informacoes strong {
-  color:
-    #5df0dc;
+  color: #5df0dc;
 }
 
 
@@ -856,14 +747,14 @@ button {
 
 
 /* ======================================================
-   ESCOLHA DO PROVADOR
+   MODO SELECIONADO
 ====================================================== */
 
 .escolha-provador,
 .modo-selecionado {
   margin-top: 22px;
 
-  padding: 22px;
+  padding: 24px;
 
   border:
     1px solid
@@ -871,24 +762,23 @@ button {
       63,
       222,
       255,
-      0.4
+      0.33
     );
 
-  border-radius: 20px;
+  border-radius: 22px;
 
   background:
     rgba(
-      4,
-      49,
-      107,
-      0.42
+      3,
+      42,
+      93,
+      0.58
     );
 }
 
 
-.escolha-provador h3,
-.modo-selecionado h3 {
-  margin-top: 0;
+.modo-selecionado > h3 {
+  text-align: center;
 }
 
 
@@ -905,8 +795,6 @@ button {
     );
 
   gap: 12px;
-
-  margin-top: 18px;
 }
 
 
@@ -916,7 +804,7 @@ button {
 
 
 /* ======================================================
-   FOTO DO USUÁRIO
+   FOTO
 ====================================================== */
 
 .foto-preview {
@@ -929,20 +817,7 @@ button {
 
   min-height: 390px;
 
-  margin:
-    14px
-    0;
-
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(
-      76,
-      224,
-      255,
-      0.44
-    );
 
   border-radius: 18px;
 
@@ -970,75 +845,49 @@ button {
 
 
 /* ======================================================
-   CARD TAMANHO SUGERIDO
+   TAMANHO SUGERIDO
 ====================================================== */
 
 .tamanho-sugerido-card {
   margin:
-    24px
+    28px
     0;
 
   padding:
+    34px
     26px
-    20px;
+    28px;
 
   text-align: center;
 
   border:
     1px solid
     rgba(
-      71,
-      238,
+      91,
+      245,
       255,
-      0.7
+      0.62
     );
 
-  border-radius: 22px;
+  border-radius: 26px;
 
   background:
     radial-gradient(
-      circle at top,
+      circle at 50% 0%,
       rgba(
-        0,
-        232,
-        255,
-        0.2
+        31,
+        244,
+        238,
+        0.22
       ),
-      transparent 54%
+      transparent 52%
     ),
     rgba(
-      8,
-      84,
-      154,
-      0.28
+      3,
+      72,
+      130,
+      0.42
     );
-
-  box-shadow:
-    inset
-    0
-    0
-    32px
-    rgba(
-      0,
-      220,
-      255,
-      0.06
-    );
-}
-
-
-.tamanho-sugerido-card h3 {
-  margin:
-    16px
-    0
-    10px;
-
-  text-align: center;
-}
-
-
-.tamanho-sugerido-card > p {
-  text-align: center;
 }
 
 
@@ -1048,19 +897,19 @@ button {
   align-items: center;
   justify-content: center;
 
-  width: 108px;
-  height: 108px;
+  width: 122px;
+  height: 122px;
 
   margin:
-    14px
+    18px
     auto;
 
   border:
-    1px solid
+    2px solid
     rgba(
-      146,
+      180,
       255,
-      255,
+      253,
       0.68
     );
 
@@ -1068,80 +917,55 @@ button {
 
   color: #ffffff;
 
-  font-size: 3.2rem;
+  font-size: 3.5rem;
 
-  font-weight: 1000;
-
-  line-height: 1;
+  font-weight: 950;
 
   background:
     linear-gradient(
       145deg,
-      #25ddec,
-      #00a1e9
+      #3ce7e7,
+      #009ee8
     );
 
   box-shadow:
     0
     0
-    35px
+    42px
     rgba(
       0,
       238,
       255,
-      0.44
-    ),
-    inset
-    0
-    0
-    22px
-    rgba(
-      255,
-      255,
-      255,
-      0.16
+      0.35
     );
 }
 
 
 /* ======================================================
-   RANKING
+   RANKING CLICÁVEL
 ====================================================== */
 
 .ranking-tamanhos {
   margin:
-    26px
-    0;
-
-  padding: 0;
+    32px
+    0
+    26px;
 }
 
 
 .ranking-tamanhos > h3 {
-  margin:
-    0
-    0
-    6px;
-
-  text-align: left;
+  margin-bottom: 6px;
 }
 
 
 .ranking-tamanhos > p {
-  margin:
-    0
-    0
-    16px;
-
   color:
     rgba(
       236,
       250,
       255,
-      0.75
+      0.72
     );
-
-  font-size: 0.92rem;
 }
 
 
@@ -1149,26 +973,32 @@ button {
   display: grid;
 
   grid-template-columns:
-    52px
-    72px
-    90px
+    46px
+    60px
+    86px
     minmax(
       0,
       1fr
     )
-    36px;
+    minmax(
+      100px,
+      auto
+    )
+    28px;
 
-  gap: 8px;
+  gap: 10px;
 
   align-items: center;
 
-  min-height: 64px;
+  width: 100%;
+
+  min-height: 68px;
 
   margin-bottom: 10px;
 
   padding:
-    10px
-    14px;
+    11px
+    15px;
 
   border:
     1px solid
@@ -1176,36 +1006,51 @@ button {
       63,
       211,
       255,
-      0.34
+      0.25
     );
 
-  border-radius: 14px;
+  border-radius: 15px;
+
+  color: inherit;
+
+  text-align: left;
 
   background:
     rgba(
-      5,
-      52,
-      112,
-      0.54
+      3,
+      42,
+      91,
+      0.55
     );
+
+  cursor: pointer;
 
   transition:
     transform 0.18s ease,
     border-color 0.18s ease,
-    background 0.18s ease;
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 
 .ranking-item:hover {
   transform:
-    translateX(3px);
+    translateY(-2px);
 
   border-color:
     rgba(
       87,
       237,
       255,
-      0.62
+      0.58
+    );
+
+  background:
+    rgba(
+      4,
+      58,
+      120,
+      0.7
     );
 }
 
@@ -1216,7 +1061,7 @@ button {
       71,
       246,
       228,
-      0.92
+      0.72
     );
 
   background:
@@ -1226,12 +1071,40 @@ button {
         0,
         196,
         213,
-        0.34
+        0.24
       ),
       rgba(
         4,
         70,
         145,
+        0.48
+      )
+    );
+}
+
+
+.ranking-item-selecionado {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.94
+    );
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(
+        0,
+        208,
+        217,
+        0.38
+      ),
+      rgba(
+        17,
+        100,
+        183,
         0.56
       )
     );
@@ -1239,81 +1112,919 @@ button {
   box-shadow:
     0
     0
-    20px
+    0
+    2px
+    rgba(
+      75,
+      240,
+      255,
+      0.12
+    ),
+    0
+    14px
+    34px
     rgba(
       0,
-      228,
-      235,
-      0.12
+      220,
+      255,
+      0.14
     );
+
+  transform:
+    translateY(-2px);
 }
 
 
 .ranking-item span {
   min-width: 0;
+}
 
-  overflow-wrap: anywhere;
+
+.ranking-item span:nth-child(2) {
+  color: #ffffff;
+
+  font-size: 1.05rem;
+}
+
+
+.ranking-item span:nth-child(3) {
+  color: #72f4ec;
 }
 
 
 .ranking-item small {
   display: block;
 
-  margin-top: 3px;
+  margin-top: 4px;
 
-  color:
-    #8cf6ff;
+  color: #8cf6ff;
 
-  font-size: 0.72rem;
+  font-size: 0.7rem;
 
   font-weight: 800;
 }
 
 
 /* ======================================================
-   TEXTO DO RESULTADO
+   TAMANHO EM VISUALIZAÇÃO
 ====================================================== */
 
-.modo-selecionado > p {
-  line-height: 1.55;
-}
+.tamanho-comparacao-card {
+  margin:
+    26px
+    0;
 
+  padding: 24px;
 
-.modo-selecionado strong {
-  color:
-    #70f1ed;
-}
+  border:
+    1px solid
+    rgba(
+      84,
+      232,
+      255,
+      0.44
+    );
 
-
-/* ======================================================
-   BOTÃO FINAL
-====================================================== */
-
-.fechar-provador {
-  margin-top: 22px;
+  border-radius: 22px;
 
   background:
     linear-gradient(
-      100deg,
+      145deg,
       rgba(
-        6,
-        103,
-        176,
-        0.88
+        4,
+        58,
+        118,
+        0.58
       ),
       rgba(
-        27,
-        128,
-        204,
-        0.88
+        2,
+        34,
+        79,
+        0.68
       )
     );
 }
 
 
+.tamanho-comparacao-topo {
+  display: grid;
+
+  grid-template-columns:
+    110px
+    1fr;
+
+  gap: 20px;
+
+  align-items: center;
+
+  margin:
+    18px
+    0;
+}
+
+
+.tamanho-comparacao-bolha {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100px;
+  height: 100px;
+
+  border:
+    1px solid
+    rgba(
+      145,
+      255,
+      255,
+      0.7
+    );
+
+  border-radius: 50%;
+
+  color: #ffffff;
+
+  font-size: 2.7rem;
+
+  font-weight: 950;
+
+  background:
+    linear-gradient(
+      145deg,
+      #27dbe5,
+      #078ee1
+    );
+
+  box-shadow:
+    0
+    0
+    28px
+    rgba(
+      0,
+      224,
+      255,
+      0.22
+    );
+}
+
+
+.tamanho-comparacao-resumo h3 {
+  margin:
+    0
+    0
+    10px;
+}
+
+
+.tamanho-comparacao-resumo p {
+  margin:
+    7px
+    0;
+
+  line-height: 1.45;
+}
+
+
+.tamanho-comparacao-status {
+  margin:
+    18px
+    0;
+
+  padding:
+    13px
+    15px;
+
+  border:
+    1px solid
+    rgba(
+      89,
+      231,
+      255,
+      0.3
+    );
+
+  border-radius: 13px;
+
+  color:
+    rgba(
+      240,
+      253,
+      255,
+      0.88
+    );
+
+  background:
+    rgba(
+      5,
+      87,
+      148,
+      0.22
+    );
+
+  line-height: 1.5;
+}
+
+
 /* ======================================================
-   ERRO
+   AVATAR — PREPARAÇÃO
 ====================================================== */
+
+.avatar-preparacao {
+  margin:
+    34px
+    0
+    26px;
+
+  padding:
+    28px;
+
+  border:
+    1px solid
+    rgba(
+      86,
+      237,
+      255,
+      0.48
+    );
+
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(
+        58,
+        239,
+        230,
+        0.12
+      ),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(
+        3,
+        51,
+        105,
+        0.68
+      ),
+      rgba(
+        2,
+        29,
+        69,
+        0.74
+      )
+    );
+}
+
+
+.avatar-preparacao > h3 {
+  margin:
+    4px
+    auto
+    10px;
+
+  max-width: 600px;
+
+  text-align: center;
+
+  font-size:
+    clamp(
+      1.4rem,
+      4vw,
+      1.9rem
+    );
+}
+
+
+.avatar-preparacao-intro {
+  max-width: 620px;
+
+  margin:
+    0
+    auto
+    22px;
+
+  text-align: center;
+
+  color:
+    rgba(
+      239,
+      251,
+      255,
+      0.75
+    );
+
+  line-height: 1.55;
+}
+
+
+/* ======================================================
+   RESUMO AVATAR
+====================================================== */
+
+.avatar-referencia-resumo {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 10px;
+
+  margin:
+    20px
+    0
+    24px;
+}
+
+
+.avatar-referencia-resumo span {
+  padding:
+    12px
+    13px;
+
+  border:
+    1px solid
+    rgba(
+      81,
+      222,
+      255,
+      0.22
+    );
+
+  border-radius: 12px;
+
+  text-align: center;
+
+  background:
+    rgba(
+      5,
+      78,
+      143,
+      0.2
+    );
+
+  line-height: 1.4;
+}
+
+
+/* ======================================================
+   CANDIDATOS DE ALTURA
+====================================================== */
+
+.avatar-alturas-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 12px;
+
+  margin:
+    20px
+    0;
+}
+
+
+.avatar-altura-card {
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 145px;
+
+  padding:
+    16px
+    10px;
+
+  border:
+    1px solid
+    rgba(
+      67,
+      214,
+      255,
+      0.3
+    );
+
+  border-radius: 18px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(
+        5,
+        72,
+        139,
+        0.45
+      ),
+      rgba(
+        2,
+        38,
+        87,
+        0.62
+      )
+    );
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+.avatar-altura-card:hover {
+  transform:
+    translateY(-3px);
+
+  border-color:
+    rgba(
+      101,
+      245,
+      255,
+      0.72
+    );
+}
+
+
+.avatar-altura-numero {
+  font-size:
+    clamp(
+      1.65rem,
+      4vw,
+      2.3rem
+    );
+
+  font-weight: 950;
+
+  line-height: 1;
+}
+
+
+.avatar-altura-unidade {
+  margin-top: 5px;
+
+  color:
+    rgba(
+      232,
+      251,
+      255,
+      0.72
+    );
+
+  font-size: 0.88rem;
+}
+
+
+.avatar-altura-card small {
+  margin-top: 10px;
+
+  color: #86f4ff;
+
+  text-align: center;
+
+  font-size: 0.68rem;
+
+  font-weight: 800;
+}
+
+
+.avatar-altura-card > strong {
+  margin-top: 9px;
+
+  color: #72f4df;
+
+  font-size: 0.72rem;
+}
+
+
+.avatar-altura-central {
+  border-color:
+    rgba(
+      102,
+      240,
+      225,
+      0.52
+    );
+}
+
+
+.avatar-altura-selecionada {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.95
+    );
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(
+        0,
+        202,
+        206,
+        0.48
+      ),
+      rgba(
+        12,
+        100,
+        177,
+        0.62
+      )
+    );
+
+  box-shadow:
+    0
+    0
+    0
+    2px
+    rgba(
+      85,
+      244,
+      255,
+      0.12
+    ),
+    0
+    14px
+    30px
+    rgba(
+      0,
+      218,
+      255,
+      0.14
+    );
+
+  transform:
+    translateY(-3px);
+}
+
+
+/* ======================================================
+   NÃO TENHO CERTEZA
+====================================================== */
+
+.avatar-incerteza {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  width: 100%;
+
+  margin:
+    8px
+    0
+    18px;
+
+  padding:
+    15px
+    18px;
+
+  border:
+    1px solid
+    rgba(
+      92,
+      220,
+      255,
+      0.28
+    );
+
+  border-radius: 14px;
+
+  color: #ffffff;
+
+  text-align: left;
+
+  background:
+    rgba(
+      4,
+      57,
+      116,
+      0.38
+    );
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+
+.avatar-incerteza:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(
+      103,
+      237,
+      255,
+      0.6
+    );
+}
+
+
+.avatar-incerteza span {
+  color:
+    rgba(
+      232,
+      248,
+      255,
+      0.68
+    );
+
+  font-size: 0.85rem;
+}
+
+
+.avatar-incerteza-selecionada {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.88
+    );
+
+  background:
+    rgba(
+      5,
+      104,
+      160,
+      0.46
+    );
+
+  box-shadow:
+    0
+    0
+    0
+    2px
+    rgba(
+      72,
+      239,
+      255,
+      0.1
+    );
+}
+
+
+/* ======================================================
+   STATUS DA SELEÇÃO
+====================================================== */
+
+.avatar-selecao-status {
+  margin:
+    16px
+    0;
+
+  padding:
+    13px
+    15px;
+
+  border:
+    1px solid
+    rgba(
+      74,
+      221,
+      255,
+      0.24
+    );
+
+  border-radius: 13px;
+
+  background:
+    rgba(
+      2,
+      49,
+      104,
+      0.32
+    );
+}
+
+
+.avatar-selecao-status p {
+  margin: 0;
+
+  text-align: center;
+
+  line-height: 1.5;
+}
+
+
+/* ======================================================
+   AVISO DE ALTURA
+====================================================== */
+
+.avatar-aviso {
+  margin:
+    18px
+    0;
+
+  padding:
+    14px
+    16px;
+
+  border:
+    1px solid
+    rgba(
+      126,
+      214,
+      255,
+      0.2
+    );
+
+  border-radius: 13px;
+
+  color:
+    rgba(
+      230,
+      247,
+      255,
+      0.7
+    );
+
+  font-size: 0.84rem;
+
+  line-height: 1.55;
+
+  background:
+    rgba(
+      1,
+      31,
+      73,
+      0.42
+    );
+}
+
+
+/* ======================================================
+   BOTÃO PREPARAR AVATAR
+====================================================== */
+
+.botao-preparar-avatar {
+  width: 100%;
+
+  margin-top: 4px;
+}
+
+
+.botao-preparar-avatar:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.42;
+
+  filter: grayscale(0.25);
+
+  box-shadow: none;
+}
+
+
+/* ======================================================
+   AVATAR PRONTO
+====================================================== */
+
+.avatar-pronto {
+  margin-top: 18px;
+
+  padding:
+    17px
+    18px;
+
+  border:
+    1px solid
+    rgba(
+      86,
+      246,
+      218,
+      0.52
+    );
+
+  border-radius: 15px;
+
+  color:
+    rgba(
+      242,
+      255,
+      253,
+      0.9
+    );
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(
+        0,
+        127,
+        129,
+        0.25
+      ),
+      rgba(
+        4,
+        69,
+        120,
+        0.34
+      )
+    );
+}
+
+
+.avatar-pronto > strong {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #74f4df;
+
+  text-align: center;
+}
+
+
+.avatar-pronto p {
+  margin:
+    6px
+    0;
+
+  text-align: center;
+
+  line-height: 1.5;
+}
+
+
+.avatar-pronto small {
+  display: block;
+
+  margin-top: 10px;
+
+  color:
+    rgba(
+      227,
+      246,
+      255,
+      0.64
+    );
+
+  text-align: center;
+}
+
+
+/* ======================================================
+   TEXTO
+====================================================== */
+
+.modo-selecionado strong {
+  color: #70f1ed;
+}
+
+
+.modo-selecionado > p {
+  line-height: 1.62;
+}
+
+
+.modo-selecionado > p:last-of-type {
+  color:
+    rgba(
+      232,
+      247,
+      255,
+      0.67
+    );
+
+  font-size: 0.9rem;
+}
+
+
+/* ======================================================
+   FINAL / ERROS
+====================================================== */
+
+.fechar-provador {
+  margin-top: 26px;
+}
+
 
 .erro {
   width: min(
@@ -1383,18 +2094,6 @@ button {
   .provador-conteudo {
     grid-template-columns:
       1fr;
-
-    gap: 18px;
-  }
-
-
-  .provador-imagem {
-    min-height: 300px;
-  }
-
-
-  .provador-imagem img {
-    height: 300px;
   }
 
 
@@ -1405,20 +2104,35 @@ button {
 
   .ranking-item {
     grid-template-columns:
-      42px
-      54px
-      72px
+      38px
+      50px
+      68px
       minmax(
         0,
         1fr
       )
-      28px;
+      90px
+      24px;
 
-    padding:
-      10px
-      9px;
+    font-size: 0.84rem;
+  }
 
-    font-size: 0.88rem;
+
+  .avatar-referencia-resumo {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .avatar-alturas-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
   }
 }
 
@@ -1451,29 +2165,10 @@ button {
   }
 
 
-  .formulario {
-    padding: 17px;
-  }
-
-
+  .formulario,
   .resultado,
   .provador {
     padding: 17px;
-  }
-
-
-  .produto-card {
-    padding: 15px;
-  }
-
-
-  .produto-imagem {
-    min-height: 220px;
-  }
-
-
-  .produto-imagem img {
-    height: 220px;
   }
 
 
@@ -1496,51 +2191,105 @@ button {
 
   .tamanho-sugerido-card {
     padding:
-      22px
-      14px;
+      28px
+      14px
+      22px;
   }
 
 
   .tamanho-sugerido-bolha {
-    width: 94px;
-    height: 94px;
+    width: 108px;
+    height: 108px;
 
-    font-size: 2.8rem;
+    font-size: 3.1rem;
   }
 
 
   .ranking-item {
     grid-template-columns:
-      34px
-      46px
-      62px
+      30px
+      42px
+      58px
       minmax(
         0,
         1fr
       )
-      24px;
+      22px;
 
     gap: 5px;
 
-    min-height: 58px;
+    min-height: 62px;
 
     padding:
       8px
       7px;
 
-    font-size: 0.78rem;
+    font-size: 0.77rem;
   }
 
 
-  .ranking-item small {
-    font-size: 0.64rem;
+  .ranking-item span:nth-child(5) {
+    display: none;
+  }
+
+
+  .tamanho-comparacao-topo {
+    grid-template-columns:
+      1fr;
+
+    text-align: center;
+  }
+
+
+  .tamanho-comparacao-bolha {
+    margin:
+      0
+      auto;
+  }
+
+
+  .observacoes {
+    display: grid;
+
+    grid-template-columns: 1fr;
   }
 
 
   .observacoes span {
     width: 100%;
 
-    justify-content: flex-start;
+    border-radius: 12px;
+  }
+
+
+  .avatar-preparacao {
+    padding:
+      22px
+      15px;
+  }
+
+
+  .avatar-alturas-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+
+    gap: 9px;
+  }
+
+
+  .avatar-altura-card {
+    min-height: 126px;
+  }
+
+
+  .avatar-incerteza {
+    text-align: center;
   }
 }
 
@@ -1554,18 +2303,19 @@ button {
 ) {
   .ranking-item {
     grid-template-columns:
-      30px
+      28px
       38px
-      56px
+      52px
       minmax(
         0,
         1fr
       );
 
-    font-size: 0.72rem;
+    font-size: 0.71rem;
   }
 
 
+  .ranking-item > span:nth-child(5),
   .ranking-item > span:last-child {
     display: none;
   }
@@ -1573,5 +2323,21 @@ button {
 
   .foto-preview {
     min-height: 260px;
+  }
+
+
+  .avatar-alturas-grid {
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+
+
+  .avatar-altura-card {
+    min-height: 116px;
+
+    padding:
+      12px
+      7px;
   }
 }

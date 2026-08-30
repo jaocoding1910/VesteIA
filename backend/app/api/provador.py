@@ -11,7 +11,6 @@ from fastapi import (
 )
 
 from app.models.sessao_provador import SessaoProvador
-from app.perfil import perfil_usuario
 
 from app.services.catalogo import (
     buscar_produto_por_id,
@@ -48,6 +47,42 @@ from app.services.recomendacao_tamanho_provador import (
 
 from app.services.deteccao_pessoa import (
     detectar_pessoa,
+)
+
+from app.services.representacao_corporal import (
+    gerar_representacao_corporal_v1,
+)
+
+from app.services.avatar_corporal import (
+    gerar_avatar_corporal_v1,
+)
+
+from app.services.estado_renderizacao_avatar import (
+    gerar_estado_renderizacao_avatar_v1,
+)
+
+from app.services.malha_corporal_2d import (
+    gerar_malha_corporal_2d_v1,
+)
+
+from app.services.renderer_avatar_2d import (
+    gerar_renderer_avatar_2d_v1,
+)
+
+from app.services.representacao_roupa import (
+    gerar_representacao_roupa_v1,
+)
+
+from app.services.vestimenta_avatar_2d import (
+    vestir_avatar_2d_v1,
+)
+
+from app.services.simulacao_caimento_visual import (
+    simular_caimento_visual_v1,
+)
+
+from app.services.integracao_final_provador import (
+    gerar_integracao_final_provador_v1,
 )
 
 from app.services.processamento_imagem import (
@@ -231,13 +266,19 @@ def verificar_arquivo_sessao(
 async def preparar_experiencia(
     foto: UploadFile = File(...),
     produto_id: int = Form(...),
-    produto_nome: str = Form(...),
-    tamanho: str = Form(...),
     modo: str = Form("foto"),
 ):
     """
-    Recebe, valida e registra
-    uma nova sessão do provador.
+    Recebe, valida e registra uma nova sessão
+    foto-first do Provador VesteIA.
+
+    Neste fluxo:
+    - o usuário seleciona o produto;
+    - envia sua foto;
+    - não informa tamanho;
+    - não informa medidas corporais;
+    - o tamanho será analisado posteriormente
+      pelo motor do VesteIA.
     """
 
     if modo != "foto":
@@ -248,6 +289,36 @@ async def preparar_experiencia(
                 "apenas o modo foto."
             ),
         )
+
+    try:
+        produto = (
+            buscar_produto_por_id(
+                produto_id
+            )
+        )
+
+    except Exception as erro:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Não foi possível consultar "
+                "o produto selecionado."
+            ),
+        ) from erro
+
+    if produto is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "O produto selecionado "
+                "não foi encontrado."
+            ),
+        )
+
+    produto_nome = (
+        produto.get("nome")
+        or "Produto VesteIA"
+    )
 
     if (
         foto.content_type
@@ -312,7 +383,7 @@ async def preparar_experiencia(
     sessao = SessaoProvador(
         produto_id=produto_id,
         produto_nome=produto_nome,
-        tamanho=tamanho,
+        tamanho=None,
         modo=modo,
         nome_arquivo=(
             foto.filename
@@ -355,22 +426,61 @@ async def preparar_experiencia(
         "sessao_id": (
             registro["id"]
         ),
+
         "criado_em": (
             registro["criado_em"]
         ),
+
         "status": "recebido",
+
         "status_processamento": (
             registro["status"]
         ),
+
         "pronto_para_processar": True,
+
         "modo": modo,
+
         "produto": {
-            "id": produto_id,
-            "nome": produto_nome,
-            "tamanho": tamanho,
+            "id": (
+                produto["id"]
+            ),
+            "nome": (
+                produto["nome"]
+            ),
+            "categoria": (
+                produto.get(
+                    "categoria"
+                )
+            ),
+            "cor": (
+                produto.get(
+                    "cor"
+                )
+            ),
+            "modelagem": (
+                produto.get(
+                    "modelagem"
+                )
+            ),
+            "tamanho_inicial": None,
+            "tamanho_definido": False,
         },
+
+        "fluxo": {
+            "tipo": "foto_first",
+            "entrada_corporal": "foto",
+            "medidas_manuais_obrigatorias": False,
+            "medidas_manuais_fornecidas": False,
+            "tamanho_inicial_obrigatorio": False,
+            "tamanho_sera_analisado": True,
+            "refinamento_por_medidas_disponivel": False,
+        },
+
         "arquivo": {
-            "nome": foto.filename,
+            "nome": (
+                foto.filename
+            ),
             "tipo": (
                 foto.content_type
             ),
@@ -379,10 +489,20 @@ async def preparar_experiencia(
             ),
             "armazenado": True,
         },
+
+        "proxima_etapa": {
+            "acao": "analisar_foto",
+            "descricao": (
+                "A imagem está pronta para ser "
+                "analisada pelo motor visual "
+                "do VesteIA."
+            ),
+        },
+
         "mensagem": (
-            "Sessão do Provador VesteIA "
-            "registrada e imagem armazenada "
-            "com sucesso."
+            "Foto recebida pelo VesteIA. "
+            "Nenhum tamanho ou medida corporal "
+            "foi solicitado nesta etapa."
         ),
     }
 
@@ -485,11 +605,6 @@ def obter_sessao(
 def iniciar_processamento(
     sessao_id: int,
 ):
-    """
-    Valida a sessão e inicia
-    seu ciclo de processamento.
-    """
-
     try:
         sessao = (
             buscar_sessao_provador_por_id(
@@ -569,15 +684,9 @@ def iniciar_processamento(
         ) from erro
 
     return {
-        "sessao_id": (
-            resultado["id"]
-        ),
-        "status_anterior": (
-            sessao["status"]
-        ),
-        "status_atual": (
-            resultado["status"]
-        ),
+        "sessao_id": resultado["id"],
+        "status_anterior": sessao["status"],
+        "status_atual": resultado["status"],
         "mensagem": (
             "Processamento da sessão "
             "VesteIA iniciado com sucesso."
@@ -595,11 +704,6 @@ def iniciar_processamento(
 def concluir_processamento(
     sessao_id: int,
 ):
-    """
-    Finaliza com sucesso
-    uma sessão em processamento.
-    """
-
     try:
         sessao = (
             buscar_sessao_provador_por_id(
@@ -666,15 +770,9 @@ def concluir_processamento(
         ) from erro
 
     return {
-        "sessao_id": (
-            resultado["id"]
-        ),
-        "status_anterior": (
-            sessao["status"]
-        ),
-        "status_atual": (
-            resultado["status"]
-        ),
+        "sessao_id": resultado["id"],
+        "status_anterior": sessao["status"],
+        "status_atual": resultado["status"],
         "sucesso": True,
         "mensagem": (
             "Processamento da sessão "
@@ -693,11 +791,6 @@ def concluir_processamento(
 def registrar_falha_processamento(
     sessao_id: int,
 ):
-    """
-    Marca como erro
-    uma sessão em processamento.
-    """
-
     try:
         sessao = (
             buscar_sessao_provador_por_id(
@@ -766,15 +859,9 @@ def registrar_falha_processamento(
         ) from erro
 
     return {
-        "sessao_id": (
-            resultado["id"]
-        ),
-        "status_anterior": (
-            sessao["status"]
-        ),
-        "status_atual": (
-            resultado["status"]
-        ),
+        "sessao_id": resultado["id"],
+        "status_anterior": sessao["status"],
+        "status_atual": resultado["status"],
         "sucesso": False,
         "mensagem": (
             "Falha de processamento registrada "
@@ -793,11 +880,6 @@ def registrar_falha_processamento(
 def analisar_imagem_sessao(
     sessao_id: int,
 ):
-    """
-    Analisa tecnicamente
-    a imagem armazenada.
-    """
-
     try:
         sessao = (
             buscar_sessao_provador_por_id(
@@ -862,15 +944,9 @@ def analisar_imagem_sessao(
         ) from erro
 
     return {
-        "sessao_id": (
-            sessao["id"]
-        ),
-        "produto": (
-            sessao["produto_nome"]
-        ),
-        "status": (
-            sessao["status"]
-        ),
+        "sessao_id": sessao["id"],
+        "produto": sessao["produto_nome"],
+        "status": sessao["status"],
         "arquivo": {
             "nome_original": (
                 sessao["nome_arquivo"]
@@ -897,11 +973,6 @@ def analisar_imagem_sessao(
 def normalizar_imagem_sessao(
     sessao_id: int,
 ):
-    """
-    Cria uma versão JPEG/RGB
-    padronizada da imagem.
-    """
-
     try:
         sessao = (
             buscar_sessao_provador_por_id(
@@ -945,10 +1016,7 @@ def normalizar_imagem_sessao(
         / caminho_original
     )
 
-    if not (
-        caminho_absoluto_original
-        .is_file()
-    ):
+    if not caminho_absoluto_original.is_file():
         raise HTTPException(
             status_code=404,
             detail=(
@@ -1026,12 +1094,8 @@ def normalizar_imagem_sessao(
         ) from erro
 
     return {
-        "sessao_id": (
-            registro["id"]
-        ),
-        "arquivo_original": (
-            caminho_original
-        ),
+        "sessao_id": registro["id"],
+        "arquivo_original": caminho_original,
         "arquivo_normalizado": (
             registro[
                 "caminho_normalizado"
@@ -1057,11 +1121,6 @@ def normalizar_imagem_sessao(
 def preparar_entrada_visual(
     sessao_id: int,
 ):
-    """
-    Recupera e valida
-    a imagem normalizada.
-    """
-
     try:
         sessao = (
             buscar_sessao_provador_por_id(
@@ -1131,30 +1190,16 @@ def preparar_entrada_visual(
         ) from erro
 
     return {
-        "sessao_id": (
-            sessao["id"]
-        ),
+        "sessao_id": sessao["id"],
         "produto": {
-            "id": (
-                sessao["produto_id"]
-            ),
-            "nome": (
-                sessao["produto_nome"]
-            ),
-            "tamanho": (
-                sessao["tamanho"]
-            ),
+            "id": sessao["produto_id"],
+            "nome": sessao["produto_nome"],
+            "tamanho": sessao["tamanho"],
         },
-        "status_sessao": (
-            sessao["status"]
-        ),
+        "status_sessao": sessao["status"],
         "entrada_visual": {
-            "arquivo": (
-                caminho_normalizado
-            ),
-            "origem": (
-                "imagem_normalizada"
-            ),
+            "arquivo": caminho_normalizado,
+            "origem": "imagem_normalizada",
             **avaliacao,
         },
         "mensagem": (
@@ -1174,11 +1219,6 @@ def preparar_entrada_visual(
 def avaliar_foto_provador(
     sessao_id: int,
 ):
-    """
-    Avalia se a imagem normalizada
-    possui qualidade suficiente.
-    """
-
     try:
         sessao = (
             buscar_sessao_provador_por_id(
@@ -1245,23 +1285,13 @@ def avaliar_foto_provador(
         ) from erro
 
     return {
-        "sessao_id": (
-            sessao["id"]
-        ),
+        "sessao_id": sessao["id"],
         "produto": {
-            "id": (
-                sessao["produto_id"]
-            ),
-            "nome": (
-                sessao["produto_nome"]
-            ),
-            "tamanho": (
-                sessao["tamanho"]
-            ),
+            "id": sessao["produto_id"],
+            "nome": sessao["produto_nome"],
+            "tamanho": sessao["tamanho"],
         },
-        "avaliacao_foto": (
-            avaliacao
-        ),
+        "avaliacao_foto": avaliacao,
         "mensagem": (
             "Qualidade técnica da foto "
             "avaliada pelo VesteIA."
@@ -1286,15 +1316,6 @@ def detectar_pessoa_sessao(
         ),
     ),
 ):
-    """
-    Executa a detecção corporal
-    e integra o resultado ao produto.
-
-    A modelagem real do produto
-    e a preferência de caimento
-    são enviadas ao pipeline corporal.
-    """
-
     preferencia_caimento = (
         normalizar_preferencia_caimento(
             preferencia_caimento
@@ -1372,15 +1393,10 @@ def detectar_pessoa_sessao(
     try:
         deteccao = detectar_pessoa(
             caminho_absoluto,
-
-            altura_cm=perfil_usuario.get(
-                "altura_cm"
-            ),
-
+            altura_cm=None,
             modelagem=produto.get(
                 "modelagem"
             ),
-
             preferencia_caimento=(
                 preferencia_caimento
             ),
@@ -1398,6 +1414,18 @@ def detectar_pessoa_sessao(
             detail=str(erro),
         ) from erro
 
+    representacao_corporal = (
+        gerar_representacao_corporal_v1(
+            deteccao
+        )
+    )
+
+    avatar_corporal = (
+        gerar_avatar_corporal_v1(
+            representacao_corporal
+        )
+    )
+
     contexto_corpo_produto = (
         gerar_contexto_corpo_produto(
             produto,
@@ -1406,9 +1434,7 @@ def detectar_pessoa_sessao(
     )
 
     return {
-        "sessao_id": (
-            sessao["id"]
-        ),
+        "sessao_id": sessao["id"],
 
         "preferencia_caimento": (
             preferencia_caimento
@@ -1429,16 +1455,22 @@ def detectar_pessoa_sessao(
             deteccao
         ),
 
+        "representacao_corporal": (
+            representacao_corporal
+        ),
+
+        "avatar_corporal": (
+            avatar_corporal
+        ),
+
         "contexto_corpo_produto": (
             contexto_corpo_produto
         ),
 
         "mensagem": (
-            "Detecção humana executada "
-            "pelo pipeline visual do VesteIA "
-            "com modelagem do produto, "
-            "preferência de caimento "
-            "e contexto corpo-produto integrados."
+            "Detecção humana, representação "
+            "corporal e Avatar Corporal V1 "
+            "preparados somente com a fotografia."
         ),
     }
 
@@ -1464,20 +1496,16 @@ def executar_pipeline_provador(
     Orquestra automaticamente
     o pipeline principal do VesteIA.
 
-    Ordem principal:
-
-    1. sessão;
-    2. normalização;
-    3. produto;
-    4. detecção com contexto da peça;
-    5. contexto corpo-produto;
-    6. compatibilidade visual;
-    7. compatibilidade dimensional;
-    8. resultado dimensional;
-    9. variações;
-    10. recomendação experimental;
-    11. decisão consolidada;
-    12. contrato Provador V1.
+    Fluxo foto-only:
+    foto
+    -> detecção
+    -> representação corporal
+    -> Avatar Corporal V1
+    -> Estado de Renderização V1
+    -> Malha Corporal 2D V1
+    -> Renderer do Avatar 2D V1
+    -> Representação da Roupa V1
+    -> análise corpo-produto
     """
 
     preferencia_caimento = (
@@ -1545,10 +1573,7 @@ def executar_pipeline_provador(
             / caminho_original
         )
 
-        if not (
-            caminho_absoluto_original
-            .is_file()
-        ):
+        if not caminho_absoluto_original.is_file():
             raise HTTPException(
                 status_code=404,
                 detail=(
@@ -1660,16 +1685,14 @@ def executar_pipeline_provador(
         )
 
     # ======================================================
-    # DETECÇÃO CORPORAL
+    # DETECÇÃO CORPORAL FOTO-ONLY
     # ======================================================
 
     try:
         deteccao = detectar_pessoa(
             caminho_absoluto,
 
-            altura_cm=perfil_usuario.get(
-                "altura_cm"
-            ),
+            altura_cm=None,
 
             modelagem=produto.get(
                 "modelagem"
@@ -1691,6 +1714,128 @@ def executar_pipeline_provador(
             status_code=422,
             detail=str(erro),
         ) from erro
+
+    # ======================================================
+    # REPRESENTAÇÃO CORPORAL FOTO-ONLY V1
+    # ======================================================
+
+    representacao_corporal = (
+        gerar_representacao_corporal_v1(
+            deteccao
+        )
+    )
+
+    # ======================================================
+    # AVATAR CORPORAL V1
+    # ======================================================
+
+    avatar_corporal = (
+        gerar_avatar_corporal_v1(
+            representacao_corporal
+        )
+    )
+
+    # ======================================================
+    # ESTADO DE RENDERIZAÇÃO DO AVATAR V1
+    # ======================================================
+
+    estado_renderizacao_avatar = (
+        gerar_estado_renderizacao_avatar_v1(
+            avatar_corporal
+        )
+    )
+
+    # ======================================================
+    # MALHA CORPORAL 2D V1
+    # ======================================================
+
+    malha_corporal_2d = (
+        gerar_malha_corporal_2d_v1(
+            deteccao=deteccao,
+            estado_renderizacao_avatar=(
+                estado_renderizacao_avatar
+            ),
+        )
+    )
+
+    # ======================================================
+    # RENDERER DO AVATAR 2D V1
+    # ======================================================
+
+    renderer_avatar_2d = (
+        gerar_renderer_avatar_2d_v1(
+            malha_corporal_2d
+        )
+    )
+
+    # ======================================================
+    # REPRESENTAÇÃO DA ROUPA V1
+    # ======================================================
+
+    representacao_roupa = (
+        gerar_representacao_roupa_v1(
+            produto=produto
+        )
+    )
+
+    # ======================================================
+    # VESTIMENTA DO AVATAR 2D V1
+    # ======================================================
+
+    vestimenta_avatar_2d = (
+    vestir_avatar_2d_v1(
+        renderer_avatar_2d=(
+            renderer_avatar_2d
+           ),
+        representacao_roupa=(
+            representacao_roupa
+            ),
+        )
+    )
+
+    # ======================================================
+    # SIMULAÇÃO VISUAL DE CAIMENTO V1
+    # ======================================================
+
+    simulacao_caimento_visual = (
+        simular_caimento_visual_v1(
+        vestimenta_avatar_2d=(
+            vestimenta_avatar_2d
+            ),
+
+        representacao_roupa=(
+            representacao_roupa
+            ),
+
+        preferencia_caimento=(
+            preferencia_caimento
+            ),
+        )
+    )
+
+    # ======================================================
+    # INTEGRAÇÃO FINAL DO PROVADOR V1
+    # ======================================================
+
+    integracao_final_provador = (
+        gerar_integracao_final_provador_v1(
+        renderer_avatar_2d=(
+            renderer_avatar_2d
+            ),
+
+        representacao_roupa=(
+            representacao_roupa
+            ),
+
+        vestimenta_avatar_2d=(
+            vestimenta_avatar_2d
+            ),
+
+        simulacao_caimento_visual=(
+            simulacao_caimento_visual
+            ),
+        )
+    )
 
     # ======================================================
     # CONTEXTO CORPO X PRODUTO
@@ -1756,7 +1901,7 @@ def executar_pipeline_provador(
         ) from erro
 
     # ======================================================
-    # RECOMENDAÇÃO EXPERIMENTAL DE TAMANHO
+    # RECOMENDAÇÃO EXPERIMENTAL
     # ======================================================
 
     recomendacao_tamanho_provador = (
@@ -1808,14 +1953,6 @@ def executar_pipeline_provador(
     # ======================================================
     # CONTRATO PROVADOR V1
     # ======================================================
-    #
-    # Camada enxuta destinada ao frontend
-    # e preparada para a futura integração
-    # com o Avatar V1.
-    #
-    # Não recalcula calibração, ranking,
-    # scores ou recomendação.
-    # ======================================================
 
     contrato_provador = (
         gerar_contrato_provador_v1(
@@ -1862,6 +1999,13 @@ def executar_pipeline_provador(
             preferencia_caimento
         ),
 
+        "modo_analise": {
+            "tipo": "foto_only",
+            "medidas_manuais_fornecidas": False,
+            "altura_manual_fornecida": False,
+            "usa_altura_salva_perfil": False,
+        },
+
         "pipeline": {
             "normalizacao": (
                 "executada"
@@ -1879,6 +2023,62 @@ def executar_pipeline_provador(
 
             "deteccao": (
                 "concluida"
+            ),
+
+            "representacao_corporal_v1": (
+                "concluida"
+            ),
+
+            "avatar_corporal_v1": (
+                "concluido"
+            ),
+
+            "estado_renderizacao_avatar_v1": (
+                "concluido"
+            ),
+
+            "malha_corporal_2d_v1": (
+                "concluida"
+            ),
+
+            "renderer_avatar_2d_v1": (
+                "concluido"
+            ),
+
+            "representacao_roupa_v1": (
+                "concluida"
+                if representacao_roupa.get(
+                    "pronta_para_vestir_avatar",
+                    False,
+                )
+                else "indisponivel"
+            ),
+
+            "vestimenta_avatar_2d_v1": (
+                "concluida"
+                if vestimenta_avatar_2d.get(
+                    "vestida_no_avatar",
+                    False,
+                )
+                else "indisponivel"
+            ),
+
+            "simulacao_caimento_visual_v1": (
+                "concluida"
+                if simulacao_caimento_visual.get(
+                    "caimento_simulado",
+                    False,
+                )
+                else "indisponivel"
+            ),
+
+            "integracao_final_provador_v1": (
+                "concluida"
+                if integracao_final_provador.get(
+                    "integracao_completa",
+                    False,
+                )
+                else "parcial"
             ),
 
             "contexto_corpo_produto": (
@@ -1951,6 +2151,42 @@ def executar_pipeline_provador(
             )
         ),
 
+        "representacao_corporal": (
+            representacao_corporal
+        ),
+
+        "avatar_corporal": (
+            avatar_corporal
+        ),
+
+        "estado_renderizacao_avatar": (
+            estado_renderizacao_avatar
+        ),
+
+        "malha_corporal_2d": (
+            malha_corporal_2d
+        ),
+
+        "renderer_avatar_2d": (
+            renderer_avatar_2d
+        ),
+
+        "representacao_roupa": (
+            representacao_roupa
+        ),
+
+        "vestimenta_avatar_2d": (
+            vestimenta_avatar_2d
+        ),
+
+        "simulacao_caimento_visual": (
+            simulacao_caimento_visual
+        ),
+
+        "integracao_final_provador": (
+            integracao_final_provador
+        ),
+
         "contexto_corpo_produto": (
             contexto_corpo_produto
         ),
@@ -1975,30 +2211,22 @@ def executar_pipeline_provador(
             decisao_provador
         ),
 
-        # Contrato enxuto para consumo do produto.
         "contrato_provador": (
             contrato_provador
         ),
 
-        # Mantido integralmente para testes,
-        # diagnóstico e evolução do motor.
         "deteccao_humana": (
             deteccao
         ),
 
         "mensagem": (
-            "Pipeline automático do "
-            "Provador VesteIA executado "
-            "com análise corporal, modelagem "
-            "real da peça, preferência de "
-            "caimento, compatibilidade visual, "
-            "compatibilidade dimensional, "
-            "interpretação dimensional, "
-            "comparação entre tamanhos, "
-            "sugestão experimental "
-            "personalizada e contrato "
-            "Provador V1 preparados "
-            "com sucesso."
+            "Pipeline foto-only executado "
+            "com representação corporal, "
+            "Avatar Corporal V1 e "
+            "Representação da Roupa V1, "
+            "sem utilizar automaticamente "
+            "altura, peso, cintura ou outras "
+            "medidas salvas no perfil."
         ),
     }
 
@@ -2021,27 +2249,9 @@ def obter_resultado_provador(
     ),
 ):
     """
-    Executa o pipeline principal do VesteIA
-    e retorna somente o contrato Provador V1.
-
-    Este endpoint é destinado principalmente ao:
-    - frontend;
-    - futura camada de Avatar;
-    - integrações de produto.
-
-    Diferente de /executar, ele não expõe:
-    - landmarks;
-    - métricas internas;
-    - calibração completa;
-    - compatibilidades técnicas;
-    - estruturas de diagnóstico.
-
-    IMPORTANTE:
-    O motor executado é exatamente o mesmo
-    utilizado por /executar.
-
-    Nenhuma recomendação é recalculada
-    por uma lógica alternativa.
+    Executa o mesmo pipeline oficial
+    e retorna o contrato enxuto
+    do Provador VesteIA.
     """
 
     preferencia_caimento = (
@@ -2049,10 +2259,6 @@ def obter_resultado_provador(
             preferencia_caimento
         )
     )
-
-    # ======================================================
-    # EXECUÇÃO DO MESMO PIPELINE OFICIAL
-    # ======================================================
 
     resultado_pipeline = (
         executar_pipeline_provador(
@@ -2065,13 +2271,51 @@ def obter_resultado_provador(
         )
     )
 
-    # ======================================================
-    # CONTRATO
-    # ======================================================
-
     contrato_provador = (
         resultado_pipeline.get(
             "contrato_provador"
+        )
+        or {}
+    )
+
+    representacao_corporal = (
+        resultado_pipeline.get(
+            "representacao_corporal"
+        )
+        or {}
+    )
+
+    avatar_corporal = (
+        resultado_pipeline.get(
+            "avatar_corporal"
+        )
+        or {}
+    )
+
+    representacao_roupa = (
+        resultado_pipeline.get(
+            "representacao_roupa"
+        )
+        or {}
+    )
+
+    vestimenta_avatar_2d = (
+    resultado_pipeline.get(
+        "vestimenta_avatar_2d"
+        )
+        or {}
+    )
+
+    simulacao_caimento_visual = (
+        resultado_pipeline.get(
+            "simulacao_caimento_visual"
+        )
+        or {}
+    )
+
+    integracao_final_provador = (
+    resultado_pipeline.get(
+        "integracao_final_provador"
         )
         or {}
     )
@@ -2086,10 +2330,6 @@ def obter_resultado_provador(
             ),
         )
 
-    # ======================================================
-    # RESPOSTA ENXUTA
-    # ======================================================
-
     return {
         "sessao_id": (
             sessao_id
@@ -2097,6 +2337,12 @@ def obter_resultado_provador(
 
         "preferencia_caimento": (
             preferencia_caimento
+        ),
+
+        "modo_analise": (
+            resultado_pipeline.get(
+                "modo_analise"
+            )
         ),
 
         "versao_contrato": (
@@ -2118,6 +2364,26 @@ def obter_resultado_provador(
             )
         ),
 
+        "representacao_corporal": (
+            representacao_corporal
+        ),
+
+        "avatar_corporal": (
+            avatar_corporal
+        ),
+
+        "representacao_roupa": (
+            representacao_roupa
+        ),
+
+        "vestimenta_avatar_2d": (
+            vestimenta_avatar_2d
+        ),
+
+        "simulacao_caimento_visual": (
+            simulacao_caimento_visual
+        ),
+
         "contrato_provador": (
             contrato_provador
         ),
@@ -2125,6 +2391,6 @@ def obter_resultado_provador(
         "mensagem": (
             "Resultado enxuto do "
             "Provador VesteIA preparado "
-            "para consumo do frontend."
+            "em modo foto-only."
         ),
     }
