@@ -1,5 +1,7 @@
 import camisetaOversized from "./assets/produtos/camiseta-oversized.jpeg"
 
+import AvatarRenderer2D from "./components/AvatarRenderer2D"
+
 import {
   useEffect,
   useRef,
@@ -1590,6 +1592,32 @@ function App() {
                   }
                 </p>
 
+                <section
+              className="avatar-renderer-sprint51">
+                 <p className="provador-etapa">
+                  AVATAR VISUAL - SPRINT 51
+                 </p>
+
+                 <AvatarRenderer2D 
+                  renderer={
+                    analiseCaptura
+                     ?.respostaTecnica
+                     ?.renderer_avatar_2d
+                  }
+
+                  vestimenta={
+                    analiseCaptura
+                     ?.respostaTecnica
+                     ?.vestimenta_avatar_2d
+                  }
+
+                  caimento={
+                    analiseCaptura
+                     ?.respostaTecnica
+                     ?.simulacao_caimento_visual
+                  }
+                />
+              </section>
 
                 {recomendacaoProvador
                   ?.disponivel && (
