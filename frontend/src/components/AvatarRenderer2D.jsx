@@ -1,3 +1,12 @@
+import CalcaRenderer2D from "./vestimentas/CalcaRenderer2D"
+import CalcadoRenderer2D from "./vestimentas/CalcadoRenderer2D"
+import CamisetaRenderer2D from "./vestimentas/CamisetaRenderer2D"
+import SaiaRenderer2D from "./vestimentas/SaiaRenderer2D"
+import ShortRenderer2D from "./vestimentas/ShortRenderer2D"
+import VestidoRenderer2D from "./vestimentas/VestidoRenderer2D"
+
+
+
 function AvatarRenderer2D({
   renderer,
   vestimenta,
@@ -452,7 +461,7 @@ function AvatarRenderer2D({
     )
 
   /*
-   * PONTOS DA ROUPA
+   * PONTOS DA CAMISETA
    */
 
   const roupaOmbroEsquerdo =
@@ -505,9 +514,27 @@ function AvatarRenderer2D({
       "manga_direita_externa"
     )
 
+  /*
+   * DISPONIBILIDADE GENÉRICA DA ROUPA
+   *
+   * Agora não depende mais
+   * especificamente dos pontos
+   * da camiseta.
+   */
+
   const roupaDisponivel =
     vestimenta?.disponivel === true &&
     vestimenta?.vestida_no_avatar === true &&
+    Object.keys(
+      pontosRoupa
+    ).length > 0
+
+  /*
+   * CONTRATO ESPECÍFICO DA CAMISETA
+   */
+
+  const camisetaDisponivel =
+    roupaDisponivel &&
     roupaOmbroEsquerdo &&
     roupaOmbroDireito &&
     roupaAxilaEsquerda &&
@@ -683,6 +710,360 @@ function AvatarRenderer2D({
   const deslocamentoOmbro =
     larguraOmbros *
     0.07
+
+  /*
+   * RENDERER DA CAMISETA
+   */
+
+  function renderizarCamiseta() {
+    if (
+      !camisetaDisponivel
+    ) {
+      return null
+    }
+
+    return (
+      <path
+        d={`
+          M
+          ${roupaGolaEsquerda.x}
+          ${roupaGolaEsquerda.y}
+
+          Q
+          ${
+            (
+              roupaGolaEsquerda.x +
+              roupaOmbroEsquerdo.x
+            ) / 2
+          }
+          ${
+            roupaGolaEsquerda.y - 3
+          }
+
+          ${roupaOmbroEsquerdo.x}
+          ${roupaOmbroEsquerdo.y}
+
+          Q
+          ${
+            (
+              roupaOmbroEsquerdo.x +
+              mangaEsquerdaExterna.x
+            ) / 2
+          }
+          ${
+            (
+              roupaOmbroEsquerdo.y +
+              mangaEsquerdaExterna.y
+            ) / 2 - 2
+          }
+
+          ${mangaEsquerdaExterna.x}
+          ${mangaEsquerdaExterna.y}
+
+          Q
+          ${
+            (
+              mangaEsquerdaExterna.x +
+              roupaAxilaEsquerda.x
+            ) / 2 - 2
+          }
+          ${
+            (
+              mangaEsquerdaExterna.y +
+              roupaAxilaEsquerda.y
+            ) / 2 + 8
+          }
+
+          ${roupaAxilaEsquerda.x}
+          ${roupaAxilaEsquerda.y}
+
+          C
+          ${
+            roupaAxilaEsquerda.x - 2
+          }
+          ${
+            roupaAxilaEsquerda.y + 28
+          }
+
+          ${
+            roupaBarraEsquerda.x - 4
+          }
+          ${
+            roupaBarraEsquerda.y - 28
+          }
+
+          ${roupaBarraEsquerda.x}
+          ${roupaBarraEsquerda.y}
+
+          Q
+          ${
+            (
+              roupaBarraEsquerda.x +
+              roupaBarraDireita.x
+            ) / 2
+          }
+          ${
+            (
+              roupaBarraEsquerda.y +
+              roupaBarraDireita.y
+            ) / 2 + 7
+          }
+
+          ${roupaBarraDireita.x}
+          ${roupaBarraDireita.y}
+
+          C
+          ${
+            roupaBarraDireita.x + 4
+          }
+          ${
+            roupaBarraDireita.y - 28
+          }
+
+          ${
+            roupaAxilaDireita.x + 2
+          }
+          ${
+            roupaAxilaDireita.y + 28
+          }
+
+          ${roupaAxilaDireita.x}
+          ${roupaAxilaDireita.y}
+
+          Q
+          ${
+            (
+              mangaDireitaExterna.x +
+              roupaAxilaDireita.x
+            ) / 2 + 2
+          }
+          ${
+            (
+              mangaDireitaExterna.y +
+              roupaAxilaDireita.y
+            ) / 2 + 8
+          }
+
+          ${mangaDireitaExterna.x}
+          ${mangaDireitaExterna.y}
+
+          Q
+          ${
+            (
+              roupaOmbroDireito.x +
+              mangaDireitaExterna.x
+            ) / 2
+          }
+          ${
+            (
+              roupaOmbroDireito.y +
+              mangaDireitaExterna.y
+            ) / 2 - 2
+          }
+
+          ${roupaOmbroDireito.x}
+          ${roupaOmbroDireito.y}
+
+          Q
+          ${
+            (
+              roupaGolaDireita.x +
+              roupaOmbroDireito.x
+            ) / 2
+          }
+          ${
+            roupaGolaDireita.y - 3
+          }
+
+          ${roupaGolaDireita.x}
+          ${roupaGolaDireita.y}
+
+          Q
+          ${
+            (
+              roupaGolaDireita.x +
+              roupaGolaEsquerda.x
+            ) / 2
+          }
+          ${
+            (
+              roupaGolaDireita.y +
+              roupaGolaEsquerda.y
+            ) / 2 + 18
+          }
+
+          ${roupaGolaEsquerda.x}
+          ${roupaGolaEsquerda.y}
+
+          Z
+        `}
+        fill="#16c8b4"
+        stroke="#7fffea"
+        strokeWidth="3"
+        strokeLinejoin="round"
+        opacity="0.94"
+      />
+    )
+  }
+
+  /*
+   * NORMALIZAÇÃO DA CATEGORIA
+   */
+
+  function normalizarCategoria(
+    categoria
+  ) {
+    return String(
+      categoria ?? ""
+    )
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+  }
+
+  /*
+   * ROTEADOR DE VESTIMENTA
+   *
+   * Sprint 52:
+   *
+   * camiseta → renderer existente
+   * calça → CalcaRenderer2D
+   *
+   * Demais categorias serão
+   * adicionadas progressivamente.
+   */
+
+  function renderizarVestimenta() {
+    const categoriaNormalizada =
+      normalizarCategoria(
+        vestimenta
+          ?.produto
+          ?.categoria ??
+        vestimenta
+          ?.categoria
+      )
+
+    switch (
+      categoriaNormalizada
+    ) {
+      case "camiseta":
+      case "camisetas":
+        return (
+          <CamisetaRenderer2D
+            pontos={
+              pontosRoupa
+            }
+            obterPontoRoupa={
+              obterPontoRoupa
+            }
+            disponivel={
+              roupaDisponivel
+            }
+          />
+        )
+
+      case "camisa":
+      case "camisas":
+        return null
+
+      case "regata":
+      case "regatas":
+        return null
+
+      case "calca":
+      case "calcas":
+        return (
+          <CalcaRenderer2D
+            pontos={
+              pontosRoupa
+            }
+            obterPontoRoupa={
+              obterPontoRoupa
+            }
+            disponivel={
+              roupaDisponivel
+            }
+          />
+        )
+
+      case "short":
+      case "shorts":
+      case "bermuda":
+      case "bermudas":
+        return null
+
+      case "saia":
+      case "saias":
+        return (
+          <SaiaRenderer2D
+            pontos={
+              pontosRoupa
+            }
+            obterPontoRoupa={
+              obterPontoRoupa
+            }
+            disponivel={
+              roupaDisponivel
+            }
+          />
+        )
+
+      case "vestido":
+      case "vestidos":
+        return null
+
+      case "macacao":
+      case "macacoes":
+        return null
+
+      case "jaqueta":
+      case "jaquetas":
+      case "casaco":
+      case "casacos":
+        return null
+
+      case "tenis":
+      case "sapato":
+      case "sapatos":
+      case "bota":
+      case "botas":
+      case "calcado":
+      case "calcados":
+        return null
+
+      case "meia":
+      case "meias":
+        return null
+
+      default:
+        return null
+    }
+  }
+
+  /*
+   * CONTAGEM DINÂMICA DOS
+   * PONTOS DA VESTIMENTA
+   */
+
+  const quantidadePontosRoupa =
+    Object.values(
+      pontosRoupa
+    ).filter(
+      ponto =>
+        ponto &&
+        typeof ponto.x === "number" &&
+        typeof ponto.y === "number"
+    ).length
+
+  const totalPontosRoupa =
+    vestimenta
+      ?.qualidade
+      ?.total_pontos ??
+    quantidadePontosRoupa
 
   return (
     <div>
@@ -988,190 +1369,9 @@ function AvatarRenderer2D({
           />
         )}
 
-        {/* CAMISETA — VESTIMENTA REAL DO BACKEND */}
+        {/* VESTIMENTA */}
 
-        {roupaDisponivel && (
-          <path
-            d={`
-              M
-              ${roupaGolaEsquerda.x}
-              ${roupaGolaEsquerda.y}
-
-              Q
-              ${
-                (
-                  roupaGolaEsquerda.x +
-                  roupaOmbroEsquerdo.x
-                ) / 2
-              }
-              ${
-                roupaGolaEsquerda.y - 3
-              }
-
-              ${roupaOmbroEsquerdo.x}
-              ${roupaOmbroEsquerdo.y}
-
-              Q
-              ${
-                (
-                  roupaOmbroEsquerdo.x +
-                  mangaEsquerdaExterna.x
-                ) / 2
-              }
-              ${
-                (
-                  roupaOmbroEsquerdo.y +
-                  mangaEsquerdaExterna.y
-                ) / 2 - 2
-              }
-
-              ${mangaEsquerdaExterna.x}
-              ${mangaEsquerdaExterna.y}
-
-              Q
-              ${
-                (
-                  mangaEsquerdaExterna.x +
-                  roupaAxilaEsquerda.x
-                ) / 2 - 2
-              }
-              ${
-                (
-                  mangaEsquerdaExterna.y +
-                  roupaAxilaEsquerda.y
-                ) / 2 + 8
-              }
-
-              ${roupaAxilaEsquerda.x}
-              ${roupaAxilaEsquerda.y}
-
-              C
-              ${
-                roupaAxilaEsquerda.x - 2
-              }
-              ${
-                roupaAxilaEsquerda.y + 28
-              }
-
-              ${
-                roupaBarraEsquerda.x - 4
-              }
-              ${
-                roupaBarraEsquerda.y - 28
-              }
-
-              ${roupaBarraEsquerda.x}
-              ${roupaBarraEsquerda.y}
-
-              Q
-              ${
-                (
-                  roupaBarraEsquerda.x +
-                  roupaBarraDireita.x
-                ) / 2
-              }
-              ${
-                (
-                  roupaBarraEsquerda.y +
-                  roupaBarraDireita.y
-                ) / 2 + 7
-              }
-
-              ${roupaBarraDireita.x}
-              ${roupaBarraDireita.y}
-
-              C
-              ${
-                roupaBarraDireita.x + 4
-              }
-              ${
-                roupaBarraDireita.y - 28
-              }
-
-              ${
-                roupaAxilaDireita.x + 2
-              }
-              ${
-                roupaAxilaDireita.y + 28
-              }
-
-              ${roupaAxilaDireita.x}
-              ${roupaAxilaDireita.y}
-
-              Q
-              ${
-                (
-                  mangaDireitaExterna.x +
-                  roupaAxilaDireita.x
-                ) / 2 + 2
-              }
-              ${
-                (
-                  mangaDireitaExterna.y +
-                  roupaAxilaDireita.y
-                ) / 2 + 8
-              }
-
-              ${mangaDireitaExterna.x}
-              ${mangaDireitaExterna.y}
-
-              Q
-              ${
-                (
-                  roupaOmbroDireito.x +
-                  mangaDireitaExterna.x
-                ) / 2
-              }
-              ${
-                (
-                  roupaOmbroDireito.y +
-                  mangaDireitaExterna.y
-                ) / 2 - 2
-              }
-
-              ${roupaOmbroDireito.x}
-              ${roupaOmbroDireito.y}
-
-              Q
-              ${
-                (
-                  roupaGolaDireita.x +
-                  roupaOmbroDireito.x
-                ) / 2
-              }
-              ${
-                roupaGolaDireita.y - 3
-              }
-
-              ${roupaGolaDireita.x}
-              ${roupaGolaDireita.y}
-
-              Q
-              ${
-                (
-                  roupaGolaDireita.x +
-                  roupaGolaEsquerda.x
-                ) / 2
-              }
-              ${
-                (
-                  roupaGolaDireita.y +
-                  roupaGolaEsquerda.y
-                ) / 2 + 18
-              }
-
-              ${roupaGolaEsquerda.x}
-              ${roupaGolaEsquerda.y}
-
-              Z
-            `}
-            fill="#16c8b4"
-            stroke="#7fffea"
-            strokeWidth="3"
-            strokeLinejoin="round"
-            opacity="0.94"
-          />
-        )}
+        {renderizarVestimenta()}
 
         {/* PESCOÇO */}
 
@@ -1532,8 +1732,8 @@ function AvatarRenderer2D({
       <small>
         {roupaDisponivel
           ? usarCaimento
-            ? `10 / 10 pontos da roupa — caimento visual aplicado (${caimento?.modelagem ?? "modelagem padrão"} / ${caimento?.preferencia_caimento ?? "padrão"})`
-            : "10 / 10 pontos da roupa — vestimenta posicionada no avatar"
+            ? `${quantidadePontosRoupa} / ${totalPontosRoupa} pontos da roupa — caimento visual aplicado (${caimento?.modelagem ?? "modelagem padrão"} / ${caimento?.preferencia_caimento ?? "padrão"})`
+            : `${quantidadePontosRoupa} / ${totalPontosRoupa} pontos da roupa — vestimenta posicionada no avatar`
           : "Vestimenta visual ainda não disponível"}
       </small>
 

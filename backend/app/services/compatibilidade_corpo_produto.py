@@ -1,24 +1,78 @@
+from app.services.categorias_vestuario import (
+    normalizar_categoria,
+    obter_familia_categoria,
+    obter_regiao_prioritaria,
+)
+
+
 def analisar_compatibilidade_corpo_produto(
     contexto_corpo_produto: dict,
 ):
     """
-    Primeira camada de compatibilidade
-    corpo x produto do VesteIA.
+    Analisa a compatibilidade visual inicial
+    entre corpo e produto no VesteIA.
 
-    Nesta versão:
-    - usa dados relativos e contexto visual;
-    - não usa medidas corporais em cm
-      como referência definitiva;
-    - não recomenda tamanho final ainda;
-    - gera uma interpretação experimental
-      da peça em relação ao corpo.
+    Esta camada utiliza:
+    - categoria oficial da peça;
+    - família estrutural da vestimenta;
+    - região corporal prioritária;
+    - contexto visual corporal;
+    - modelagem cadastrada;
+    - qualidade visual da análise.
+
+    IMPORTANTE:
+
+    Esta função NÃO:
+    - compara medidas físicas definitivas;
+    - converte geometria corporal para cm;
+    - calcula folga física;
+    - recomenda tamanho;
+    - simula tecido;
+    - afirma compatibilidade física exata.
+
+    O resultado representa somente uma
+    interpretação visual experimental.
+
+    Sprint Multivestimenta:
+
+    A categoria, família e região prioritária
+    são obtidas da configuração central
+    categorias_vestuario.py.
     """
 
-    if not contexto_corpo_produto:
+    # ======================================================
+    # VALIDAÇÃO DO CONTEXTO
+    # ======================================================
+
+    if not isinstance(
+        contexto_corpo_produto,
+        dict,
+    ):
         return {
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
+
             "resultado": None,
-            "confianca": "indisponivel",
+
+            "categoria": None,
+
+            "familia": None,
+
+            "regiao_prioritaria": None,
+
+            "confianca": {
+                "nivel": (
+                    "indisponivel"
+                ),
+
+                "pontuacao": None,
+            },
+
+            "uso_para_recomendacao_tamanho": (
+                False
+            ),
+
             "mensagem": (
                 "Contexto corpo-produto "
                 "indisponível."
@@ -36,9 +90,42 @@ def analisar_compatibilidade_corpo_produto(
         != "pronto_para_compatibilidade"
     ):
         return {
-            "status": "dados_insuficientes",
+            "status": (
+                "dados_insuficientes"
+            ),
+
             "resultado": None,
-            "confianca": "indisponivel",
+
+            "categoria": (
+                contexto_corpo_produto.get(
+                    "categoria"
+                )
+            ),
+
+            "familia": (
+                contexto_corpo_produto.get(
+                    "familia"
+                )
+            ),
+
+            "regiao_prioritaria": (
+                contexto_corpo_produto.get(
+                    "regiao_prioritaria"
+                )
+            ),
+
+            "confianca": {
+                "nivel": (
+                    "indisponivel"
+                ),
+
+                "pontuacao": None,
+            },
+
+            "uso_para_recomendacao_tamanho": (
+                False
+            ),
+
             "mensagem": (
                 "O contexto corpo-produto "
                 "ainda não está pronto "
@@ -46,30 +133,109 @@ def analisar_compatibilidade_corpo_produto(
             ),
         }
 
-    categoria = (
-        contexto_corpo_produto.get(
-            "categoria"
-        )
-    )
+    # ======================================================
+    # PRODUTO
+    # ======================================================
 
     produto = (
         contexto_corpo_produto.get(
             "produto",
             {},
         )
+        or {}
     )
 
-    dados_corporais = (
+    categoria_contexto = (
         contexto_corpo_produto.get(
-            "dados_corporais",
-            {},
+            "categoria"
+        )
+        or produto.get(
+            "categoria"
         )
     )
 
-    qualidade_visual = (
+    categoria = (
+        normalizar_categoria(
+            categoria_contexto
+        )
+    )
+
+    if categoria is None:
+        return {
+            "status": (
+                "categoria_nao_suportada"
+            ),
+
+            "resultado": (
+                "categoria_nao_suportada"
+            ),
+
+            "categoria": None,
+
+            "familia": None,
+
+            "regiao_prioritaria": None,
+
+            "produto": {
+                "id": (
+                    produto.get(
+                        "id"
+                    )
+                ),
+
+                "nome": (
+                    produto.get(
+                        "nome"
+                    )
+                ),
+
+                "tamanho": (
+                    produto.get(
+                        "tamanho"
+                    )
+                ),
+
+                "modelagem": (
+                    produto.get(
+                        "modelagem"
+                    )
+                ),
+            },
+
+            "confianca": {
+                "nivel": (
+                    "indisponivel"
+                ),
+
+                "pontuacao": None,
+            },
+
+            "uso_para_recomendacao_tamanho": (
+                False
+            ),
+
+            "mensagem": (
+                "A categoria do produto ainda "
+                "não possui configuração oficial "
+                "no pipeline multivestimenta."
+            ),
+        }
+
+    familia = (
         contexto_corpo_produto.get(
-            "qualidade_visual",
-            {},
+            "familia"
+        )
+        or obter_familia_categoria(
+            categoria
+        )
+    )
+
+    regiao_prioritaria = (
+        contexto_corpo_produto.get(
+            "regiao_prioritaria"
+        )
+        or obter_regiao_prioritaria(
+            categoria
         )
     )
 
@@ -85,16 +251,41 @@ def analisar_compatibilidade_corpo_produto(
         )
     )
 
-    relacao_corporal = (
+    # ======================================================
+    # DADOS CORPORAIS
+    # ======================================================
+
+    dados_corporais = (
+        contexto_corpo_produto.get(
+            "dados_corporais",
+            {},
+        )
+        or {}
+    )
+
+    relacao_ombros_quadril = (
         dados_corporais.get(
             "relacao_ombros_quadril"
         )
+    )
+
+    # ======================================================
+    # QUALIDADE VISUAL
+    # ======================================================
+
+    qualidade_visual = (
+        contexto_corpo_produto.get(
+            "qualidade_visual",
+            {},
+        )
+        or {}
     )
 
     nivel_confianca = (
         qualidade_visual.get(
             "nivel_confianca"
         )
+        or "experimental"
     )
 
     pontuacao_confianca = (
@@ -103,151 +294,371 @@ def analisar_compatibilidade_corpo_produto(
         )
     )
 
-    if categoria == "camiseta":
-        regiao_prioritaria = "tronco"
+    # ======================================================
+    # MODELAGEM
+    #
+    # A modelagem ajuda somente na descrição
+    # da tendência visual.
+    #
+    # Ela NÃO determina sozinha que a peça
+    # seja fisicamente compatível.
+    # ======================================================
 
-        if (
+    if isinstance(
+        modelagem,
+        str,
+    ):
+        modelagem_normalizada = (
             modelagem
-            and modelagem.lower()
-            == "oversized"
-        ):
-            ajuste_estimado = (
-                "caimento_amplo"
-            )
-
-            resultado = (
-                "compativel_visual"
-            )
-
-            mensagem = (
-                "A peça possui modelagem "
-                "oversized e tende a apresentar "
-                "caimento mais amplo no tronco."
-            )
-
-        else:
-            ajuste_estimado = (
-                "caimento_padrao"
-            )
-
-            resultado = (
-                "compatibilidade_em_analise"
-            )
-
-            mensagem = (
-                "A compatibilidade visual "
-                "da camiseta foi preparada "
-                "para análise de caimento."
-            )
-
-    elif categoria == "calca":
-        regiao_prioritaria = (
-            "quadril_pernas"
-        )
-
-        ajuste_estimado = (
-            "analise_visual_preparada"
-        )
-
-        resultado = (
-            "compatibilidade_em_analise"
-        )
-
-        mensagem = (
-            "A análise da calça prioriza "
-            "quadril e pernas."
-        )
-
-    elif categoria == "vestido":
-        regiao_prioritaria = (
-            "corpo_integrado"
-        )
-
-        ajuste_estimado = (
-            "analise_visual_preparada"
-        )
-
-        resultado = (
-            "compatibilidade_em_analise"
-        )
-
-        mensagem = (
-            "A análise do vestido considera "
-            "tronco e membros inferiores."
-        )
-
-    elif categoria == "calcado":
-        regiao_prioritaria = "pes"
-
-        ajuste_estimado = (
-            "analise_visual_preparada"
-        )
-
-        resultado = (
-            "compatibilidade_em_analise"
-        )
-
-        mensagem = (
-            "A análise do calçado prioriza "
-            "a região dos pés."
+            .strip()
+            .lower()
         )
 
     else:
-        regiao_prioritaria = None
-        ajuste_estimado = None
+        modelagem_normalizada = ""
+
+    if modelagem_normalizada in {
+        "oversized",
+        "ampla",
+        "amplo",
+    }:
+        tendencia_modelagem = (
+            "caimento_amplo"
+        )
+
+    elif modelagem_normalizada in {
+        "slim",
+        "ajustada",
+        "ajustado",
+        "justa",
+        "justo",
+    }:
+        tendencia_modelagem = (
+            "caimento_ajustado"
+        )
+
+    else:
+        tendencia_modelagem = (
+            "caimento_padrao"
+        )
+
+    # ======================================================
+    # REFERÊNCIA CORPORAL POR FAMÍLIA
+    # ======================================================
+
+    if familia == "superior":
+
+        referencia_corporal = {
+            "regiao": (
+                "tronco"
+            ),
+
+            "usa_ombros": True,
+
+            "usa_quadril": (
+                False
+            ),
+
+            "usa_pernas": (
+                False
+            ),
+
+            "usa_pes": (
+                False
+            ),
+
+            "relacao_ombros_quadril": (
+                relacao_ombros_quadril
+            ),
+        }
+
+        ajuste_estimado = (
+            tendencia_modelagem
+        )
+
         resultado = (
-            "categoria_nao_suportada"
+            "compatibilidade_em_analise"
         )
 
         mensagem = (
-            "A categoria do produto ainda "
-            "não possui regra de "
-            "compatibilidade."
+            "A análise visual da peça superior "
+            "prioriza o tronco e considera "
+            "a modelagem cadastrada como "
+            "tendência visual de caimento."
         )
 
-    return {
-        "status": "compatibilidade_analisada",
+    elif familia == "inferior":
 
-        "categoria": categoria,
+        referencia_corporal = {
+            "regiao": (
+                "quadril_pernas"
+            ),
+
+            "usa_ombros": (
+                False
+            ),
+
+            "usa_quadril": True,
+
+            "usa_pernas": True,
+
+            "usa_pes": (
+                False
+            ),
+
+            "relacao_ombros_quadril": (
+                None
+            ),
+        }
+
+        ajuste_estimado = (
+            "analise_visual_preparada"
+        )
+
+        resultado = (
+            "compatibilidade_em_analise"
+        )
+
+        mensagem = (
+            "A análise visual da peça inferior "
+            "prioriza quadril e pernas."
+        )
+
+    elif familia == "corpo_integrado":
+
+        referencia_corporal = {
+            "regiao": (
+                "corpo_integrado"
+            ),
+
+            "usa_ombros": True,
+
+            "usa_quadril": True,
+
+            "usa_pernas": True,
+
+            "usa_pes": (
+                False
+            ),
+
+            "relacao_ombros_quadril": (
+                relacao_ombros_quadril
+            ),
+        }
+
+        ajuste_estimado = (
+            tendencia_modelagem
+        )
+
+        resultado = (
+            "compatibilidade_em_analise"
+        )
+
+        mensagem = (
+            "A análise visual da peça de corpo "
+            "integrado considera tronco, quadril "
+            "e membros inferiores."
+        )
+
+    elif familia == "calcado":
+
+        referencia_corporal = {
+            "regiao": (
+                "pes"
+            ),
+
+            "usa_ombros": (
+                False
+            ),
+
+            "usa_quadril": (
+                False
+            ),
+
+            "usa_pernas": (
+                False
+            ),
+
+            "usa_pes": True,
+
+            "relacao_ombros_quadril": (
+                None
+            ),
+        }
+
+        ajuste_estimado = (
+            "analise_visual_preparada"
+        )
+
+        resultado = (
+            "compatibilidade_em_analise"
+        )
+
+        mensagem = (
+            "A análise visual do calçado "
+            "prioriza a região dos pés."
+        )
+
+    else:
+
+        referencia_corporal = {
+            "regiao": (
+                regiao_prioritaria
+            ),
+
+            "usa_ombros": (
+                False
+            ),
+
+            "usa_quadril": (
+                False
+            ),
+
+            "usa_pernas": (
+                False
+            ),
+
+            "usa_pes": (
+                False
+            ),
+
+            "relacao_ombros_quadril": (
+                None
+            ),
+        }
+
+        ajuste_estimado = None
+
+        resultado = (
+            "familia_nao_suportada"
+        )
+
+        mensagem = (
+            "A família estrutural da peça "
+            "ainda não possui regra de "
+            "compatibilidade visual."
+        )
+
+    # ======================================================
+    # SAÍDA FINAL
+    # ======================================================
+
+    return {
+        "status": (
+            "compatibilidade_analisada"
+        ),
+
+        "categoria": (
+            categoria
+        ),
+
+        "familia": (
+            familia
+        ),
 
         "produto": {
-            "id": produto.get(
-                "id"
+            "id": (
+                produto.get(
+                    "id"
+                )
             ),
-            "nome": produto.get(
-                "nome"
+
+            "nome": (
+                produto.get(
+                    "nome"
+                )
             ),
-            "tamanho": tamanho,
-            "modelagem": modelagem,
+
+            "tamanho": (
+                tamanho
+            ),
+
+            "categoria": (
+                categoria
+            ),
+
+            "modelagem": (
+                modelagem
+            ),
         },
 
         "regiao_prioritaria": (
             regiao_prioritaria
         ),
 
+        "referencia_corporal": (
+            referencia_corporal
+        ),
+
+        # Mantemos este campo por compatibilidade
+        # com consumidores anteriores.
+        #
+        # Para famílias onde ele não faz sentido,
+        # o valor será None.
         "relacao_corporal": (
-            relacao_corporal
+            relacao_ombros_quadril
+            if familia
+            in {
+                "superior",
+                "corpo_integrado",
+            }
+            else None
         ),
 
         "ajuste_estimado": (
             ajuste_estimado
         ),
 
-        "resultado": resultado,
+        "tendencia_modelagem": (
+            tendencia_modelagem
+        ),
+
+        "resultado": (
+            resultado
+        ),
 
         "confianca": {
             "nivel": (
                 nivel_confianca
-                or "experimental"
             ),
+
             "pontuacao": (
                 pontuacao_confianca
             ),
         },
 
-        "precisao": "experimental",
+        "capacidades": {
+            "categoria_reconhecida": (
+                True
+            ),
 
-        "uso_para_recomendacao_tamanho": False,
+            "familia_reconhecida": (
+                familia is not None
+            ),
 
-        "mensagem": mensagem,
+            "analise_visual": (
+                resultado
+                == "compatibilidade_em_analise"
+            ),
+
+            "comparacao_fisica_cm": (
+                False
+            ),
+
+            "recomendacao_tamanho": (
+                False
+            ),
+        },
+
+        "precisao": (
+            "experimental"
+        ),
+
+        "uso_para_recomendacao_tamanho": (
+            False
+        ),
+
+        "mensagem": (
+            mensagem
+        ),
     }

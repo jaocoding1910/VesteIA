@@ -453,18 +453,7 @@ def buscar_variacoes_produto(
             AND unaccent(cor) = unaccent(%s)
             AND unaccent(categoria) = unaccent(%s)
             AND unaccent(modelagem) = unaccent(%s)
-        ORDER BY
-            CASE tamanho
-                WHEN 'PP' THEN 1
-                WHEN 'P' THEN 2
-                WHEN 'M' THEN 3
-                WHEN 'G' THEN 4
-                WHEN 'GG' THEN 5
-                WHEN 'XG' THEN 6
-                WHEN 'XGG' THEN 7
-                ELSE 99
-            END,
-            id
+        ORDER BY id
         """,
         (
             nome,
@@ -489,3 +478,260 @@ def buscar_variacoes_produto(
     conexao.close()
 
     return produtos
+
+# ==========================================================
+# GRADE DINÂMICA DE VARIANTES
+# ==========================================================
+#
+# REGRA ARQUITETURAL:
+#
+# O VesteIA não possui uma grade universal de tamanhos.
+#
+# A grade é descoberta a partir das variantes realmente
+# existentes no catálogo da loja.
+#
+# Exemplos válidos:
+#
+# PP, P, M, G, GG, EXG, GG2
+# 34, 36, 38, 40, 42, 44, 46
+# XS, S, M, L, XL, 2XL, 3XL
+# Único
+#
+# O nome original informado pelo comércio é preservado.
+#
+# Nesta etapa do MVP, a ordem das variantes acompanha
+# a ordem em que elas foram cadastradas no banco (id).
+#
+# Em uma integração produtiva, essa ordem poderá ser
+# recebida diretamente do catálogo/ERP/API da loja por
+# meio de um campo como ordem_grade.
+# ==========================================================
+
+
+def obter_grade_tamanhos_produto(
+    produto_referencia: dict,
+):
+    """
+    Retorna os tamanhos realmente existentes
+    para um determinado produto.
+
+    A grade é construída dinamicamente a partir
+    das variantes encontradas no catálogo.
+
+    O VesteIA:
+
+    - não exige P/M/G/GG;
+    - não converte GG2 para 3XL;
+    - não inventa tamanhos ausentes;
+    - preserva a nomenclatura original da loja.
+    """
+
+    variacoes = buscar_variacoes_produto(
+        produto_referencia
+    )
+
+    grade = []
+
+    for variacao in variacoes:
+
+        tamanho = variacao.get(
+            "tamanho"
+        )
+
+        if tamanho is None:
+            continue
+
+        tamanho = str(
+            tamanho
+        ).strip()
+
+        if not tamanho:
+            continue
+
+        if tamanho not in grade:
+            grade.append(
+                tamanho
+            )
+
+    return grade
+
+
+def obter_variantes_produto(
+    produto_referencia: dict,
+):
+    """
+    Retorna as variantes disponíveis
+    preservando os dados cadastrados
+    pelo catálogo da loja.
+
+    O tamanho é tratado como identificador
+    externo da variante, e não como enumeração
+    fixa do VesteIA.
+    """
+
+    variacoes = buscar_variacoes_produto(
+        produto_referencia
+    )
+
+    variantes = []
+
+    for indice, variacao in enumerate(
+        variacoes,
+        start=1,
+    ):
+
+        tamanho = variacao.get(
+            "tamanho"
+        )
+
+        if tamanho is not None:
+            tamanho = str(
+                tamanho
+            ).strip()
+
+        variantes.append(
+            {
+                "id": variacao.get(
+                    "id"
+                ),
+
+                "tamanho": (
+                    tamanho
+                ),
+
+                # Ordem demonstrativa derivada
+                # da sequência retornada pelo banco.
+                #
+                # Futuramente poderá vir diretamente
+                # da integração da loja.
+                "ordem_grade": (
+                    indice
+                ),
+
+                "preco": variacao.get(
+                    "preco"
+                ),
+
+                "largura_cm": variacao.get(
+                    "largura_cm"
+                ),
+
+                "comprimento_cm": variacao.get(
+                    "comprimento_cm"
+                ),
+
+                "modelagem": variacao.get(
+                    "modelagem"
+                ),
+
+                "cor": variacao.get(
+                    "cor"
+                ),
+
+                "categoria": variacao.get(
+                    "categoria"
+                ),
+            }
+        )
+
+    return variantes
+
+
+def montar_catalogo_variantes_produto(
+    produto_referencia: dict,
+):
+    """
+    Monta uma visão consolidada do produto
+    com sua grade dinâmica e suas variantes.
+
+    Essa estrutura servirá como ponte entre:
+
+    catálogo da loja
+        ↓
+    normalização VesteIA
+        ↓
+    motor de recomendação
+
+    A função não recomenda tamanho.
+    Apenas descreve o que realmente existe
+    no catálogo para aquele produto.
+    """
+
+    if not produto_referencia:
+        return {
+            "produto": None,
+            "grade_tamanhos": [],
+            "variantes": [],
+            "grade_dinamica": True,
+        }
+
+    variantes = obter_variantes_produto(
+        produto_referencia
+    )
+
+    grade_tamanhos = [
+        variante.get(
+            "tamanho"
+        )
+        for variante in variantes
+        if variante.get(
+            "tamanho"
+        )
+    ]
+
+    return {
+        "produto": {
+            "id_referencia": (
+                produto_referencia.get(
+                    "id"
+                )
+            ),
+
+            "nome": (
+                produto_referencia.get(
+                    "nome"
+                )
+            ),
+
+            "cor": (
+                produto_referencia.get(
+                    "cor"
+                )
+            ),
+
+            "categoria": (
+                produto_referencia.get(
+                    "categoria"
+                )
+            ),
+
+            "modelagem": (
+                produto_referencia.get(
+                    "modelagem"
+                )
+            ),
+        },
+
+        "grade_tamanhos": (
+            grade_tamanhos
+        ),
+
+        "variantes": (
+            variantes
+        ),
+
+        "quantidade_variantes": (
+            len(
+                variantes
+            )
+        ),
+
+        "grade_dinamica": True,
+
+        "tamanho_padrao_vesteia": False,
+
+        "origem_grade": (
+            "catalogo_produto"
+        ),
+    }
+

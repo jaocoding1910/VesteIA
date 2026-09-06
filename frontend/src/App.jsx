@@ -1,6 +1,8 @@
 import camisetaOversized from "./assets/produtos/camiseta-oversized.jpeg"
 
 import AvatarRenderer2D from "./components/AvatarRenderer2D"
+import AvatarRenderer3D from "./components/AvatarRenderer3D"
+import AvatarBuilder from "./components/AvatarBuilder"
 
 import {
   useEffect,
@@ -41,10 +43,36 @@ function App() {
     setResultado,
   ] = useState(null)
 
+  /*
+   * =========================================================
+   * SPRINT 52 — CATÁLOGO MULTIVESTIMENTA
+   * =========================================================
+   */
+
+  const [
+    catalogoProdutos,
+    setCatalogoProdutos,
+  ] = useState([])
+
+  const [
+    carregandoCatalogo,
+    setCarregandoCatalogo,
+  ] = useState(false)
+
+  const [
+    erroCatalogo,
+    setErroCatalogo,
+  ] = useState("")
+
   const [
     produtoSelecionado,
     setProdutoSelecionado,
   ] = useState(null)
+
+  const [
+    categoriaCatalogoSelecionada,
+    setCategoriaCatalogoSelecionada,
+  ] = useState("todos")
 
   const [
     provadorIniciado,
@@ -54,6 +82,15 @@ function App() {
   const [
     modoExperimentacao,
     setModoExperimentacao,
+  ] = useState(null)
+
+  /*
+   * SPRINT 52 — AVATAR INTERATIVO V1
+   * Perfil aproximado criado manualmente pelo usuário.
+   */
+  const [
+    perfilAvatar,
+    setPerfilAvatar,
   ] = useState(null)
 
   const [
@@ -222,16 +259,385 @@ function App() {
       ?.candidatos ??
     []
 
-  const alturaCentralReferencia =
-    selecaoVisualAltura
-      ?.altura_central_referencia_cm ??
-    null
-
   const referenciaAvatarPronta =
     Boolean(
       alturaVisualSelecionada ||
       alturaVisualIncerta
     )
+
+
+  /*
+   * =========================================================
+   * NORMALIZAÇÃO DE CATEGORIA
+   * =========================================================
+   */
+
+  function normalizarCategoria(
+    categoria
+  ) {
+    return String(
+      categoria ?? ""
+    )
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+  }
+
+
+  function categoriaEhCamiseta(
+    categoria
+  ) {
+    const normalizada =
+      normalizarCategoria(
+        categoria
+      )
+
+    return (
+      normalizada ===
+        "camiseta" ||
+      normalizada ===
+        "camisetas" ||
+      normalizada ===
+        "t-shirt" ||
+      normalizada ===
+        "tshirt"
+    )
+  }
+
+
+  function categoriaEhCalca(
+    categoria
+  ) {
+    const normalizada =
+      normalizarCategoria(
+        categoria
+      )
+
+    return (
+      normalizada ===
+        "calca" ||
+      normalizada ===
+        "calcas" ||
+      normalizada ===
+        "jeans" ||
+      normalizada ===
+        "calca jeans"
+    )
+  }
+
+
+  function obterIconeProduto(
+    categoria
+  ) {
+    const normalizada =
+      normalizarCategoria(
+        categoria
+      )
+
+    if (
+      normalizada ===
+        "calca" ||
+      normalizada ===
+        "calcas" ||
+      normalizada ===
+        "jeans" ||
+      normalizada ===
+        "calca jeans"
+    ) {
+      return "👖"
+    }
+
+    if (
+      normalizada ===
+        "vestido" ||
+      normalizada ===
+        "vestidos"
+    ) {
+      return "👗"
+    }
+
+    if (
+      normalizada ===
+        "tenis" ||
+      normalizada ===
+        "calcado" ||
+      normalizada ===
+        "calcados"
+    ) {
+      return "👟"
+    }
+
+    if (
+      normalizada ===
+        "meia" ||
+      normalizada ===
+        "meias"
+    ) {
+      return "🧦"
+    }
+
+    return "👕"
+  }
+
+
+
+  function obterChaveCategoriaCatalogo(
+    categoria
+  ) {
+    const normalizada =
+      normalizarCategoria(
+        categoria
+      )
+
+    if (
+      normalizada === "camiseta" ||
+      normalizada === "camisetas" ||
+      normalizada === "t-shirt" ||
+      normalizada === "tshirt"
+    ) {
+      return "camisetas"
+    }
+
+    if (
+      normalizada === "calca" ||
+      normalizada === "calcas" ||
+      normalizada === "jeans" ||
+      normalizada === "calca jeans"
+    ) {
+      return "calcas"
+    }
+
+    if (
+      normalizada === "vestido" ||
+      normalizada === "vestidos"
+    ) {
+      return "vestidos"
+    }
+
+    if (
+      normalizada === "tenis" ||
+      normalizada === "calcado" ||
+      normalizada === "calcados" ||
+      normalizada === "sapato" ||
+      normalizada === "sapatos"
+    ) {
+      return "calcados"
+    }
+
+    if (
+      normalizada === "meia" ||
+      normalizada === "meias"
+    ) {
+      return "meias"
+    }
+
+    if (
+      normalizada === "short" ||
+      normalizada === "shorts" ||
+      normalizada === "bermuda" ||
+      normalizada === "bermudas"
+    ) {
+      return "shorts"
+    }
+
+    if (
+      normalizada === "jaqueta" ||
+      normalizada === "jaquetas" ||
+      normalizada === "casaco" ||
+      normalizada === "casacos"
+    ) {
+      return "jaquetas"
+    }
+
+    if (
+      normalizada === "saia" ||
+      normalizada === "saias"
+    ) {
+      return "saias"
+    }
+
+    if (
+      normalizada === "blusa" ||
+      normalizada === "blusas"
+    ) {
+      return "blusas"
+    }
+
+    return normalizada || "outros"
+  }
+
+
+  function obterNomeCategoriaCatalogo(
+    chave
+  ) {
+    const nomes = {
+      todos: "Ver tudo",
+      camisetas: "Camisetas",
+      calcas: "Calças",
+      vestidos: "Vestidos",
+      calcados: "Calçados",
+      meias: "Meias",
+      shorts: "Shorts e bermudas",
+      jaquetas: "Jaquetas",
+      saias: "Saias",
+      blusas: "Blusas",
+      outros: "Outros",
+    }
+
+    return (
+      nomes[chave] ??
+      chave
+        .replace(/-/g, " ")
+        .replace(
+          /\b\w/g,
+          (letra) =>
+            letra.toUpperCase()
+        )
+    )
+  }
+
+
+  function obterIconeCategoriaCatalogo(
+    chave
+  ) {
+    const icones = {
+      todos: "▦",
+      camisetas: "👕",
+      calcas: "👖",
+      vestidos: "👗",
+      calcados: "👟",
+      meias: "🧦",
+      shorts: "🩳",
+      jaquetas: "🧥",
+      saias: "👗",
+      blusas: "👚",
+      outros: "◫",
+    }
+
+    return icones[chave] ?? "◫"
+  }
+
+
+  function agruparProdutosCatalogo(
+    produtos
+  ) {
+    const grupos = new Map()
+
+    produtos.forEach(
+      (produto) => {
+        const categoria =
+          obterChaveCategoriaCatalogo(
+            produto?.categoria
+          )
+
+        const nome =
+          String(
+            produto?.nome ??
+            "Produto"
+          )
+            .trim()
+            .toLowerCase()
+
+        const cor =
+          String(
+            produto?.cor ?? ""
+          )
+            .trim()
+            .toLowerCase()
+
+        const modelagem =
+          String(
+            produto?.modelagem ?? ""
+          )
+            .trim()
+            .toLowerCase()
+
+        const chaveGrupo =
+          [
+            categoria,
+            nome,
+            cor,
+            modelagem,
+          ].join("|")
+
+        if (
+          !grupos.has(
+            chaveGrupo
+          )
+        ) {
+          grupos.set(
+            chaveGrupo,
+            {
+              categoria,
+              produtoBase:
+                produto,
+              variacoes: [],
+            }
+          )
+        }
+
+        grupos
+          .get(chaveGrupo)
+          .variacoes
+          .push(produto)
+      }
+    )
+
+    return Array.from(
+      grupos.values()
+    )
+  }
+
+
+  function renderizarImagemProduto(
+    produto
+  ) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          minHeight: "150px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "8px",
+          background:
+            "linear-gradient(145deg, #15172c, #232750)",
+          borderRadius: "14px",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "42px",
+            lineHeight: 1,
+          }}
+        >
+          {obterIconeProduto(
+            produto?.categoria
+          )}
+        </span>
+
+        <strong>
+          {
+            obterNomeCategoriaCatalogo(
+              obterChaveCategoriaCatalogo(
+                produto?.categoria
+              )
+            )
+          }
+        </strong>
+
+        <small>
+          Visual do produto em desenvolvimento
+        </small>
+      </div>
+    )
+  }
 
 
   /*
@@ -249,6 +655,71 @@ function App() {
       }
     }
   }, [fotoPreview])
+
+
+  /*
+   * SPRINT 52
+   *
+   * Carrega o catálogo real do backend.
+   *
+   * Isso permite testar categorias
+   * independentemente da rota de
+   * recomendação de tamanho.
+   */
+
+  useEffect(() => {
+    async function carregarCatalogo() {
+      try {
+        setCarregandoCatalogo(
+          true
+        )
+
+        setErroCatalogo("")
+
+        const resposta =
+          await fetch(
+            "http://127.0.0.1:8000/produtos"
+          )
+
+        if (!resposta.ok) {
+          throw new Error(
+            "Não foi possível carregar o catálogo."
+          )
+        }
+
+        const dados =
+          await resposta.json()
+
+        const produtos =
+          Array.isArray(dados)
+            ? dados
+            : Array.isArray(
+                dados?.produtos
+              )
+              ? dados.produtos
+              : []
+
+        setCatalogoProdutos(
+          produtos
+        )
+      } catch (erro) {
+        setCatalogoProdutos(
+          []
+        )
+
+        setErroCatalogo(
+          erro.message ||
+            "Não foi possível carregar o catálogo."
+        )
+      } finally {
+        setCarregandoCatalogo(
+          false
+        )
+      }
+    }
+
+    carregarCatalogo()
+  }, [])
 
 
   useEffect(() => {
@@ -1182,6 +1653,347 @@ function App() {
       </div>
 
 
+      {/*
+       * =====================================================
+       * SPRINT 52 — CATÁLOGO REAL
+       * =====================================================
+       */}
+
+      {!produtoSelecionado && (
+        <section className="resultado">
+
+          <p className="provador-etapa">
+            SPRINT 52 — CATÁLOGO MULTIVESTIMENTA
+          </p>
+
+          <h2>
+            Compre por categoria
+          </h2>
+
+          <p>
+            Escolha uma categoria e depois
+            selecione a peça que deseja
+            experimentar no Provador VesteIA.
+          </p>
+
+
+          {carregandoCatalogo && (
+            <p>
+              Carregando catálogo...
+            </p>
+          )}
+
+
+          {erroCatalogo && (
+            <p className="erro">
+              {erroCatalogo}
+            </p>
+          )}
+
+
+          {!carregandoCatalogo &&
+            catalogoProdutos.length > 0 && (
+            <>
+              <div
+                className="catalogo-categorias"
+                style={{
+                  display: "flex",
+                  gap: "18px",
+                  overflowX: "auto",
+                  padding: "14px 4px 20px",
+                  marginTop: "12px",
+                }}
+              >
+                {[
+                  "todos",
+                  ...Array.from(
+                    new Set(
+                      catalogoProdutos.map(
+                        (produto) =>
+                          obterChaveCategoriaCatalogo(
+                            produto?.categoria
+                          )
+                      )
+                    )
+                  ),
+                ].map(
+                  (categoria) => {
+                    const selecionada =
+                      categoriaCatalogoSelecionada ===
+                      categoria
+
+                    return (
+                      <button
+                        type="button"
+                        key={
+                          `categoria-${categoria}`
+                        }
+                        onClick={
+                          () =>
+                            setCategoriaCatalogoSelecionada(
+                              categoria
+                            )
+                        }
+                        style={{
+                          minWidth: "92px",
+                          border: "none",
+                          background: "transparent",
+                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "8px",
+                          color: "inherit",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: "72px",
+                            height: "72px",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize:
+                              categoria ===
+                              "todos"
+                                ? "34px"
+                                : "38px",
+                            background:
+                              selecionada
+                                ? "#ffffff"
+                                : "#ececf1",
+                            color:
+                              selecionada
+                                ? "#111111"
+                                : "#252525",
+                            border:
+                              selecionada
+                                ? "3px solid #7c6cff"
+                                : "2px solid transparent",
+                            boxSizing:
+                              "border-box",
+                          }}
+                        >
+                          {
+                            obterIconeCategoriaCatalogo(
+                              categoria
+                            )
+                          }
+                        </span>
+
+                        <span
+                          style={{
+                            fontSize: "14px",
+                            fontWeight:
+                              selecionada
+                                ? 700
+                                : 500,
+                            textAlign: "center",
+                          }}
+                        >
+                          {
+                            obterNomeCategoriaCatalogo(
+                              categoria
+                            )
+                          }
+                        </span>
+                      </button>
+                    )
+                  }
+                )}
+              </div>
+
+
+              <div className="produtos">
+
+                {agruparProdutosCatalogo(
+                  catalogoProdutos.filter(
+                    (produto) =>
+                      categoriaCatalogoSelecionada ===
+                        "todos" ||
+                      obterChaveCategoriaCatalogo(
+                        produto?.categoria
+                      ) ===
+                        categoriaCatalogoSelecionada
+                  )
+                ).map(
+                  (
+                    grupo
+                  ) => {
+                    const produto =
+                      grupo.produtoBase
+
+                    const tamanhos =
+                      grupo.variacoes
+                        .map(
+                          (variacao) =>
+                            variacao?.tamanho
+                        )
+                        .filter(Boolean)
+
+                    return (
+                      <article
+                        className="produto-card"
+                        key={
+                          `catalogo-grupo-${produto.id}`
+                        }
+                      >
+
+                        <div className="produto-imagem">
+                          {renderizarImagemProduto(
+                            produto
+                          )}
+                        </div>
+
+
+                        <h4>
+                          {
+                            produto.nome
+                          }
+                        </h4>
+
+
+                        <p className="preco">
+                          R${" "}
+                          {Number(
+                            produto.preco ??
+                            0
+                          )
+                            .toFixed(2)
+                            .replace(
+                              ".",
+                              ","
+                            )}
+                        </p>
+
+
+                        <div className="produto-detalhes">
+
+                          <span>
+                            Categoria:{" "}
+                            <strong>
+                              {
+                                obterNomeCategoriaCatalogo(
+                                  grupo.categoria
+                                )
+                              }
+                            </strong>
+                          </span>
+
+                          <span>
+                            Cor:{" "}
+                            {
+                              produto.cor ??
+                              "-"
+                            }
+                          </span>
+
+                          <span>
+                            Modelagem:{" "}
+                            {
+                              produto.modelagem ??
+                              "-"
+                            }
+                          </span>
+
+                        </div>
+
+
+                        {tamanhos.length >
+                          0 && (
+                          <div className="observacoes">
+                            <span>
+                              Tamanhos disponíveis
+                            </span>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "8px",
+                                flexWrap: "wrap",
+                                marginTop: "8px",
+                              }}
+                            >
+                              {grupo.variacoes.map(
+                                (
+                                  variacao
+                                ) => (
+                                  <button
+                                    type="button"
+                                    key={
+                                      `variacao-${variacao.id}`
+                                    }
+                                    onClick={
+                                      () =>
+                                        experimentarProduto(
+                                          variacao
+                                        )
+                                    }
+                                    style={{
+                                      minWidth: "42px",
+                                      minHeight: "38px",
+                                      borderRadius: "8px",
+                                      border:
+                                        "1px solid #777",
+                                      cursor:
+                                        "pointer",
+                                      fontWeight:
+                                        700,
+                                    }}
+                                    title={
+                                      `Experimentar tamanho ${variacao.tamanho}`
+                                    }
+                                  >
+                                    {
+                                      variacao.tamanho
+                                    }
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+
+                        {categoriaEhCalca(
+                          produto?.categoria
+                        ) && (
+                          <div className="observacoes">
+                            <span>
+                              👖 Renderer de calça
+                              disponível na Sprint 52
+                            </span>
+                          </div>
+                        )}
+
+
+                        <button
+                          type="button"
+                          className="botao-experimentar"
+                          onClick={
+                            () =>
+                              experimentarProduto(
+                                produto
+                              )
+                          }
+                        >
+                          Experimentar com VesteIA
+                        </button>
+
+                      </article>
+                    )
+                  }
+                )}
+
+              </div>
+            </>
+          )}
+
+        </section>
+      )}
+
+
       {resultado && (
         <section className="resultado">
           <h2>
@@ -1266,15 +2078,11 @@ function App() {
                         produto.id
                       }
                     >
+
                       <div className="produto-imagem">
-                        <img
-                          src={
-                            camisetaOversized
-                          }
-                          alt={
-                            produto.nome
-                          }
-                        />
+                        {renderizarImagemProduto(
+                          produto
+                        )}
                       </div>
 
                       <h4>
@@ -1383,16 +2191,11 @@ function App() {
 
 
           <div className="provador-conteudo">
+
             <div className="provador-imagem">
-              <img
-                src={
-                  camisetaOversized
-                }
-                alt={
-                  produtoSelecionado
-                    .nome
-                }
-              />
+              {renderizarImagemProduto(
+                produtoSelecionado
+              )}
             </div>
 
 
@@ -1420,6 +2223,16 @@ function App() {
                   {
                     produtoSelecionado
                       .cor
+                  }
+                </strong>
+              </p>
+
+              <p>
+                Categoria:{" "}
+                <strong>
+                  {
+                    produtoSelecionado
+                      .categoria
                   }
                 </strong>
               </p>
@@ -1493,6 +2306,84 @@ function App() {
                     Usar avatar
                   </button>
                 </div>
+              </div>
+            )}
+
+
+          {/* =====================================================
+              SPRINT 52 — AVATAR INTERATIVO + RENDERER 3D PREVIEW V1
+              ===================================================== */}
+
+          {modoExperimentacao ===
+            "avatar" && (
+              <div className="modo-selecionado">
+
+                <p className="provador-etapa">
+                  AVATAR INTERATIVO — SPRINT 52
+                </p>
+
+                <h3>
+                  Crie seu avatar VesteIA
+                </h3>
+
+                <p>
+                  Não sabe suas medidas exatas?
+                  Sem problema. Monte uma representação
+                  aproximada do seu corpo.
+                </p>
+
+                <AvatarBuilder
+                  alturaInicial={
+                    altura
+                      ? Number(altura)
+                      : 175
+                  }
+                  pesoInicial={
+                    peso
+                      ? Number(peso)
+                      : 75
+                  }
+                  onAvatarChange={(novoPerfil) => {
+                    setPerfilAvatar(
+                      novoPerfil
+                    )
+                  }}
+                />
+
+                {perfilAvatar && (
+                  <section className="avatar-renderer-sprint52">
+
+                    <p className="provador-etapa">
+                      AVATAR VISUAL — PREVIEW 3D
+                    </p>
+
+                    <AvatarRenderer3D
+                      avatar={
+                        perfilAvatar
+                      }
+                      produto={
+                        produtoSelecionado
+                      }
+                      tamanhoSelecionado={
+                        tamanhoVisualSelecionado ??
+                        produtoSelecionado
+                          ?.tamanho ??
+                        null
+                      }
+                    />
+
+                  </section>
+                )}
+
+                {perfilAvatar && (
+                  <div className="observacoes">
+                    <span>
+                      🎮 Avatar conectado ao
+                      renderer visual.
+                    </span>
+                  </div>
+                )}
+
               </div>
             )}
 
@@ -1592,32 +2483,35 @@ function App() {
                   }
                 </p>
 
+
                 <section
-              className="avatar-renderer-sprint51">
-                 <p className="provador-etapa">
-                  AVATAR VISUAL - SPRINT 51
-                 </p>
+                  className="avatar-renderer-sprint51"
+                >
+                  <p className="provador-etapa">
+                    AVATAR VISUAL — SPRINT 52
+                  </p>
 
-                 <AvatarRenderer2D 
-                  renderer={
-                    analiseCaptura
-                     ?.respostaTecnica
-                     ?.renderer_avatar_2d
-                  }
+                  <AvatarRenderer2D
+                    renderer={
+                      analiseCaptura
+                        ?.respostaTecnica
+                        ?.renderer_avatar_2d
+                    }
 
-                  vestimenta={
-                    analiseCaptura
-                     ?.respostaTecnica
-                     ?.vestimenta_avatar_2d
-                  }
+                    vestimenta={
+                      analiseCaptura
+                        ?.respostaTecnica
+                        ?.vestimenta_avatar_2d
+                    }
 
-                  caimento={
-                    analiseCaptura
-                     ?.respostaTecnica
-                     ?.simulacao_caimento_visual
-                  }
-                />
-              </section>
+                    caimento={
+                      analiseCaptura
+                        ?.respostaTecnica
+                        ?.simulacao_caimento_visual
+                    }
+                  />
+                </section>
+
 
                 {recomendacaoProvador
                   ?.disponivel && (
@@ -2553,31 +3447,6 @@ function App() {
                 >
                   Escolher outra foto
                 </button>
-
-              </div>
-            )}
-
-
-          {modoExperimentacao ===
-            "avatar" && (
-              <div className="modo-selecionado">
-
-                <h3>
-                  Avatar selecionado
-                </h3>
-
-                <p>
-                  A estrutura do VesteIA
-                  está sendo preparada para
-                  a futura experiência visual
-                  com Avatar.
-                </p>
-
-                <p>
-                  Nesta versão, a geração
-                  visual do Avatar ainda
-                  não está ativa.
-                </p>
 
               </div>
             )}

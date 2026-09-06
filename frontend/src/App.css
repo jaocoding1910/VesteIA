@@ -2341,3 +2341,2384 @@ button {
       7px;
   }
 }
+
+/* ======================================================
+   SPRINT 52 — AVATAR BUILDER + RENDERER 3D PREVIEW
+====================================================== */
+
+
+/* ======================================================
+   LAYOUT PRINCIPAL DO AVATAR
+====================================================== */
+
+.vesteia-avatar-experiencia {
+  display: grid;
+  grid-template-columns:
+    minmax(280px, 0.85fr)
+    minmax(320px, 1.15fr);
+
+  gap: 24px;
+
+  width: 100%;
+
+  margin-top: 24px;
+
+  align-items: stretch;
+}
+
+
+/* ======================================================
+   AVATAR BUILDER
+====================================================== */
+
+.vesteia-avatar-builder {
+  width: 100%;
+
+  padding: 24px;
+
+  border:
+    1px solid
+    rgba(72, 226, 255, 0.34);
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      155deg,
+      rgba(3, 45, 97, 0.76),
+      rgba(2, 26, 64, 0.88)
+    );
+
+  box-shadow:
+    0 20px 45px
+    rgba(0, 0, 0, 0.18);
+
+  text-align: left;
+}
+
+
+.vesteia-avatar-builder__cabecalho {
+  margin-bottom: 24px;
+
+  text-align: center;
+}
+
+
+.vesteia-avatar-builder__cabecalho > span {
+  color: #61f0e5;
+
+  font-size: 0.72rem;
+  font-weight: 950;
+
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
+}
+
+
+.vesteia-avatar-builder__cabecalho h2 {
+  margin:
+    7px
+    0
+    8px;
+
+  font-size: 1.55rem;
+}
+
+
+.vesteia-avatar-builder__cabecalho p {
+  margin: 0;
+
+  color:
+    rgba(234, 249, 255, 0.7);
+
+  font-size: 0.88rem;
+
+  line-height: 1.5;
+}
+
+
+/* ======================================================
+   CONTROLES
+====================================================== */
+
+.vesteia-avatar-builder__controle {
+  margin-bottom: 23px;
+
+  padding: 16px;
+
+  border:
+    1px solid
+    rgba(71, 211, 255, 0.18);
+
+  border-radius: 15px;
+
+  background:
+    rgba(3, 57, 118, 0.28);
+}
+
+
+.vesteia-avatar-builder__controle > div {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+
+.vesteia-avatar-builder__controle strong {
+  font-size: 0.9rem;
+}
+
+
+.vesteia-avatar-builder__controle span {
+  color: #62f2e4;
+
+  font-weight: 900;
+}
+
+
+.vesteia-avatar-builder__controle small {
+  display: block;
+
+  margin-top: 8px;
+
+  color:
+    rgba(228, 246, 255, 0.55);
+
+  font-size: 0.72rem;
+}
+
+
+.vesteia-avatar-builder__controle input[type="range"] {
+  width: 100%;
+
+  accent-color: #24dfe4;
+
+  cursor: pointer;
+}
+
+
+/* ======================================================
+   GRUPOS DE BOTÕES
+====================================================== */
+
+.vesteia-avatar-builder__grupo {
+  margin-bottom: 22px;
+}
+
+
+.vesteia-avatar-builder__grupo > strong {
+  display: block;
+
+  margin-bottom: 10px;
+
+  font-size: 0.88rem;
+}
+
+
+.vesteia-avatar-builder__opcoes {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+
+.vesteia-avatar-builder__opcoes button {
+  min-height: 42px;
+
+  padding:
+    9px
+    7px;
+
+  border:
+    1px solid
+    rgba(69, 215, 255, 0.24);
+
+  border-radius: 11px;
+
+  color:
+    rgba(241, 252, 255, 0.78);
+
+  font-size: 0.78rem;
+
+  font-weight: 800;
+
+  background:
+    rgba(4, 61, 124, 0.38);
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+.vesteia-avatar-builder__opcoes button:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(83, 238, 255, 0.62);
+}
+
+
+.vesteia-avatar-builder__opcoes button[data-ativo="true"] {
+  border-color:
+    rgba(104, 255, 239, 0.9);
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 201, 208, 0.62),
+      rgba(20, 124, 219, 0.7)
+    );
+
+  box-shadow:
+    0 8px 22px
+    rgba(0, 220, 255, 0.13);
+}
+
+
+/* ======================================================
+   DEBUG
+====================================================== */
+
+.vesteia-avatar-builder__debug {
+  margin-top: 18px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    rgba(73, 214, 255, 0.17);
+
+  border-radius: 12px;
+
+  color:
+    rgba(226, 248, 255, 0.66);
+
+  background:
+    rgba(0, 20, 55, 0.38);
+}
+
+
+.vesteia-avatar-builder__debug summary {
+  cursor: pointer;
+
+  font-size: 0.76rem;
+
+  font-weight: 800;
+}
+
+
+.vesteia-avatar-builder__debug pre {
+  overflow-x: auto;
+
+  margin:
+    12px
+    0
+    0;
+
+  font-size: 0.68rem;
+
+  white-space: pre-wrap;
+}
+
+/* ======================================================
+   AVATAR RENDERER 3D — HUMANOIDE V3
+   Sprint 52 — bloco consolidado
+   Substitui os renderers anteriores/duplicados.
+====================================================== */
+
+.vesteia-avatar-renderer3d {
+  width: 100%;
+  padding: 24px;
+  overflow: hidden;
+
+  border: 1px solid rgba(78, 229, 255, 0.4);
+  border-radius: 22px;
+
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      rgba(38, 230, 238, 0.13),
+      transparent 32%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(2, 37, 82, 0.92),
+      rgba(1, 19, 49, 0.98)
+    );
+
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.24);
+}
+
+
+/* ======================================================
+   CABEÇALHO
+====================================================== */
+
+.vesteia-avatar-renderer3d__cabecalho {
+  text-align: center;
+}
+
+.vesteia-avatar-renderer3d__cabecalho > span {
+  color: #61f3df;
+  font-size: 0.7rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.vesteia-avatar-renderer3d__cabecalho h2 {
+  margin: 7px 0;
+  font-size: 1.55rem;
+}
+
+.vesteia-avatar-renderer3d__cabecalho p {
+  max-width: 430px;
+  margin: 0 auto;
+  color: rgba(232, 248, 255, 0.66);
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
+
+/* ======================================================
+   PALCO
+====================================================== */
+
+.vesteia-avatar-renderer3d__palco {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+
+  min-height: 570px;
+  margin-top: 20px;
+  overflow: hidden;
+
+  border: 1px solid rgba(71, 211, 255, 0.18);
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 88%,
+      rgba(20, 196, 217, 0.17),
+      transparent 44%
+    ),
+    radial-gradient(
+      circle at 50% 34%,
+      rgba(26, 107, 177, 0.13),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(2, 25, 59, 0.42),
+      rgba(0, 9, 29, 0.78)
+    );
+
+  perspective: 1000px;
+}
+
+.vesteia-avatar-renderer3d__palco::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.16;
+
+  background-image:
+    linear-gradient(
+      rgba(77, 226, 255, 0.1) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(77, 226, 255, 0.1) 1px,
+      transparent 1px
+    );
+
+  background-size: 34px 34px;
+  pointer-events: none;
+}
+
+.vesteia-avatar-renderer3d__palco::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 27px;
+
+  width: 180px;
+  height: 26px;
+
+  transform: translateX(-50%);
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.38);
+  filter: blur(9px);
+
+  pointer-events: none;
+}
+
+
+/* ======================================================
+   AVATAR — ESCALA GLOBAL
+====================================================== */
+
+.vesteia-avatar-renderer3d__avatar {
+  position: relative;
+  z-index: 5;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 210px;
+  height: 455px;
+
+  transform:
+    scaleY(var(--avatar-altura, 1))
+    scaleX(var(--avatar-largura, 1));
+
+  transform-origin: center bottom;
+
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+
+  filter:
+    drop-shadow(0 18px 24px rgba(0, 0, 0, 0.34));
+}
+
+
+/* ======================================================
+   CABEÇA HUMANA
+====================================================== */
+
+.vesteia-avatar-renderer3d__cabeca {
+  position: relative;
+  z-index: 12;
+
+  width: 62px;
+  height: 78px;
+
+  flex-shrink: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+
+  border-radius:
+    46% 46% 43% 43% /
+    38% 38% 58% 58%;
+
+  background:
+    radial-gradient(
+      ellipse at 35% 27%,
+      rgba(255, 255, 255, 0.23),
+      transparent 30%
+    ),
+    linear-gradient(
+      105deg,
+      #8f9aa7 0%,
+      #c7cfd7 48%,
+      #77828f 100%
+    );
+
+  box-shadow:
+    inset 7px 0 12px rgba(255, 255, 255, 0.12),
+    inset -8px -3px 12px rgba(0, 0, 0, 0.18),
+    0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Fallback de cabelo para JSX antigo */
+.vesteia-avatar-renderer3d__cabeca::before {
+  content: "";
+  position: absolute;
+
+  top: -3px;
+  left: 4px;
+  right: 4px;
+
+  height: 23px;
+
+  border-radius:
+    54% 54% 32% 32% /
+    72% 72% 28% 28%;
+
+  background:
+    linear-gradient(
+      155deg,
+      #20252b,
+      #07090c 72%
+    );
+
+  box-shadow:
+    inset 0 -4px 5px rgba(255, 255, 255, 0.025);
+
+  z-index: 3;
+}
+
+.vesteia-avatar-renderer3d__cabelo {
+  position: absolute;
+  z-index: 4;
+
+  top: -3px;
+  left: 4px;
+
+  width: 54px;
+  height: 24px;
+
+  border-radius:
+    54% 54% 32% 32% /
+    72% 72% 28% 28%;
+
+  background:
+    linear-gradient(
+      155deg,
+      #20252b,
+      #07090c 72%
+    );
+}
+
+.vesteia-avatar-renderer3d__orelha {
+  position: absolute;
+  top: 29px;
+
+  width: 8px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #8994a0,
+      #b5bec7
+    );
+}
+
+.vesteia-avatar-renderer3d__orelha--esquerda {
+  left: -5px;
+}
+
+.vesteia-avatar-renderer3d__orelha--direita {
+  right: -5px;
+}
+
+.vesteia-avatar-renderer3d__olhos {
+  position: absolute;
+  z-index: 5;
+
+  top: 34px;
+  left: 14px;
+
+  display: flex;
+  justify-content: space-between;
+
+  width: 34px;
+}
+
+.vesteia-avatar-renderer3d__olhos i {
+  display: block;
+
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+  background: #18212b;
+}
+
+.vesteia-avatar-renderer3d__nariz {
+  position: absolute;
+  z-index: 5;
+
+  top: 39px;
+  left: 29px;
+
+  width: 4px;
+  height: 11px;
+
+  border-radius: 60%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(59, 70, 82, 0.5)
+    );
+}
+
+.vesteia-avatar-renderer3d__boca {
+  position: absolute;
+  z-index: 5;
+
+  left: 23px;
+  bottom: 14px;
+
+  width: 16px;
+  height: 4px;
+
+  border-bottom: 1px solid rgba(49, 58, 68, 0.72);
+  border-radius: 50%;
+}
+
+
+/* ======================================================
+   PESCOÇO
+====================================================== */
+
+.vesteia-avatar-renderer3d__pescoco {
+  position: relative;
+  z-index: 7;
+
+  width: 25px;
+  height: 21px;
+
+  margin-top: -4px;
+  flex-shrink: 0;
+
+  border-radius: 7px 7px 4px 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #7c8793,
+      #b8c1ca 50%,
+      #78838f
+    );
+
+  box-shadow:
+    inset -4px 0 6px rgba(0, 0, 0, 0.13);
+}
+
+
+/* ======================================================
+   CORPO / OMBROS
+====================================================== */
+
+.vesteia-avatar-renderer3d__corpo {
+  position: relative;
+  z-index: 6;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  width: 100%;
+  min-height: 151px;
+
+  flex-shrink: 0;
+}
+
+/* Ombros orgânicos por trás do tronco */
+.vesteia-avatar-renderer3d__corpo::before {
+  content: "";
+  position: absolute;
+
+  top: 7px;
+  left: 50%;
+
+  width: 126px;
+  height: 37px;
+
+  transform: translateX(-50%);
+
+  border-radius:
+    50% 50% 34% 34% /
+    64% 64% 36% 36%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #727d89,
+      #b9c2cb 50%,
+      #6f7a86
+    );
+
+  box-shadow:
+    inset 0 8px 10px rgba(255, 255, 255, 0.06);
+
+  z-index: 1;
+}
+
+
+/* ======================================================
+   TRONCO — SILHUETA HUMANA
+====================================================== */
+
+.vesteia-avatar-renderer3d__tronco {
+  position: relative;
+  z-index: 5;
+
+  width:
+    calc(
+      102px *
+      var(--avatar-largura, 1)
+    );
+
+  height:
+    calc(
+      137px *
+      var(--avatar-tronco, 1)
+    );
+
+  flex-shrink: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+
+  border-radius:
+    24px 24px 18px 18px /
+    18px 18px 13px 13px;
+
+  background:
+    linear-gradient(
+      100deg,
+      #717d89 0%,
+      #aeb8c2 23%,
+      #c3cbd3 49%,
+      #a4aeb8 72%,
+      #697581 100%
+    );
+
+  box-shadow:
+    inset 9px 0 14px rgba(255, 255, 255, 0.08),
+    inset -10px 0 15px rgba(0, 0, 0, 0.15);
+
+  clip-path:
+    polygon(
+      9% 0,
+      91% 0,
+      100% 18%,
+      91% 54%,
+      82% 100%,
+      18% 100%,
+      9% 54%,
+      0 18%
+    );
+
+  transform-origin: center top;
+
+  transition:
+    width 0.3s ease,
+    height 0.3s ease;
+}
+
+.vesteia-avatar-renderer3d__torax {
+  position: absolute;
+
+  top: 11px;
+  left: 9%;
+
+  width: 82%;
+  height: 55%;
+
+  border-radius: 38% 38% 27% 27%;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 2%,
+      rgba(255, 255, 255, 0.12),
+      transparent 68%
+    );
+
+  pointer-events: none;
+}
+
+.vesteia-avatar-renderer3d__cintura {
+  position: absolute;
+
+  left: 17%;
+  bottom: -3px;
+
+  width: 66%;
+  height: 28px;
+
+  border-radius: 9px 9px 12px 12px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #6e7985,
+      #aeb7c0 50%,
+      #68747f
+    );
+
+  z-index: 3;
+}
+
+
+/* ======================================================
+   BRAÇOS — SEGMENTADOS, MAS ORGÂNICOS
+====================================================== */
+
+.vesteia-avatar-renderer3d__membro-superior {
+  position: relative;
+  z-index: 4;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 31px;
+
+  margin: 10px 3px 0;
+}
+
+.vesteia-avatar-renderer3d__braco {
+  position: relative;
+
+  width: 23px;
+  height: 64px;
+
+  border-radius:
+    14px 14px 11px 11px /
+    18px 18px 10px 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #707c88,
+      #b8c1ca 50%,
+      #6d7884
+    );
+
+  box-shadow:
+    inset 4px 0 6px rgba(255, 255, 255, 0.06),
+    inset -4px 0 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Compatibilidade com o JSX antigo */
+.vesteia-avatar-renderer3d__braco--esquerdo {
+  left: 17px;
+  top: 11px;
+  transform: rotate(4deg);
+}
+
+.vesteia-avatar-renderer3d__braco--direito {
+  right: 17px;
+  top: 11px;
+  transform: rotate(-4deg);
+}
+
+.vesteia-avatar-renderer3d__membro-superior:first-child
+.vesteia-avatar-renderer3d__braco {
+  transform: rotate(2deg);
+}
+
+.vesteia-avatar-renderer3d__membro-superior:last-child
+.vesteia-avatar-renderer3d__braco {
+  transform: rotate(-2deg);
+}
+
+.vesteia-avatar-renderer3d__cotovelo {
+  position: relative;
+  z-index: 2;
+
+  width: 20px;
+  height: 17px;
+
+  margin-top: -5px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      #aeb7c0,
+      #77828e 75%
+    );
+}
+
+.vesteia-avatar-renderer3d__antebraco {
+  width: 19px;
+  height: 61px;
+
+  margin-top: -4px;
+
+  border-radius:
+    10px 10px 13px 13px /
+    10px 10px 16px 16px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #6d7985,
+      #b4bdc6 50%,
+      #6a7581
+    );
+}
+
+.vesteia-avatar-renderer3d__mao {
+  width: 19px;
+  height: 25px;
+
+  margin-top: -4px;
+
+  border-radius:
+    8px 8px 11px 11px /
+    9px 9px 14px 14px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #7b8793,
+      #b9c2ca 50%,
+      #737f8b
+    );
+}
+
+
+/* ======================================================
+   QUADRIL
+====================================================== */
+
+.vesteia-avatar-renderer3d__quadril {
+  position: relative;
+  z-index: 5;
+
+  width:
+    calc(
+      78px *
+      var(--avatar-largura, 1)
+    );
+
+  height: 35px;
+
+  margin-top: -5px;
+
+  border-radius:
+    12px 12px 18px 18px /
+    9px 9px 15px 15px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #68747f,
+      #aab4bd 50%,
+      #65717c
+    );
+
+  box-shadow:
+    inset 0 6px 8px rgba(255, 255, 255, 0.045);
+}
+
+
+/* ======================================================
+   PERNAS
+====================================================== */
+
+.vesteia-avatar-renderer3d__pernas {
+  position: relative;
+  z-index: 4;
+
+  display: flex;
+  justify-content: center;
+
+  gap: 7px;
+
+  width: 100%;
+
+  transform:
+    scaleY(var(--avatar-pernas, 1));
+
+  transform-origin: top center;
+
+  transition: transform 0.3s ease;
+}
+
+.vesteia-avatar-renderer3d__membro-inferior {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 34px;
+}
+
+.vesteia-avatar-renderer3d__coxa {
+  width: 31px;
+  height: 76px;
+
+  border-radius:
+    11px 11px 13px 13px /
+    12px 12px 18px 18px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #697580,
+      #b3bdc6 50%,
+      #65717c
+    );
+
+  box-shadow:
+    inset 4px 0 7px rgba(255, 255, 255, 0.045),
+    inset -4px 0 7px rgba(0, 0, 0, 0.1);
+}
+
+.vesteia-avatar-renderer3d__joelho {
+  position: relative;
+  z-index: 2;
+
+  width: 26px;
+  height: 20px;
+
+  margin-top: -4px;
+
+  border-radius: 48%;
+
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      #aab4bd,
+      #707c87 75%
+    );
+}
+
+.vesteia-avatar-renderer3d__panturrilha {
+  width: 24px;
+  height: 71px;
+
+  margin-top: -4px;
+
+  border-radius:
+    12px 12px 9px 9px /
+    17px 17px 9px 9px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #68747f,
+      #adb7c0 50%,
+      #65717c
+    );
+}
+
+.vesteia-avatar-renderer3d__pe {
+  position: relative;
+
+  width: 35px;
+  height: 16px;
+
+  margin-top: -2px;
+
+  border-radius:
+    8px 14px 6px 6px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #5f6b76,
+      #9ca7b1
+    );
+}
+
+/* Fallback para a estrutura antiga de perna única */
+.vesteia-avatar-renderer3d__perna {
+  position: relative;
+
+  width: 35px;
+  height: 100%;
+
+  border-radius: 10px 10px 14px 14px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #68747f,
+      #adb7c0 50%,
+      #65717c
+    );
+}
+
+.vesteia-avatar-renderer3d__perna::after {
+  content: "";
+
+  position: absolute;
+
+  left: -1px;
+  bottom: -10px;
+
+  width: 40px;
+  height: 16px;
+
+  border-radius: 8px 14px 6px 6px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #5f6b76,
+      #9ca7b1
+    );
+}
+
+
+/* ======================================================
+   CAMISETA — MAIS PRÓXIMA DO CORPO
+====================================================== */
+
+.vesteia-avatar-renderer3d__camiseta {
+  position: absolute;
+  z-index: 10;
+
+  top: 1px;
+  left: 50%;
+
+  width: 114%;
+  height: 108%;
+
+  transform: translateX(-50%);
+
+  pointer-events: none;
+}
+
+.vesteia-avatar-renderer3d__camiseta-corpo {
+  position: absolute;
+
+  top: 8px;
+  left: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 87%;
+  height: 94%;
+
+  transform: translateX(-50%);
+
+  border-radius:
+    16px 16px 10px 10px /
+    13px 13px 8px 8px;
+
+  background:
+    linear-gradient(
+      100deg,
+      #0d1117,
+      #252b34 50%,
+      #080b10
+    );
+
+  box-shadow:
+    inset 6px 0 9px rgba(255, 255, 255, 0.035),
+    inset -6px 0 9px rgba(0, 0, 0, 0.32),
+    0 8px 14px rgba(0, 0, 0, 0.12);
+
+  clip-path:
+    polygon(
+      7% 0,
+      93% 0,
+      100% 16%,
+      92% 100%,
+      8% 100%,
+      0 16%
+    );
+}
+
+.vesteia-avatar-renderer3d__camiseta-corpo span {
+  color: #36dcff;
+  font-size: 10px;
+  font-weight: 850;
+  opacity: 0.9;
+}
+
+.vesteia-avatar-renderer3d__gola {
+  position: absolute;
+  z-index: 14;
+
+  top: 3px;
+  left: 50%;
+
+  width: 29px;
+  height: 14px;
+
+  transform: translateX(-50%);
+
+  border-bottom: 3px solid #07090d;
+  border-radius: 0 0 50% 50%;
+}
+
+.vesteia-avatar-renderer3d__manga {
+  position: absolute;
+  z-index: 9;
+
+  top: 13px;
+
+  width: 29px;
+  height: 46px;
+
+  border-radius:
+    10px 10px 12px 12px;
+
+  background:
+    linear-gradient(
+      100deg,
+      #11161d,
+      #282f38,
+      #090d12
+    );
+}
+
+.vesteia-avatar-renderer3d__manga--esquerda {
+  left: -7px;
+  transform: rotate(7deg);
+}
+
+.vesteia-avatar-renderer3d__manga--direita {
+  right: -7px;
+  transform: rotate(-7deg);
+}
+
+/* Compatibilidade com roupa genérica do renderer anterior */
+.vesteia-avatar-renderer3d__roupa {
+  position: absolute;
+  z-index: 10;
+
+  inset: 4px -8px 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.11);
+
+  border-radius:
+    18px 18px 11px 11px;
+
+  color: #ffffff;
+  text-align: center;
+
+  background:
+    linear-gradient(
+      145deg,
+      #111722,
+      #020409
+    );
+
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+
+  transition:
+    inset 0.3s ease,
+    transform 0.3s ease;
+}
+
+.vesteia-avatar-renderer3d__roupa span {
+  max-width: 90px;
+  padding: 0 5px;
+
+  font-size: 0.57rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.vesteia-avatar-renderer3d__roupa strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 29px;
+  height: 29px;
+
+  border-radius: 50%;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      145deg,
+      #11ced8,
+      #1689ed
+    );
+}
+
+
+/* ======================================================
+   CALÇA
+====================================================== */
+
+.vesteia-avatar-renderer3d__calca {
+  position: absolute;
+  z-index: 8;
+
+  top: -31px;
+  left: 50%;
+
+  width: 78px;
+  height: 180px;
+
+  transform: translateX(-50%);
+
+  pointer-events: none;
+}
+
+.vesteia-avatar-renderer3d__calca-perna {
+  position: absolute;
+  top: 25px;
+
+  width: 32px;
+  height: 151px;
+
+  border-radius: 6px 6px 10px 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #14283d,
+      #294b69 50%,
+      #0e2134
+    );
+}
+
+.vesteia-avatar-renderer3d__calca-perna--esquerda {
+  left: 5px;
+}
+
+.vesteia-avatar-renderer3d__calca-perna--direita {
+  right: 5px;
+}
+
+.vesteia-avatar-renderer3d__calca span {
+  position: absolute;
+
+  top: 4px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  color: #36dcff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* ======================================================
+   SHORT
+====================================================== */
+
+.vesteia-avatar-renderer3d__short {
+  position: absolute;
+  z-index: 8;
+
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px 8px 11px 11px;
+
+  color: #36dcff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  background:
+    linear-gradient(
+      90deg,
+      #171c23,
+      #2a313a,
+      #101419
+    );
+}
+
+
+/* ======================================================
+   SAIA
+====================================================== */
+
+.vesteia-avatar-renderer3d__saia {
+  position: absolute;
+  z-index: 10;
+
+  top: 0;
+  left: 50%;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  width: 90px;
+  height: 90px;
+
+  padding-top: 10px;
+
+  transform: translateX(-50%);
+
+  clip-path:
+    polygon(
+      15% 0,
+      85% 0,
+      100% 100%,
+      0 100%
+    );
+
+  color: #36dcff;
+  font-size: 9px;
+  font-weight: 800;
+
+  background:
+    linear-gradient(
+      90deg,
+      #171b22,
+      #343b45,
+      #11151b
+    );
+}
+
+
+/* ======================================================
+   VESTIDO
+====================================================== */
+
+.vesteia-avatar-renderer3d__vestido {
+  position: absolute;
+  z-index: 12;
+
+  top: 4px;
+  left: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 105%;
+  height: 185px;
+
+  transform: translateX(-50%);
+
+  clip-path:
+    polygon(
+      12% 0,
+      88% 0,
+      100% 100%,
+      0 100%
+    );
+
+  color: #36dcff;
+  font-size: 10px;
+  font-weight: 800;
+
+  background:
+    linear-gradient(
+      90deg,
+      #171c24,
+      #303945,
+      #10151b
+    );
+}
+
+
+/* ======================================================
+   SOMBRA / BASE
+====================================================== */
+
+.vesteia-avatar-renderer3d__sombra {
+  position: absolute;
+  z-index: 1;
+
+  bottom: 37px;
+  left: 50%;
+
+  width: 145px;
+  height: 20px;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.46);
+  filter: blur(8px);
+}
+
+.vesteia-avatar-renderer3d__base {
+  position: absolute;
+  z-index: 2;
+
+  bottom: 31px;
+  left: 50%;
+
+  width: 130px;
+  height: 8px;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(29, 207, 255, 0.68),
+      transparent
+    );
+
+  box-shadow:
+    0 0 22px rgba(29, 207, 255, 0.27);
+}
+
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.vesteia-avatar-renderer3d__status {
+  position: absolute;
+  z-index: 20;
+
+  right: 14px;
+  bottom: 14px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 8px 10px;
+
+  border: 1px solid rgba(38, 210, 255, 0.3);
+  border-radius: 9px;
+
+  text-align: left;
+
+  background: rgba(2, 22, 43, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+.vesteia-avatar-renderer3d__status span {
+  color: #28ddff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.vesteia-avatar-renderer3d__status small {
+  margin-top: 2px;
+
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 8px;
+}
+
+
+/* ======================================================
+   INFORMAÇÕES
+====================================================== */
+
+.vesteia-avatar-renderer3d__informacoes {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 7px;
+  margin-top: 15px;
+}
+
+.vesteia-avatar-renderer3d__informacoes > div {
+  min-width: 0;
+
+  padding: 10px 6px;
+
+  border: 1px solid rgba(71, 213, 255, 0.16);
+  border-radius: 10px;
+
+  text-align: center;
+
+  background: rgba(3, 59, 116, 0.26);
+}
+
+.vesteia-avatar-renderer3d__informacoes span,
+.vesteia-avatar-renderer3d__informacoes strong {
+  display: block;
+}
+
+.vesteia-avatar-renderer3d__informacoes span {
+  margin-bottom: 4px;
+
+  color: rgba(226, 246, 255, 0.54);
+  font-size: 0.6rem;
+}
+
+.vesteia-avatar-renderer3d__informacoes strong {
+  overflow: hidden;
+
+  color: #70f1e4;
+  font-size: 0.72rem;
+
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+
+/* ======================================================
+   PRODUTO SELECIONADO
+====================================================== */
+
+.vesteia-avatar-renderer3d__produto {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  margin-top: 12px;
+  padding: 12px 15px;
+
+  border: 1px solid rgba(77, 226, 255, 0.2);
+  border-radius: 12px;
+
+  text-align: center;
+
+  background: rgba(3, 53, 108, 0.28);
+}
+
+.vesteia-avatar-renderer3d__produto span {
+  color: rgba(228, 247, 255, 0.54);
+  font-size: 0.65rem;
+}
+
+.vesteia-avatar-renderer3d__produto strong {
+  color: #ffffff;
+  font-size: 0.83rem;
+}
+
+.vesteia-avatar-renderer3d__produto small {
+  color: #68f2df;
+  font-size: 0.68rem;
+}
+
+
+/* ======================================================
+   RESPONSIVO
+====================================================== */
+
+@media (max-width: 850px) {
+  .vesteia-avatar-experiencia {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .vesteia-avatar-builder,
+  .vesteia-avatar-renderer3d {
+    padding: 16px;
+  }
+
+  .vesteia-avatar-builder__opcoes {
+    grid-template-columns: 1fr;
+  }
+
+  .vesteia-avatar-renderer3d__palco {
+    min-height: 515px;
+  }
+
+  .vesteia-avatar-renderer3d__informacoes {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .vesteia-avatar-renderer3d__avatar {
+    transform:
+      scaleY(
+        calc(
+          var(--avatar-altura, 1) * 0.88
+        )
+      )
+      scaleX(
+        calc(
+          var(--avatar-largura, 1) * 0.88
+        )
+      );
+  }
+}
+
+/* ======================================================
+   SPRINT 52 — AVATAR HUMANOIDE V3
+   Refinamento anatômico + masculino/feminino
+   Este bloco sobrescreve apenas o visual do avatar.
+====================================================== */
+
+.vesteia-avatar-builder__opcoes--duas {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+/* ======================================================
+   AVATAR — PROPORÇÃO GERAL
+====================================================== */
+
+.vesteia-avatar-renderer3d__avatar {
+  width: 220px;
+  height: 465px;
+}
+
+.vesteia-avatar-renderer3d__ombros {
+  position: relative;
+  z-index: 6;
+
+  width:
+    calc(
+      120px *
+      var(--avatar-ombros, 1)
+    );
+
+  height: 27px;
+
+  margin-top: -5px;
+  margin-bottom: -17px;
+
+  border-radius:
+    52% 52% 31% 31% /
+    70% 70% 30% 30%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #6b7681,
+      #aeb8c1 48%,
+      #69747f
+    );
+
+  box-shadow:
+    inset 0 7px 9px rgba(255, 255, 255, 0.05);
+
+  transition: width 0.28s ease;
+}
+
+
+/* ======================================================
+   ROSTO
+====================================================== */
+
+.vesteia-avatar-renderer3d__cabeca {
+  width: 64px;
+  height: 82px;
+
+  border-radius:
+    47% 47% 43% 43% /
+    39% 39% 60% 60%;
+}
+
+.vesteia-avatar-renderer3d__sobrancelhas {
+  position: absolute;
+  z-index: 6;
+
+  top: 28px;
+  left: 13px;
+
+  display: flex;
+  justify-content: space-between;
+
+  width: 38px;
+}
+
+.vesteia-avatar-renderer3d__sobrancelhas i {
+  display: block;
+
+  width: 12px;
+  height: 2px;
+
+  border-radius: 999px;
+
+  background: rgba(26, 31, 38, 0.78);
+}
+
+.vesteia-avatar-renderer3d__olhos {
+  top: 35px;
+}
+
+.vesteia-avatar-renderer3d__boca {
+  position: absolute;
+  z-index: 6;
+
+  left: 24px;
+  bottom: 13px;
+
+  width: 16px;
+  height: 5px;
+
+  border-bottom:
+    1px solid rgba(49, 58, 68, 0.78);
+
+  border-radius: 50%;
+}
+
+.vesteia-avatar-renderer3d__maxilar {
+  position: absolute;
+
+  left: 9px;
+  right: 9px;
+  bottom: 1px;
+
+  height: 24px;
+
+  border-radius:
+    20% 20% 46% 46%;
+
+  box-shadow:
+    inset 0 -4px 7px rgba(0, 0, 0, 0.06);
+
+  pointer-events: none;
+}
+
+
+/* ======================================================
+   OMBRO / BRAÇO
+====================================================== */
+
+.vesteia-avatar-renderer3d__corpo {
+  min-height: 157px;
+}
+
+.vesteia-avatar-renderer3d__corpo::before {
+  display: none;
+}
+
+.vesteia-avatar-renderer3d__membro-superior {
+  width: 34px;
+  margin-top: 7px;
+}
+
+.vesteia-avatar-renderer3d__deltoide {
+  position: relative;
+  z-index: 3;
+
+  width: 28px;
+  height: 29px;
+
+  margin-bottom: -10px;
+
+  border-radius:
+    50% 50% 46% 46%;
+
+  background:
+    radial-gradient(
+      circle at 45% 30%,
+      #b7c0c9,
+      #727d88 72%
+    );
+}
+
+.vesteia-avatar-renderer3d__braco {
+  width: 23px;
+  height: 59px;
+
+  border-radius:
+    14px 14px 11px 11px /
+    20px 20px 10px 10px;
+}
+
+.vesteia-avatar-renderer3d__cotovelo {
+  width: 20px;
+  height: 15px;
+
+  margin-top: -4px;
+}
+
+.vesteia-avatar-renderer3d__antebraco {
+  width: 19px;
+  height: 56px;
+
+  border-radius:
+    10px 10px 12px 12px /
+    11px 11px 17px 17px;
+}
+
+.vesteia-avatar-renderer3d__pulso {
+  width: 14px;
+  height: 10px;
+
+  margin-top: -3px;
+
+  border-radius: 7px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #788490,
+      #afb8c1,
+      #737f8b
+    );
+}
+
+.vesteia-avatar-renderer3d__mao {
+  width: 18px;
+  height: 25px;
+
+  margin-top: -3px;
+}
+
+
+/* ======================================================
+   TRONCO HUMANO
+====================================================== */
+
+.vesteia-avatar-renderer3d__tronco {
+  width:
+    calc(
+      101px *
+      var(--avatar-largura, 1)
+    );
+
+  height:
+    calc(
+      139px *
+      var(--avatar-tronco, 1)
+    );
+
+  clip-path:
+    polygon(
+      10% 0,
+      90% 0,
+      100% 17%,
+      92% 55%,
+      82% 100%,
+      18% 100%,
+      8% 55%,
+      0 17%
+    );
+}
+
+.vesteia-avatar-renderer3d__peitoral {
+  position: absolute;
+
+  top: 12px;
+  left: 9%;
+
+  width: 82%;
+  height: 34%;
+
+  border-radius:
+    34% 34% 28% 28%;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 10%,
+      rgba(255, 255, 255, 0.08),
+      transparent 70%
+    );
+}
+
+.vesteia-avatar-renderer3d__abdomen {
+  position: absolute;
+
+  left: 20%;
+  bottom: 18px;
+
+  width: 60%;
+  height: 44%;
+
+  border-radius:
+    28% 28% 18% 18%;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.05),
+      rgba(255, 255, 255, 0.025),
+      rgba(0, 0, 0, 0.05)
+    );
+}
+
+
+/* ======================================================
+   QUADRIL / PELVE
+====================================================== */
+
+.vesteia-avatar-renderer3d__quadril {
+  width:
+    calc(
+      80px *
+      var(--avatar-quadril, 1) *
+      var(--avatar-largura, 1)
+    );
+
+  height: 37px;
+
+  margin-top: -7px;
+
+  border-radius:
+    13px 13px 20px 20px /
+    10px 10px 18px 18px;
+
+  transition: width 0.28s ease;
+}
+
+.vesteia-avatar-renderer3d__pelve {
+  position: absolute;
+
+  left: 12%;
+  right: 12%;
+  top: 6px;
+  bottom: 5px;
+
+  border-radius:
+    35% 35% 45% 45%;
+
+  background:
+    radial-gradient(
+      ellipse at center top,
+      rgba(255, 255, 255, 0.055),
+      transparent 70%
+    );
+}
+
+
+/* ======================================================
+   PERNAS MAIS NATURAIS
+====================================================== */
+
+.vesteia-avatar-renderer3d__pernas {
+  gap: 5px;
+}
+
+.vesteia-avatar-renderer3d__membro-inferior {
+  width: 35px;
+}
+
+.vesteia-avatar-renderer3d__coxa {
+  width: 32px;
+  height: 77px;
+
+  border-radius:
+    12px 12px 14px 14px /
+    15px 15px 21px 21px;
+}
+
+.vesteia-avatar-renderer3d__joelho {
+  width: 25px;
+  height: 18px;
+}
+
+.vesteia-avatar-renderer3d__panturrilha {
+  width: 24px;
+  height: 70px;
+
+  border-radius:
+    12px 12px 9px 9px /
+    20px 20px 9px 9px;
+}
+
+.vesteia-avatar-renderer3d__tornozelo {
+  width: 17px;
+  height: 12px;
+
+  margin-top: -3px;
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #697580,
+      #aab4bd,
+      #65717c
+    );
+}
+
+.vesteia-avatar-renderer3d__pe {
+  width: 35px;
+  height: 15px;
+
+  margin-top: -2px;
+}
+
+
+/* ======================================================
+   MASCULINO
+====================================================== */
+
+.vesteia-avatar-renderer3d__avatar--masculino
+.vesteia-avatar-renderer3d__tronco {
+  clip-path:
+    polygon(
+      6% 0,
+      94% 0,
+      100% 16%,
+      90% 58%,
+      78% 100%,
+      22% 100%,
+      10% 58%,
+      0 16%
+    );
+}
+
+.vesteia-avatar-renderer3d__avatar--masculino
+.vesteia-avatar-renderer3d__peitoral {
+  left: 7%;
+  width: 86%;
+  height: 36%;
+}
+
+.vesteia-avatar-renderer3d__avatar--masculino
+.vesteia-avatar-renderer3d__cintura {
+  left: 18%;
+  width: 64%;
+}
+
+.vesteia-avatar-renderer3d__avatar--masculino
+.vesteia-avatar-renderer3d__cabelo {
+  height: 23px;
+
+  border-radius:
+    56% 56% 26% 26% /
+    76% 76% 24% 24%;
+}
+
+
+/* ======================================================
+   FEMININO
+====================================================== */
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__cabeca {
+  width: 61px;
+  height: 80px;
+
+  border-radius:
+    48% 48% 45% 45% /
+    42% 42% 58% 58%;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__cabelo {
+  top: -4px;
+  left: 2px;
+
+  width: 57px;
+  height: 34px;
+
+  border-radius:
+    56% 56% 43% 43% /
+    70% 70% 38% 38%;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__cabelo::after {
+  content: "";
+
+  position: absolute;
+
+  top: 18px;
+  left: -2px;
+
+  width: 61px;
+  height: 35px;
+
+  border-radius:
+    30% 30% 48% 48%;
+
+  border-left: 7px solid #0a0d11;
+  border-right: 7px solid #0a0d11;
+
+  opacity: 0.96;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__ombros {
+  width:
+    calc(
+      108px *
+      var(--avatar-ombros, 1)
+    );
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__tronco {
+  width:
+    calc(
+      94px *
+      var(--avatar-largura, 1)
+    );
+
+  clip-path:
+    polygon(
+      11% 0,
+      89% 0,
+      97% 18%,
+      84% 55%,
+      72% 100%,
+      28% 100%,
+      16% 55%,
+      3% 18%
+    );
+}
+
+.vesteia-avatar-renderer3d__busto {
+  display: none;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__busto {
+  position: absolute;
+
+  top: 25px;
+  left: 15%;
+
+  display: block;
+
+  width: 70%;
+  height: 31px;
+
+  border-radius:
+    45% 45% 35% 35%;
+
+  background:
+    radial-gradient(
+      ellipse at center top,
+      rgba(255, 255, 255, 0.08),
+      transparent 76%
+    );
+
+  pointer-events: none;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__cintura {
+  left: 24%;
+  width: 52%;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__quadril {
+  width:
+    calc(
+      91px *
+      var(--avatar-quadril, 1) *
+      var(--avatar-largura, 1)
+    );
+
+  border-radius:
+    15px 15px 23px 23px /
+    10px 10px 22px 22px;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__coxa {
+  width: 34px;
+
+  border-radius:
+    14px 14px 15px 15px /
+    18px 18px 22px 22px;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__membro-superior {
+  width: 31px;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__braco {
+  width: 21px;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__antebraco {
+  width: 17px;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__mao {
+  width: 17px;
+  height: 23px;
+}
+
+
+/* ======================================================
+   ROUPA ACOMPANHA AS DUAS SILHUETAS
+====================================================== */
+
+.vesteia-avatar-renderer3d__camiseta {
+  width: 116%;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__camiseta {
+  width: 118%;
+}
+
+.vesteia-avatar-renderer3d__avatar--feminino
+.vesteia-avatar-renderer3d__camiseta-corpo {
+  width: 86%;
+
+  clip-path:
+    polygon(
+      8% 0,
+      92% 0,
+      100% 17%,
+      90% 100%,
+      10% 100%,
+      0 17%
+    );
+}
+
+
+/* ======================================================
+   INFORMAÇÕES — AGORA SÃO 6 ITENS
+====================================================== */
+
+.vesteia-avatar-renderer3d__informacoes {
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 560px) {
+  .vesteia-avatar-builder__opcoes--duas {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .vesteia-avatar-renderer3d__informacoes {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ======================================================
+   VESTEIA — SELETOR DE GÊNERO DO AVATAR
+====================================================== */
+
+.vesteia-avatar-builder__opcoes--duas {
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr)) !important;
+
+  gap: 10px !important;
+
+  width: 100%;
+}
+
+.vesteia-avatar-builder__opcoes--duas button {
+  display: flex !important;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+
+  min-height: 46px;
+}
+
+@media (max-width: 560px) {
+  .vesteia-avatar-builder__opcoes--duas {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+  }
+}

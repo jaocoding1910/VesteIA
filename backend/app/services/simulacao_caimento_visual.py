@@ -1,3 +1,9 @@
+from app.services.categorias_vestuario import (
+    normalizar_categoria,
+    obter_familia_categoria,
+)
+
+
 def _numero(
     valor,
 ):
@@ -47,8 +53,8 @@ def _normalizar_texto(
     valor,
 ):
     """
-    Normaliza textos usados
-    nas regras visuais.
+    Normaliza textos utilizados
+    pelas regras visuais.
     """
 
     if valor is None:
@@ -62,6 +68,10 @@ def _normalizar_texto(
         .lower()
     )
 
+
+# ==========================================================
+# MODELAGEM
+# ==========================================================
 
 def _obter_fator_modelagem(
     modelagem,
@@ -82,7 +92,9 @@ def _obter_fator_modelagem(
     mapa = {
         "slim": 0.96,
         "ajustada": 0.96,
+        "ajustado": 0.96,
         "justa": 0.96,
+        "justo": 0.96,
 
         "regular": 1.00,
         "tradicional": 1.00,
@@ -118,7 +130,12 @@ def _obter_fator_preferencia(
     mapa = {
         "justo": 0.97,
         "padrao": 1.00,
+        "padrão": 1.00,
+        "normal": 1.00,
+        "regular": 1.00,
         "solto": 1.05,
+        "amplo": 1.05,
+        "oversized": 1.05,
     }
 
     return mapa.get(
@@ -131,8 +148,8 @@ def _classificar_caimento_visual(
     fator_visual,
 ):
     """
-    Classifica o resultado visual
-    da expansão aplicada.
+    Classifica a tendência visual
+    da transformação aplicada.
     """
 
     fator_visual = (
@@ -156,6 +173,10 @@ def _classificar_caimento_visual(
     return "amplo"
 
 
+# ==========================================================
+# TRANSFORMAÇÃO
+# ==========================================================
+
 def _transformar_ponto_caimento(
     ponto,
     centro_x,
@@ -167,11 +188,8 @@ def _transformar_ponto_caimento(
     Aplica deformação VISUAL simples
     à roupa já posicionada.
 
-    A transformação acontece ao redor
-    do centro horizontal da peça e de
-    uma âncora vertical próxima aos ombros.
-
-    Não é simulação física de tecido.
+    Não representa simulação física
+    de tecido.
     """
 
     if not isinstance(
@@ -239,6 +257,274 @@ def _transformar_ponto_caimento(
     }
 
 
+# ==========================================================
+# VALIDAÇÃO POR FAMÍLIA
+# ==========================================================
+
+def _regiao_disponivel(
+    regioes,
+    nome,
+):
+    """
+    Verifica se uma região visual
+    está disponível.
+    """
+
+    return bool(
+        (
+            regioes.get(
+                nome,
+                {},
+            )
+            or {}
+        ).get(
+            "disponivel",
+            False,
+        )
+    )
+
+
+def _avaliar_estrutura_familia(
+    familia,
+    categoria,
+    regioes,
+):
+    """
+    Valida a geometria de caimento
+    conforme a família da vestimenta.
+
+    Essa função é o ponto principal
+    da generalização multivestimenta.
+    """
+
+    tronco_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "tronco",
+        )
+    )
+
+    cintura_quadril_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "cintura_quadril",
+        )
+    )
+
+    perna_esquerda_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "perna_esquerda",
+        )
+    )
+
+    perna_direita_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "perna_direita",
+        )
+    )
+
+    pernas_disponiveis = (
+        perna_esquerda_disponivel
+        and perna_direita_disponivel
+    )
+
+    saia_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "saia",
+        )
+    )
+
+    corpo_integrado_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "corpo_integrado",
+        )
+    )
+
+    pe_esquerdo_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "pe_esquerdo",
+        )
+    )
+
+    pe_direito_disponivel = (
+        _regiao_disponivel(
+            regioes,
+            "pe_direito",
+        )
+    )
+
+    pes_disponiveis = (
+        pe_esquerdo_disponivel
+        and pe_direito_disponivel
+    )
+
+    # ======================================================
+    # SUPERIOR
+    # ======================================================
+
+    if familia == "superior":
+        regiao_principal = (
+            "tronco"
+        )
+
+        regiao_principal_disponivel = (
+            tronco_disponivel
+        )
+
+        estrutura_familia_disponivel = (
+            tronco_disponivel
+        )
+
+    # ======================================================
+    # INFERIOR
+    # ======================================================
+
+    elif familia == "inferior":
+
+        if categoria == "saia":
+            regiao_principal = (
+                "saia"
+            )
+
+            regiao_principal_disponivel = (
+                saia_disponivel
+            )
+
+            estrutura_familia_disponivel = (
+                saia_disponivel
+            )
+
+        else:
+            regiao_principal = (
+                "cintura_quadril"
+            )
+
+            regiao_principal_disponivel = (
+                cintura_quadril_disponivel
+            )
+
+            estrutura_familia_disponivel = (
+                cintura_quadril_disponivel
+                and pernas_disponiveis
+            )
+
+    # ======================================================
+    # CORPO INTEGRADO
+    # ======================================================
+
+    elif familia == "corpo_integrado":
+        regiao_principal = (
+            "corpo_integrado"
+        )
+
+        regiao_principal_disponivel = (
+            corpo_integrado_disponivel
+        )
+
+        estrutura_familia_disponivel = (
+            corpo_integrado_disponivel
+        )
+
+    # ======================================================
+    # CALÇADO
+    # ======================================================
+
+    elif familia == "calcado":
+        regiao_principal = (
+            "pes"
+        )
+
+        regiao_principal_disponivel = (
+            pes_disponiveis
+        )
+
+        estrutura_familia_disponivel = (
+            pes_disponiveis
+        )
+
+    else:
+        regiao_principal = None
+
+        regiao_principal_disponivel = (
+            False
+        )
+
+        estrutura_familia_disponivel = (
+            False
+        )
+
+    return {
+        "familia": (
+            familia
+        ),
+
+        "categoria": (
+            categoria
+        ),
+
+        "regiao_principal": (
+            regiao_principal
+        ),
+
+        "regiao_principal_disponivel": (
+            regiao_principal_disponivel
+        ),
+
+        "tronco_disponivel": (
+            tronco_disponivel
+        ),
+
+        "cintura_quadril_disponivel": (
+            cintura_quadril_disponivel
+        ),
+
+        "perna_esquerda_disponivel": (
+            perna_esquerda_disponivel
+        ),
+
+        "perna_direita_disponivel": (
+            perna_direita_disponivel
+        ),
+
+        "pernas_disponiveis": (
+            pernas_disponiveis
+        ),
+
+        "saia_disponivel": (
+            saia_disponivel
+        ),
+
+        "corpo_integrado_disponivel": (
+            corpo_integrado_disponivel
+        ),
+
+        "pe_esquerdo_disponivel": (
+            pe_esquerdo_disponivel
+        ),
+
+        "pe_direito_disponivel": (
+            pe_direito_disponivel
+        ),
+
+        "pes_disponiveis": (
+            pes_disponiveis
+        ),
+
+        "estrutura_familia_disponivel": (
+            estrutura_familia_disponivel
+        ),
+    }
+
+
+# ==========================================================
+# FUNÇÃO PRINCIPAL
+# ==========================================================
+
 def simular_caimento_visual_v1(
     vestimenta_avatar_2d: dict,
     representacao_roupa: dict,
@@ -247,36 +533,33 @@ def simular_caimento_visual_v1(
     """
     Gera a Simulação Visual de Caimento V1.
 
-    Esta camada recebe:
-    - a roupa já posicionada no avatar;
-    - a representação da roupa;
-    - a preferência visual de caimento.
+    Sprint Multivestimenta.
 
-    O objetivo é produzir uma geometria
-    visual deformada de forma controlada
-    para representar tendências de
-    caimento.
+    Esta camada recebe:
+    - roupa posicionada no avatar;
+    - representação da peça;
+    - categoria e família;
+    - preferência visual de caimento.
 
     IMPORTANTE:
 
     Esta função NÃO:
     - simula física real de tecido;
     - calcula gravidade;
-    - calcula colisão física;
+    - calcula colisão;
     - calcula elasticidade real;
-    - estima circunferência corporal;
+    - estima circunferências;
     - calcula folga real em centímetros;
     - converte corpo para centímetros;
     - recomenda tamanho;
-    - altera a Sprint 48;
-    - afirma ajuste físico exato.
+    - altera calibração corporal.
 
-    O resultado é uma interpretação
-    visual experimental.
+    O resultado continua sendo uma
+    interpretação visual experimental.
     """
 
     # ======================================================
-    # VALIDAÇÃO DA VESTIMENTA
+    # VESTIMENTA
     # ======================================================
 
     if not isinstance(
@@ -320,7 +603,7 @@ def simular_caimento_visual_v1(
         }
 
     # ======================================================
-    # VALIDAÇÃO DA REPRESENTAÇÃO DA ROUPA
+    # REPRESENTAÇÃO
     # ======================================================
 
     if not isinstance(
@@ -344,7 +627,7 @@ def simular_caimento_visual_v1(
         }
 
     # ======================================================
-    # PRODUTO / MODELAGEM
+    # PRODUTO / CATEGORIA
     # ======================================================
 
     produto = (
@@ -353,6 +636,63 @@ def simular_caimento_visual_v1(
         )
         or {}
     )
+
+    categoria = (
+        normalizar_categoria(
+            representacao_roupa.get(
+                "categoria"
+            )
+            or vestimenta_avatar_2d.get(
+                "categoria"
+            )
+            or produto.get(
+                "categoria"
+            )
+        )
+    )
+
+    familia = (
+        representacao_roupa.get(
+            "familia"
+        )
+        or vestimenta_avatar_2d.get(
+            "familia"
+        )
+    )
+
+    if (
+        familia is None
+        and categoria is not None
+    ):
+        familia = (
+            obter_familia_categoria(
+                categoria
+            )
+        )
+
+    if (
+        categoria is None
+        or familia is None
+    ):
+        return {
+            "versao": (
+                "simulacao_caimento_visual_v1"
+            ),
+
+            "status": (
+                "categoria_ou_familia_indisponivel"
+            ),
+
+            "disponivel": False,
+
+            "caimento_simulado": False,
+
+            "pronta_para_renderizacao_final": False,
+        }
+
+    # ======================================================
+    # MODELAGEM
+    # ======================================================
 
     modelagem = (
         produto.get(
@@ -373,7 +713,7 @@ def simular_caimento_visual_v1(
     )
 
     # ======================================================
-    # FATOR VISUAL FINAL
+    # TRANSFORMAÇÃO VISUAL
     # ======================================================
 
     fator_horizontal = (
@@ -387,11 +727,8 @@ def simular_caimento_visual_v1(
         )
     )
 
-    # Mantemos a deformação vertical
-    # mais conservadora.
-    #
-    # Isso evita transformar uma preferência
-    # "solta" em um falso comprimento físico.
+    # A transformação vertical permanece
+    # propositalmente conservadora.
     fator_vertical = (
         1.0
         + (
@@ -414,7 +751,7 @@ def simular_caimento_visual_v1(
     )
 
     # ======================================================
-    # PONTOS DA ROUPA JÁ POSICIONADA
+    # PONTOS
     # ======================================================
 
     pontos_origem = (
@@ -447,6 +784,61 @@ def simular_caimento_visual_v1(
         )
     )
 
+    # ======================================================
+    # CALÇADO
+    #
+    # A ancoragem dos pés não possui um único
+    # centro global como tronco/quadril.
+    #
+    # Portanto usamos o centro médio dos pontos
+    # apenas como pivô da transformação visual.
+    # ======================================================
+
+    if (
+        centro_x is None
+        or ancora_y is None
+    ):
+        coordenadas_validas = [
+            ponto
+            for ponto in pontos_origem.values()
+            if (
+                isinstance(
+                    ponto,
+                    dict,
+                )
+                and _numero(
+                    ponto.get(
+                        "x"
+                    )
+                )
+                is not None
+                and _numero(
+                    ponto.get(
+                        "y"
+                    )
+                )
+                is not None
+            )
+        ]
+
+        if coordenadas_validas:
+            centro_x = (
+                sum(
+                    ponto["x"]
+                    for ponto in coordenadas_validas
+                )
+                / len(
+                    coordenadas_validas
+                )
+            )
+
+            ancora_y = (
+                min(
+                    ponto["y"]
+                    for ponto in coordenadas_validas
+                )
+            )
+
     if (
         centro_x is None
         or ancora_y is None
@@ -462,13 +854,21 @@ def simular_caimento_visual_v1(
 
             "disponivel": False,
 
+            "categoria": (
+                categoria
+            ),
+
+            "familia": (
+                familia
+            ),
+
             "caimento_simulado": False,
 
             "pronta_para_renderizacao_final": False,
         }
 
     # ======================================================
-    # DEFORMAÇÃO VISUAL
+    # DEFORMAÇÃO
     # ======================================================
 
     pontos_caimento = {}
@@ -482,7 +882,9 @@ def simular_caimento_visual_v1(
             nome
         ] = (
             _transformar_ponto_caimento(
-                ponto=ponto,
+                ponto=(
+                    ponto
+                ),
 
                 centro_x=(
                     centro_x
@@ -560,50 +962,7 @@ def simular_caimento_visual_v1(
         }
 
     # ======================================================
-    # VALIDAÇÃO VISUAL DA LARGURA
-    # ======================================================
-
-    ombro_esquerdo = (
-        pontos_caimento.get(
-            "ombro_esquerdo"
-        )
-    )
-
-    ombro_direito = (
-        pontos_caimento.get(
-            "ombro_direito"
-        )
-    )
-
-    largura_ombros_caimento = None
-
-    if (
-        isinstance(
-            ombro_esquerdo,
-            dict,
-        )
-        and isinstance(
-            ombro_direito,
-            dict,
-        )
-    ):
-        largura_ombros_caimento = abs(
-            ombro_esquerdo[
-                "x"
-            ]
-            - ombro_direito[
-                "x"
-            ]
-        )
-
-        largura_ombros_caimento = (
-            _arredondar(
-                largura_ombros_caimento
-            )
-        )
-
-    # ======================================================
-    # QUALIDADE
+    # QUALIDADE DOS PONTOS
     # ======================================================
 
     total_pontos = len(
@@ -624,20 +983,35 @@ def simular_caimento_visual_v1(
         else 0
     )
 
-    tronco_disponivel = (
-        regioes_caimento
-        .get(
-            "tronco",
-            {},
+    # ======================================================
+    # ESTRUTURA DA FAMÍLIA
+    # ======================================================
+
+    estrutura = (
+        _avaliar_estrutura_familia(
+            familia=(
+                familia
+            ),
+
+            categoria=(
+                categoria
+            ),
+
+            regioes=(
+                regioes_caimento
+            ),
         )
-        .get(
-            "disponivel",
+    )
+
+    estrutura_familia_disponivel = (
+        estrutura.get(
+            "estrutura_familia_disponivel",
             False,
         )
     )
 
     simulacao_pronta = (
-        tronco_disponivel
+        estrutura_familia_disponivel
         and percentual_pontos >= 0.80
     )
 
@@ -657,7 +1031,7 @@ def simular_caimento_visual_v1(
         )
 
     # ======================================================
-    # SAÍDA FINAL
+    # SAÍDA
     # ======================================================
 
     return {
@@ -671,6 +1045,14 @@ def simular_caimento_visual_v1(
 
         "disponivel": (
             pontos_disponiveis > 0
+        ),
+
+        "categoria": (
+            categoria
+        ),
+
+        "familia": (
+            familia
         ),
 
         "origem": {
@@ -732,6 +1114,13 @@ def simular_caimento_visual_v1(
                 )
             ),
 
+            "ancora_y": (
+                _arredondar(
+                    ancora_y
+                )
+            ),
+
+            # Compatibilidade com contrato V1.
             "ombros_y": (
                 _arredondar(
                     ancora_y
@@ -750,16 +1139,20 @@ def simular_caimento_visual_v1(
         ),
 
         "validacao_visual": {
-            "largura_ombros_resultante": (
-                largura_ombros_caimento
-            ),
-
             "transformacao_horizontal": (
                 fator_horizontal
             ),
 
             "transformacao_vertical": (
                 fator_vertical
+            ),
+
+            "familia_validada": (
+                familia
+            ),
+
+            "estrutura_familia_disponivel": (
+                estrutura_familia_disponivel
             ),
         },
 
@@ -778,9 +1171,7 @@ def simular_caimento_visual_v1(
                 )
             ),
 
-            "tronco_disponivel": (
-                tronco_disponivel
-            ),
+            **estrutura,
         },
 
         "interpretacao": {
@@ -794,9 +1185,9 @@ def simular_caimento_visual_v1(
 
             "descricao": (
                 "A geometria da peça foi ajustada "
-                "visualmente conforme a modelagem "
-                "cadastrada e a preferência de "
-                "caimento selecionada."
+                "visualmente conforme a modelagem, "
+                "a preferência de caimento e a "
+                "família estrutural da vestimenta."
             ),
         },
 
@@ -812,6 +1203,8 @@ def simular_caimento_visual_v1(
             "pronta_para_renderizacao_final": (
                 simulacao_pronta
             ),
+
+            "multivestimenta": True,
 
             "simulacao_fisica_tecido": False,
 
@@ -848,9 +1241,11 @@ def simular_caimento_visual_v1(
 
         "mensagem": (
             "Simulação Visual de Caimento V1 "
-            "gerada a partir da roupa já posicionada "
-            "no Avatar 2D. O resultado representa "
-            "uma tendência visual experimental e "
-            "não uma simulação física real de tecido."
+            "gerada a partir da roupa posicionada "
+            "no Avatar 2D e validada conforme a "
+            "família da vestimenta. O resultado "
+            "representa uma tendência visual "
+            "experimental e não uma simulação "
+            "física real de tecido."
         ),
     }
