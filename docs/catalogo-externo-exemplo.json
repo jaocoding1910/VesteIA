@@ -1,0 +1,30 @@
+[
+  {
+    "code": "fabricante-12",
+    "title": "Calça externa",
+    "type": "calca",
+    "options": [
+      {
+        "ref": "loja-sku-12",
+        "color": "Preto",
+        "amount": 99,
+        "sizes": [
+          {
+            "number": "48",
+            "dimensions": {
+              "waist": 920,
+              "length": 1100
+            }
+          },
+          {
+            "number": "34",
+            "dimensions": {
+              "waist": 720,
+              "length": 980
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

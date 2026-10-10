@@ -1,7 +1,6 @@
-fastapi
-uvicorn
-python-dotenv
-python-multipart
-Pillow
-psycopg2-binary
-mediapipe
+# Núcleo do VesteIA (provador sem PostgreSQL). Leve: sem modelos de IA locais.
+fastapi==0.142.2
+uvicorn==0.54.0
+python-dotenv==1.2.3
+python-multipart==0.0.32
+Pillow==12.3.0

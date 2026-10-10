@@ -1,6 +1,8 @@
 # Ambiente virtual Python
 .venv/
 venv/
+.venv*/
+backend/.venv312/
 
 # Cache Python
 __pycache__/
@@ -8,6 +10,8 @@ __pycache__/
 
 # Variáveis de ambiente / credenciais
 .env
+.env.*
+!.env.example
 
 # VS Code
 .vscode/
@@ -18,3 +22,17 @@ Thumbs.db
 
 # Fotos temporárias do Provador VesteIA
 backend/uploads/
+# Frontend environment
+frontend/.env
+!frontend/.env.example
+!backend/.env.example
+
+# Artefatos de build e ferramentas locais
+frontend/node_modules/
+frontend/dist/
+.pytest_cache/
+*.log
+
+# Contador de uso do provador (sem imagens) e bancos locais
+backend/data/
+*.sqlite3

@@ -1,0 +1,7 @@
+// Geometria frontal por categoria; coordenadas do manequim 1024 × 1536.
+export default {
+  box: [362, 646, 300, 760],
+  anchor: [512, 660],
+  path: 'M376 651Q512 677 648 651L668 864 630 1400H531L512 899 493 1400H394L356 864Z',
+  seams: 'M375 680Q512 701 649 680M512 690V849M396 760 424 726M628 760 600 726M404 1382H485M539 1382H620'
+};

@@ -1,0 +1,61 @@
+{
+  "external_product_id": "exemplo-vsi",
+  "nome": "Camiseta VSI",
+  "categoria": "camiseta",
+  "marca": "VSI",
+  "variantes": [
+    {
+      "sku": "exemplo-vsi-violeta",
+      "cor": "Violeta",
+      "preco": 129.9,
+      "modelagem": "regular",
+      "metadata": {
+        "cor_hex": "#9659bd",
+        "visual": {
+          "estampa_texto": "VSI",
+          "estampa_cor": "#ffffff",
+          "estampa_posicao": {
+            "x": 0.5,
+            "y": 0.38,
+            "w": 0.5,
+            "h": 0.18
+          }
+        }
+      },
+      "tamanhos": [
+        {
+          "label": "P",
+          "estoque": 12,
+          "medidas": {
+            "largura_cm": 48,
+            "comprimento_cm": 68
+          }
+        },
+        {
+          "label": "M",
+          "estoque": 12,
+          "medidas": {
+            "largura_cm": 52,
+            "comprimento_cm": 70
+          }
+        },
+        {
+          "label": "G",
+          "estoque": 12,
+          "medidas": {
+            "largura_cm": 56,
+            "comprimento_cm": 72
+          }
+        },
+        {
+          "label": "GG",
+          "estoque": 12,
+          "medidas": {
+            "largura_cm": 60,
+            "comprimento_cm": 74
+          }
+        }
+      ]
+    }
+  ]
+}

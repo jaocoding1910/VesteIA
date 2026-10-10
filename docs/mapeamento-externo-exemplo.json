@@ -1,0 +1,22 @@
+{
+  "product": {
+    "external_product_id": "code",
+    "nome": "title",
+    "categoria": "type"
+  },
+  "variants_path": "options",
+  "variant": {
+    "sku": "ref",
+    "cor": "color",
+    "preco": "amount"
+  },
+  "sizes_path": "sizes",
+  "size": {
+    "label": "number"
+  },
+  "measurements": {
+    "cintura_cm": "dimensions.waist",
+    "comprimento_cm": "dimensions.length"
+  },
+  "measurement_factor": 0.1
+}

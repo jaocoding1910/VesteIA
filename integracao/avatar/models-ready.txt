@@ -1,0 +1,2 @@
+stable-diffusion-v1-5/stable-diffusion-inpainting
+h94/IP-Adapter

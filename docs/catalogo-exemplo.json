@@ -1,0 +1,49 @@
+[
+  {
+    "external_product_id": "loja-camiseta-123",
+    "nome": "Camiseta da loja",
+    "categoria": "camiseta",
+    "marca": "Sua marca",
+    "descricao": "Descrição do catálogo",
+    "metadata": {
+      "publico": "unissex"
+    },
+    "variantes": [
+      {
+        "sku": "LOJA-123-PRETO",
+        "cor": "Preto",
+        "modelagem": "regular",
+        "preco": 99.9,
+        "imagem_url": "https://sua-loja.example/imagem.jpg",
+        "metadata": {
+          "cor_hex": "#22252b",
+          "tecido": "100% algodão"
+        },
+        "tamanhos": [
+          {
+            "label": "XS",
+            "sort_order": 0,
+            "estoque": 5,
+            "medidas": {
+              "largura_cm": 46,
+              "torax_cm": 92,
+              "comprimento_cm": 65,
+              "ombros_cm": 42
+            }
+          },
+          {
+            "label": "S",
+            "sort_order": 1,
+            "estoque": 10,
+            "medidas": {
+              "largura_cm": 49,
+              "torax_cm": 98,
+              "comprimento_cm": 68,
+              "ombros_cm": 44
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

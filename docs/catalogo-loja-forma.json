@@ -1,0 +1,383 @@
+{
+  "loja": "FORMA · fictícia",
+  "produtos": [
+    {
+      "external_product_id": "forma-demo-tee",
+      "nome": "Camiseta Studio",
+      "categoria": "camiseta",
+      "marca": "FORMA",
+      "descricao": "Camiseta de algodão com corte regular e estampa FORMA discreta. Produto fictício; medidas e preços demonstrativos.",
+      "metadata": {
+        "loja_demo": "forma",
+        "principal_mvp": true,
+        "demonstrativo": true,
+        "publico": "unissex"
+      },
+      "variantes": [
+        {
+          "sku": "FORMA-TEE-01",
+          "cor": "Preto",
+          "modelagem": "regular",
+          "preco": 129.9,
+          "imagem_url": "/assets/loja-forma-camiseta.svg",
+          "metadata": {
+            "cor_hex": "#18191b",
+            "tecido": "Algodão",
+            "visual": {
+              "textura_url": false,
+              "medidas_referencia": {
+                "largura_cm": 52,
+                "comprimento_cm": 70
+              },
+              "roupa_genero_urls": {
+                "masculino": "/assets/roupa-real-camiseta-masculino.svg",
+                "feminino": "/assets/roupa-real-camiseta-feminino.svg"
+              },
+              "estampa_texto": "FORMA",
+              "estampa_cor": "#f1ece4",
+              "estampa_posicao": {
+                "x": 0.5,
+                "y": 0.38,
+                "w": 0.35,
+                "h": 0.1
+              }
+            }
+          },
+          "tamanhos": [
+            {
+              "label": "P",
+              "sort_order": 0,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 49,
+                "comprimento_cm": 68,
+                "torax_cm": 98,
+                "ombros_cm": 44,
+                "manga_cm": 21
+              }
+            },
+            {
+              "label": "M",
+              "sort_order": 1,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 52,
+                "comprimento_cm": 70,
+                "torax_cm": 104,
+                "ombros_cm": 46,
+                "manga_cm": 22
+              }
+            },
+            {
+              "label": "G",
+              "sort_order": 2,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 55,
+                "comprimento_cm": 72,
+                "torax_cm": 110,
+                "ombros_cm": 48,
+                "manga_cm": 23
+              }
+            },
+            {
+              "label": "GG",
+              "sort_order": 3,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 58,
+                "comprimento_cm": 74,
+                "torax_cm": 116,
+                "ombros_cm": 50,
+                "manga_cm": 24
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "external_product_id": "forma-demo-pants",
+      "nome": "Calça Straight",
+      "categoria": "calca",
+      "marca": "FORMA",
+      "descricao": "Calça de sarja com corte reto e cintura média. Produto fictício; medidas e preços demonstrativos.",
+      "metadata": {
+        "loja_demo": "forma",
+        "principal_mvp": true,
+        "demonstrativo": true,
+        "publico": "unissex"
+      },
+      "variantes": [
+        {
+          "sku": "FORMA-PANTS-01",
+          "cor": "Preto",
+          "modelagem": "regular",
+          "preco": 219.9,
+          "imagem_url": "/assets/loja-forma-calca.svg",
+          "metadata": {
+            "cor_hex": "#18191b",
+            "tecido": "Sarja de algodão",
+            "visual": {
+              "textura_url": false,
+              "medidas_referencia": {
+                "largura_cm": 40,
+                "comprimento_cm": 104
+              },
+              "roupa_genero_urls": {
+                "masculino": "/assets/roupa-real-calca-masculino.svg",
+                "feminino": "/assets/roupa-real-calca-feminino.svg"
+              },
+              "encaixe_humano": {
+                "feminino": {
+                  "subir_cintura_px": 65
+                },
+                "masculino": {
+                  "subir_cintura_px": 20
+                }
+              }
+            }
+          },
+          "tamanhos": [
+            {
+              "label": "P",
+              "sort_order": 0,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 37,
+                "comprimento_cm": 102,
+                "cintura_cm": 74,
+                "quadril_cm": 94,
+                "barra_cm": 19.2
+              }
+            },
+            {
+              "label": "M",
+              "sort_order": 1,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 40,
+                "comprimento_cm": 104,
+                "cintura_cm": 80,
+                "quadril_cm": 100,
+                "barra_cm": 20.0
+              }
+            },
+            {
+              "label": "G",
+              "sort_order": 2,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 43,
+                "comprimento_cm": 106,
+                "cintura_cm": 86,
+                "quadril_cm": 106,
+                "barra_cm": 20.8
+              }
+            },
+            {
+              "label": "GG",
+              "sort_order": 3,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 46,
+                "comprimento_cm": 108,
+                "cintura_cm": 92,
+                "quadril_cm": 112,
+                "barra_cm": 21.6
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "external_product_id": "forma-demo-short",
+      "nome": "Bermuda Everyday",
+      "categoria": "short",
+      "marca": "FORMA",
+      "descricao": "Bermuda de sarja, bolsos laterais e acabamento de costuras. Produto fictício; medidas e preços demonstrativos.",
+      "metadata": {
+        "loja_demo": "forma",
+        "principal_mvp": true,
+        "demonstrativo": true,
+        "publico": "unissex"
+      },
+      "variantes": [
+        {
+          "sku": "FORMA-SHORT-01",
+          "cor": "Areia",
+          "modelagem": "regular",
+          "preco": 119.9,
+          "imagem_url": "/assets/loja-forma-short.png",
+          "metadata": {
+            "cor_hex": "#bda783",
+            "tecido": "Sarja de algodão",
+            "visual": {
+              "textura_url": false,
+              "medidas_referencia": {
+                "largura_cm": 40,
+                "comprimento_cm": 46
+              },
+              "roupa_png_url": "/assets/loja-forma-short.png",
+              "roupa_crop": [
+                0,
+                21,
+                1304,
+                1144
+              ],
+              "roupa_image_size": [
+                1312,
+                1199
+              ]
+            }
+          },
+          "tamanhos": [
+            {
+              "label": "P",
+              "sort_order": 0,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 37,
+                "comprimento_cm": 44,
+                "cintura_cm": 74,
+                "quadril_cm": 94,
+                "barra_cm": 19.2
+              }
+            },
+            {
+              "label": "M",
+              "sort_order": 1,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 40,
+                "comprimento_cm": 46,
+                "cintura_cm": 80,
+                "quadril_cm": 100,
+                "barra_cm": 20.0
+              }
+            },
+            {
+              "label": "G",
+              "sort_order": 2,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 43,
+                "comprimento_cm": 48,
+                "cintura_cm": 86,
+                "quadril_cm": 106,
+                "barra_cm": 20.8
+              }
+            },
+            {
+              "label": "GG",
+              "sort_order": 3,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 46,
+                "comprimento_cm": 50,
+                "cintura_cm": 92,
+                "quadril_cm": 112,
+                "barra_cm": 21.6
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "external_product_id": "forma-demo-dress",
+      "nome": "Vestido Midi",
+      "categoria": "vestido",
+      "marca": "FORMA",
+      "descricao": "Vestido midi com manga curta, cintura marcada e saia levemente evasê. Produto fictício; medidas e preços demonstrativos.",
+      "metadata": {
+        "loja_demo": "forma",
+        "principal_mvp": true,
+        "demonstrativo": true,
+        "publico": "feminino"
+      },
+      "variantes": [
+        {
+          "sku": "FORMA-DRESS-01",
+          "cor": "Bordô",
+          "modelagem": "regular",
+          "preco": 249.9,
+          "imagem_url": "/assets/loja-forma-dress.png",
+          "metadata": {
+            "cor_hex": "#6d1f32",
+            "tecido": "Viscose",
+            "visual": {
+              "textura_url": false,
+              "medidas_referencia": {
+                "largura_cm": 48,
+                "comprimento_cm": 108
+              },
+              "roupa_png_url": "/assets/loja-forma-dress.png",
+              "roupa_crop": [
+                64,
+                51,
+                946,
+                1429
+              ],
+              "roupa_image_size": [
+                1024,
+                1536
+              ]
+            }
+          },
+          "tamanhos": [
+            {
+              "label": "P",
+              "sort_order": 0,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 45,
+                "comprimento_cm": 106,
+                "torax_cm": 90,
+                "cintura_cm": 76,
+                "quadril_cm": 100
+              }
+            },
+            {
+              "label": "M",
+              "sort_order": 1,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 48,
+                "comprimento_cm": 108,
+                "torax_cm": 96,
+                "cintura_cm": 82,
+                "quadril_cm": 106
+              }
+            },
+            {
+              "label": "G",
+              "sort_order": 2,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 51,
+                "comprimento_cm": 110,
+                "torax_cm": 102,
+                "cintura_cm": 88,
+                "quadril_cm": 112
+              }
+            },
+            {
+              "label": "GG",
+              "sort_order": 3,
+              "estoque": 8,
+              "medidas": {
+                "largura_cm": 54,
+                "comprimento_cm": 112,
+                "torax_cm": 108,
+                "cintura_cm": 94,
+                "quadril_cm": 118
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

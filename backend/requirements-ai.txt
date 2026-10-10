@@ -1,0 +1,2 @@
+# Optional authentication for Google Cloud Virtual Try-On.
+google-auth[requests]>=2.40,<3

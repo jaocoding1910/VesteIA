@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from app.models.produto import Produto
 from app.perfil import perfil_usuario
@@ -23,6 +24,10 @@ from app.services.recomendacao import (
     verificar_compatibilidade_peca,
 )
 
+
+from app.services.vestibilidade_avatar import (
+    gerar_vestibilidade_avatar_v1,
+)
 
 # Agrupa todas as rotas HTTP do backend do VesteIA.
 router = APIRouter()
@@ -148,6 +153,22 @@ def _buscar_variante_por_tamanho(
             return variante
 
     return None
+
+
+
+# ==========================================================
+# SCHEMAS — AVATAR / SPRINT 53
+# ==========================================================
+
+class VestibilidadeAvatarRequest(BaseModel):
+    genero: str = "masculino"
+    altura_aproximada_cm: float = 175
+    peso_aproximado_kg: float = 75
+    porte_corporal: str = "medio"
+    proporcao_tronco: str = "media"
+    proporcao_pernas: str = "media"
+    produto_id: int
+    tamanho_selecionado: str | None = None
 
 
 # ==========================================================
@@ -961,3 +982,61 @@ def atualizar_perfil(
         ),
         "perfil": perfil_usuario,
     }
+
+# ==========================================================
+# VESTIBILIDADE DINÂMICA DO AVATAR — SPRINT 53
+# ==========================================================
+
+@router.post("/avatar/vestibilidade")
+def calcular_vestibilidade_avatar(
+    dados: VestibilidadeAvatarRequest,
+):
+    """
+    Calcula a tendência visual de vestibilidade
+    utilizando o perfil aproximado configurado
+    pelo usuário no Avatar Builder.
+
+    Não representa medidas corporais reais
+    nem simulação física exata.
+    """
+
+    produto = buscar_produto_por_id(
+        dados.produto_id
+    )
+
+    if produto is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Produto não encontrado",
+        )
+
+    perfil_avatar = {
+        "genero": dados.genero,
+        "altura_aproximada_cm": (
+            dados.altura_aproximada_cm
+        ),
+        "peso_aproximado_kg": (
+            dados.peso_aproximado_kg
+        ),
+        "porte_corporal": (
+            dados.porte_corporal
+        ),
+        "proporcao_tronco": (
+            dados.proporcao_tronco
+        ),
+        "proporcao_pernas": (
+            dados.proporcao_pernas
+        ),
+    }
+
+    resultado = gerar_vestibilidade_avatar_v1(
+        perfil_avatar=perfil_avatar,
+        produto=produto,
+        tamanho_selecionado=(
+            dados.tamanho_selecionado
+            or produto.get("tamanho")
+        ),
+    )
+
+    return resultado
+

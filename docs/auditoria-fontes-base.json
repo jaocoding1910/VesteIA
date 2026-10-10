@@ -1,0 +1,1819 @@
+{
+  "README.md": {
+    "bytes": 1413,
+    "lines": 40
+  },
+  "frontend/package-lock.json": {
+    "bytes": 80141,
+    "lines": 2335
+  },
+  "frontend/vite.config.js": {
+    "bytes": 161,
+    "lines": 7
+  },
+  "frontend/README.md": {
+    "bytes": 1027,
+    "lines": 16
+  },
+  "frontend/eslint.config.js": {
+    "bytes": 568,
+    "lines": 21
+  },
+  "frontend/package.json": {
+    "bytes": 604,
+    "lines": 27
+  },
+  "backend/README.md": {
+    "bytes": 0,
+    "lines": 0
+  },
+  "docs/MVP_1_0_IMPLEMENTACAO.md": {
+    "bytes": 1682,
+    "lines": 19
+  },
+  "docs/arquitetura.md": {
+    "bytes": 4126,
+    "lines": 162
+  },
+  "frontend/src/App.css": {
+    "bytes": 82083,
+    "lines": 5700
+  },
+  "frontend/src/index.css": {
+    "bytes": 245,
+    "lines": 22
+  },
+  "frontend/src/App.jsx": {
+    "bytes": 96601,
+    "lines": 3979
+  },
+  "frontend/src/main.jsx": {
+    "bytes": 229,
+    "lines": 10
+  },
+  "frontend/src/components/AvatarRenderer2D.jsx": {
+    "bytes": 33349,
+    "lines": 1744
+  },
+  "frontend/src/components/AvatarRenderer3D.jsx": {
+    "bytes": 35959,
+    "lines": 1587
+  },
+  "frontend/src/components/AvatarBuilder.jsx": {
+    "bytes": 9107,
+    "lines": 494
+  },
+  "frontend/src/services/provadorService.js": {
+    "bytes": 13692,
+    "lines": 845
+  },
+  "frontend/src/services/apiConfig.js": {
+    "bytes": 114,
+    "lines": 3
+  },
+  "frontend/src/components/vestimentas/CalcadoRenderer2D.jsx": {
+    "bytes": 8076,
+    "lines": 344
+  },
+  "frontend/src/components/vestimentas/contratosVestimentas.js": {
+    "bytes": 9691,
+    "lines": 550
+  },
+  "frontend/src/components/vestimentas/ShortRenderer2D.jsx": {
+    "bytes": 9257,
+    "lines": 468
+  },
+  "frontend/src/components/vestimentas/VestidoRenderer2D.jsx": {
+    "bytes": 6923,
+    "lines": 375
+  },
+  "frontend/src/components/vestimentas/SaiaRenderer2D.jsx": {
+    "bytes": 5830,
+    "lines": 314
+  },
+  "frontend/src/components/vestimentas/CalcaRenderer2D.jsx": {
+    "bytes": 8005,
+    "lines": 410
+  },
+  "frontend/src/components/vestimentas/CamisetaRenderer2D.jsx": {
+    "bytes": 5330,
+    "lines": 271
+  },
+  "backend/app/main.py": {
+    "imports": [
+      "from fastapi import FastAPI",
+      "from fastapi.middleware.cors import CORSMiddleware",
+      "from app.api.provador import router as provador_router",
+      "from app.api.routes import router"
+    ],
+    "functions": []
+  },
+  "backend/app/perfil.py": {
+    "imports": [],
+    "functions": []
+  },
+  "backend/migrations/001_catalogo_normalizado.sql": {
+    "bytes": 1428,
+    "lines": 39
+  },
+  "backend/app/database/database.py": {
+    "imports": [
+      "import os",
+      "import psycopg2",
+      "from dotenv import load_dotenv"
+    ],
+    "functions": [
+      {
+        "name": "conectar",
+        "line": 11,
+        "doc": "Cria e retorna uma conexão com o PostgreSQL\nutilizando variáveis de ambiente.",
+        "args": ""
+      }
+    ]
+  },
+  "backend/app/services/escala_corporal.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "calcular_escala_corporal",
+        "line": 1,
+        "doc": "Calcula uma escala visual aproximada entre\ncoordenadas normalizadas e centímetros.\n\nIMPORTANTE:\nA referência corporal obtida atualmente pelo\nVesteIA representa a extensão visual observável\ndo corpo na imagem e não necessariamente a\naltura anatômica completa.\n\nPortanto, esta escala deve ser considerada\nprovisória e não uma medição física exata.",
+        "args": "altura_usuario_cm, altura_corpo_relativa"
+      },
+      {
+        "name": "converter_medida_relativa_para_cm",
+        "line": 93,
+        "doc": "Converte uma distância relativa para uma\nestimativa visual em centímetros.\n\nA função somente realiza a transformação\nmatemática. A confiabilidade da medida depende\nda qualidade da calibração utilizada.",
+        "args": "medida_relativa, escala_cm_por_unidade"
+      },
+      {
+        "name": "estimar_medidas_corporais",
+        "line": 129,
+        "doc": "Converte a geometria corporal relativa do\nVesteIA em estimativas visuais de centímetros.\n\nNesta fase do projeto essas medidas servem para\nexperimentação e validação do pipeline.\n\nElas ainda não devem ser tratadas como medidas\nantropométricas exatas nem usadas isoladamente\npara recomendar tamanho.",
+        "args": "geometria_corporal, escala_cm_por_unidade"
+      }
+    ]
+  },
+  "backend/app/services/deteccao_pessoa.py": {
+    "imports": [
+      "from pathlib import Path",
+      "import mediapipe as mp",
+      "from mediapipe.tasks import python",
+      "from mediapipe.tasks.python import vision",
+      "from app.services.analise_corporal import extrair_landmarks_corporais, classificar_pontos_corporais, avaliar_aptidao_por_categoria, organizar_regioes_corporais, avaliar_qualidade_regioes, corrigir_delta_x, calcular_largura_ombros, calcular_largura_quadril, calcular_proporcoes_corporais, interpretar_proporcoes_corporais, gerar_contexto_ajuste, gerar_analise_ajuste, calcular_confianca_analise, avaliar_vestibilidade, avaliar_calibracao_corporal, calcular_altura_corpo_relativa",
+      "from app.services.escala_corporal import calcular_escala_corporal, estimar_medidas_corporais",
+      "from app.services.calibracao_anatomica import avaliar_calibracao_anatomica, avaliar_consistencia_geometrica",
+      "from app.services.calibracao_metrica import calcular_fator_correcao_anatomica",
+      "from app.services.correcao_anatomica import gerar_medidas_corporais_calibradas, avaliar_pose_para_correcao_anatomica, calcular_indice_distorcao_perspectiva, calcular_confianca_metrica, gerar_metricas_corporais_para_vestuario",
+      "from app.services.largura_corporal_equivalente import gerar_largura_corporal_equivalente",
+      "from app.services.calibracao_vestuario import gerar_calibracao_vestuario",
+      "from app.services.qualidade_captura import avaliar_qualidade_captura",
+      "from app.services.controle_fluxo_provador import decidir_fluxo_provador",
+      "from app.services.resultado_captura import gerar_resultado_captura",
+      "from app.services.resumo_provador import gerar_resumo_provador"
+    ],
+    "functions": [
+      {
+        "name": "obter_geometria_imagem",
+        "line": 87,
+        "doc": "Recupera as dimensões da imagem\nutilizada pelo MediaPipe e calcula\nseu aspect ratio.\n\naspect_ratio:\n    largura / altura",
+        "args": "imagem"
+      },
+      {
+        "name": "calcular_comprimento_tronco_relativo",
+        "line": 150,
+        "doc": "Calcula o comprimento visual relativo\ndo tronco.\n\nA diferença horizontal é corrigida\npelo aspect ratio antes de ser combinada\ncom a diferença vertical.",
+        "args": "pontos_corporais: dict, aspect_ratio=1.0"
+      },
+      {
+        "name": "converter_comprimento_tronco_cm",
+        "line": 274,
+        "doc": "Converte comprimento relativo\ndo tronco em centímetros.",
+        "args": "comprimento_tronco_relativo, escala_corporal: dict"
+      },
+      {
+        "name": "calcular_largura_torax_relativa",
+        "line": 325,
+        "doc": "Estima visualmente a largura\nfrontal do tórax.\n\nA linha horizontal é interpolada\nentre ombros e quadris.\n\nA distância horizontal é corrigida\npelo aspect ratio da imagem.",
+        "args": "pontos_corporais: dict, aspect_ratio=1.0"
+      },
+      {
+        "name": "converter_largura_torax_cm",
+        "line": 426,
+        "doc": "Converte a projeção frontal\nrelativa do tórax para centímetros.",
+        "args": "largura_torax_relativa, escala_corporal: dict"
+      },
+      {
+        "name": "detectar_pessoa",
+        "line": 477,
+        "doc": "Executa o pipeline visual corporal\nprincipal do VesteIA.\n\nSprint 48:\n- correção geométrica 2D;\n- aspect ratio;\n- medidas corporais experimentais;\n- consistência geométrica;\n- análise de pose;\n- distorção;\n- calibração anatômica;\n- confiança métrica;\n- métricas semânticas para vestuário;\n- largura corporal equivalente experimental;\n- calibração específica para vestuário;\n- modelagem real da peça;\n- preferência de caimento.",
+        "args": "caminho_imagem, altura_cm=None, modelagem=None, preferencia_caimento='padrao'"
+      }
+    ]
+  },
+  "backend/app/services/analise_corporal.py": {
+    "imports": [
+      "import math"
+    ],
+    "functions": [
+      {
+        "name": "extrair_landmarks_corporais",
+        "line": 38,
+        "doc": null,
+        "args": "landmarks: list"
+      },
+      {
+        "name": "avaliar_visibilidade_ponto",
+        "line": 74,
+        "doc": "Verifica se um landmark possui\nvisibilidade suficiente para ser\nutilizado na análise corporal.",
+        "args": "ponto: dict, limite: float=0.5"
+      },
+      {
+        "name": "classificar_pontos_corporais",
+        "line": 97,
+        "doc": "Classifica os pontos corporais\nde acordo com a qualidade\nde visibilidade.",
+        "args": "pontos_corporais: dict, limite: float=0.5"
+      },
+      {
+        "name": "avaliar_aptidao_por_categoria",
+        "line": 132,
+        "doc": "Avalia quais categorias\npodem utilizar os pontos\ncorporais detectados.",
+        "args": "pontos_corporais"
+      },
+      {
+        "name": "organizar_regioes_corporais",
+        "line": 235,
+        "doc": "Organiza landmarks em regiões\núteis para o pipeline.",
+        "args": "pontos_corporais"
+      },
+      {
+        "name": "avaliar_qualidade_regioes",
+        "line": 309,
+        "doc": "Avalia a qualidade de cada\nregião corporal.",
+        "args": "regioes_corporais"
+      },
+      {
+        "name": "normalizar_aspect_ratio",
+        "line": 391,
+        "doc": "Garante um aspect ratio utilizável.\n\nO valor representa:\n\n    largura_imagem / altura_imagem\n\nPara manter compatibilidade,\nvalores ausentes ou inválidos\nretornam 1.0.",
+        "args": "aspect_ratio"
+      },
+      {
+        "name": "corrigir_delta_x",
+        "line": 426,
+        "doc": "Corrige uma distância normalizada\nno eixo X para o sistema relativo\nao eixo Y.\n\nMediaPipe normaliza:\n- X pela largura da imagem\n- Y pela altura da imagem\n\nPortanto:\n\n    delta_x_corrigido\n    =\n    delta_x * largura/altura",
+        "args": "delta_x, aspect_ratio=1.0"
+      },
+      {
+        "name": "calcular_distancia_2d",
+        "line": 458,
+        "doc": "Calcula distância 2D corrigindo\na diferença de escala entre X e Y.\n\nO resultado fica relativo\nà dimensão vertical da imagem.",
+        "args": "ponto_a, ponto_b, aspect_ratio=1.0"
+      },
+      {
+        "name": "calcular_largura_ombros",
+        "line": 512,
+        "doc": "Calcula a largura relativa\ndos ombros com correção\ngeométrica X/Y.",
+        "args": "pontos_corporais, aspect_ratio=1.0"
+      },
+      {
+        "name": "calcular_largura_quadril",
+        "line": 564,
+        "doc": "Calcula a largura relativa\ndo quadril com correção\ngeométrica X/Y.",
+        "args": "pontos_corporais, aspect_ratio=1.0"
+      },
+      {
+        "name": "calcular_proporcoes_corporais",
+        "line": 616,
+        "doc": "Calcula proporções corporais\na partir da geometria corrigida.\n\nContinua sendo uma análise visual.",
+        "args": "geometria_corporal"
+      },
+      {
+        "name": "interpretar_proporcoes_corporais",
+        "line": 667,
+        "doc": "Interpreta as proporções\ncorporais relativas.",
+        "args": "proporcoes_corporais"
+      },
+      {
+        "name": "gerar_contexto_ajuste",
+        "line": 717,
+        "doc": "Gera contexto estrutural\npara análise de ajuste.",
+        "args": "interpretacao_corporal, aptidao_produtos"
+      },
+      {
+        "name": "gerar_analise_ajuste",
+        "line": 822,
+        "doc": "Gera análise preliminar\npara cada categoria.",
+        "args": "contexto_ajuste, qualidade_regioes"
+      },
+      {
+        "name": "calcular_confianca_analise",
+        "line": 936,
+        "doc": "Calcula confiança visual\npor categoria.",
+        "args": "analise_ajuste"
+      },
+      {
+        "name": "avaliar_vestibilidade",
+        "line": 1044,
+        "doc": "Avalia disponibilidade da\nanálise visual de vestibilidade.",
+        "args": "categoria, contexto_ajuste, confianca_analise"
+      },
+      {
+        "name": "avaliar_calibracao_corporal",
+        "line": 1175,
+        "doc": "Avalia se a imagem possui\ndados suficientes para\ncalibração corporal.",
+        "args": "pontos_corporais, qualidade_regioes, altura_cm=None"
+      },
+      {
+        "name": "calcular_altura_corpo_relativa",
+        "line": 1388,
+        "doc": "Calcula referência vertical\nentre cabeça/rosto observável\ne pontas dos pés.\n\nAinda NÃO representa\naltura anatômica exata.",
+        "args": "pontos_corporais"
+      },
+      {
+        "name": "ponto_confiavel",
+        "line": 141,
+        "doc": null,
+        "args": "nome"
+      },
+      {
+        "name": "ponto_confiavel",
+        "line": 1186,
+        "doc": null,
+        "args": "nome"
+      }
+    ]
+  },
+  "backend/app/services/representacao_roupa.py": {
+    "imports": [
+      "from app.services.categorias_vestuario import normalizar_categoria, obter_familia_categoria"
+    ],
+    "functions": [
+      {
+        "name": "_numero",
+        "line": 7,
+        "doc": "Converte valor para float\nde forma segura.",
+        "args": "valor"
+      },
+      {
+        "name": "_arredondar",
+        "line": 30,
+        "doc": "Arredonda valores numéricos\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_gerar_template_superior",
+        "line": 56,
+        "doc": "Template visual base para peças superiores.\n\nUtilizado por:\n- camiseta;\n- camisa;\n- regata;\n- jaqueta;\n- casaco.\n\nNão representa molde industrial.",
+        "args": "largura_relativa, categoria"
+      },
+      {
+        "name": "_gerar_template_inferior",
+        "line": 387,
+        "doc": "Template visual base para peças inferiores.\n\nUtilizado por:\n- calça;\n- short;\n- bermuda;\n- saia.",
+        "args": "largura_relativa, categoria"
+      },
+      {
+        "name": "_gerar_template_corpo_integrado",
+        "line": 909,
+        "doc": "Template base para:\n- vestido;\n- macacão.",
+        "args": "largura_relativa, categoria"
+      },
+      {
+        "name": "_gerar_template_calcado",
+        "line": 1133,
+        "doc": "Template simplificado para calçados.\n\nÉ apenas uma representação visual 2D.",
+        "args": "largura_relativa, categoria"
+      },
+      {
+        "name": "gerar_representacao_roupa_v1",
+        "line": 1248,
+        "doc": "Gera a Representação da Roupa V1.\n\nSprint Multivestimenta.\n\nA função transforma os dados cadastrados\nda peça em uma representação visual\nproporcional própria.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- mede o corpo;\n- converte corpo para centímetros;\n- compara cm da peça com corpo;\n- recomenda tamanho;\n- veste o avatar;\n- simula tecido;\n- gera imagem final.",
+        "args": "produto: dict"
+      }
+    ]
+  },
+  "backend/app/services/simulacao_caimento_visual.py": {
+    "imports": [
+      "from app.services.categorias_vestuario import normalizar_categoria, obter_familia_categoria"
+    ],
+    "functions": [
+      {
+        "name": "_numero",
+        "line": 7,
+        "doc": "Converte um valor para float\nde forma segura.",
+        "args": "valor"
+      },
+      {
+        "name": "_arredondar",
+        "line": 30,
+        "doc": "Arredonda valores numéricos\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_normalizar_texto",
+        "line": 52,
+        "doc": "Normaliza textos utilizados\npelas regras visuais.",
+        "args": "valor"
+      },
+      {
+        "name": "_obter_fatores_vestibilidade_avatar",
+        "line": 73,
+        "doc": "Extrai os multiplicadores visuais\nproduzidos pelo motor de vestibilidade\ndo Avatar Builder.\n\nA influência é propositalmente\nsuavizada para evitar deformações\nvisuais exageradas.\n\nQuando não houver vestibilidade,\nretorna fatores neutros 1.0.",
+        "args": "vestibilidade_avatar"
+      },
+      {
+        "name": "_obter_fator_modelagem",
+        "line": 184,
+        "doc": "Retorna um fator VISUAL de expansão\nbaseado na modelagem cadastrada.\n\nNão representa folga física em cm.",
+        "args": "modelagem"
+      },
+      {
+        "name": "_obter_fator_preferencia",
+        "line": 222,
+        "doc": "Retorna um fator VISUAL associado\nà preferência escolhida pelo usuário.\n\nNão representa medida física.",
+        "args": "preferencia_caimento"
+      },
+      {
+        "name": "_classificar_caimento_visual",
+        "line": 255,
+        "doc": "Classifica a tendência visual\nda transformação aplicada.",
+        "args": "fator_visual"
+      },
+      {
+        "name": "_transformar_ponto_caimento",
+        "line": 288,
+        "doc": "Aplica deformação VISUAL simples\nà roupa já posicionada.\n\nNão representa simulação física\nde tecido.",
+        "args": "ponto, centro_x, ancora_y, fator_horizontal, fator_vertical"
+      },
+      {
+        "name": "_regiao_disponivel",
+        "line": 372,
+        "doc": "Verifica se uma região visual\nestá disponível.",
+        "args": "regioes, nome"
+      },
+      {
+        "name": "_avaliar_estrutura_familia",
+        "line": 395,
+        "doc": "Valida a geometria de caimento\nconforme a família da vestimenta.\n\nEssa função é o ponto principal\nda generalização multivestimenta.",
+        "args": "familia, categoria, regioes"
+      },
+      {
+        "name": "simular_caimento_visual_v1",
+        "line": 636,
+        "doc": "Gera a Simulação Visual de Caimento V1.\n\nSprint Multivestimenta.\n\nEsta camada recebe:\n- roupa posicionada no avatar;\n- representação da peça;\n- categoria e família;\n- preferência visual de caimento.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- simula física real de tecido;\n- calcula gravidade;\n- calcula colisão;\n- calcula elasticidade real;\n- estima circunferências;\n- calcula folga real em centímetros;\n- converte corpo para centímetros;\n- recomenda tamanho;\n- altera calibração corporal.\n\nO resultado continua sendo uma\ninterpretação visual experimental.",
+        "args": "vestimenta_avatar_2d: dict, representacao_roupa: dict, preferencia_caimento: str, vestibilidade_avatar: dict=None"
+      }
+    ]
+  },
+  "backend/app/services/vestibilidade_avatar.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_numero",
+        "line": 1,
+        "doc": "Converte um valor para float\nde forma segura.",
+        "args": "valor"
+      },
+      {
+        "name": "_limitar",
+        "line": 22,
+        "doc": "Mantém um valor dentro\nde um intervalo seguro.",
+        "args": "valor, minimo, maximo"
+      },
+      {
+        "name": "_arredondar",
+        "line": 46,
+        "doc": "Arredonda valores numéricos\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_normalizar_texto",
+        "line": 66,
+        "doc": "Normaliza textos utilizados\npelas regras da vestibilidade.",
+        "args": "valor"
+      },
+      {
+        "name": "_fator_altura",
+        "line": 88,
+        "doc": "Converte a altura aproximada\ninformada pelo usuário em uma\nescala visual relativa.\n\nReferência visual:\n175 cm = 1.0\n\nNão representa medição corporal.",
+        "args": "altura_cm"
+      },
+      {
+        "name": "_fator_peso",
+        "line": 121,
+        "doc": "Produz uma tendência visual\nde largura baseada no peso\naproximado informado.\n\nNão converte peso em\ncircunferências corporais.",
+        "args": "peso_kg"
+      },
+      {
+        "name": "_fator_porte",
+        "line": 156,
+        "doc": "Retorna a influência visual\ndo porte corporal selecionado.",
+        "args": "porte_corporal"
+      },
+      {
+        "name": "_fator_tronco",
+        "line": 183,
+        "doc": "Retorna a escala visual\nrelativa do tronco.",
+        "args": "proporcao_tronco"
+      },
+      {
+        "name": "_fator_pernas",
+        "line": 212,
+        "doc": "Retorna a escala visual\nrelativa das pernas.",
+        "args": "proporcao_pernas"
+      },
+      {
+        "name": "_fator_genero_ombros",
+        "line": 245,
+        "doc": "Diferencia somente a\nsilhueta visual base.\n\nNão representa inferência\nanatômica automática.",
+        "args": "genero"
+      },
+      {
+        "name": "_fator_genero_quadril",
+        "line": 268,
+        "doc": "Diferencia somente a\nsilhueta visual base.",
+        "args": "genero"
+      },
+      {
+        "name": "_classificar_vestibilidade",
+        "line": 292,
+        "doc": "Classifica como a peça tende\na parecer no avatar.\n\nQuanto menor o fator,\nmaior a tendência de ajuste.\n\nQuanto maior,\nmaior a tendência de folga.\n\nÉ uma classificação VISUAL.",
+        "args": "fator_relativo_roupa"
+      },
+      {
+        "name": "gerar_vestibilidade_avatar_v1",
+        "line": 336,
+        "doc": "Gera a Vestibilidade Visual do Avatar V1.\n\nSprint 53 — Vestibilidade Dinâmica.\n\nEntrada:\n- perfil aproximado criado no AvatarBuilder;\n- produto selecionado;\n- tamanho/variante selecionado.\n\nEsta camada considera:\n- gênero visual escolhido;\n- altura aproximada;\n- peso aproximado;\n- porte corporal;\n- proporção do tronco;\n- proporção das pernas.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- mede o corpo;\n- estima circunferências reais;\n- converte peso em centímetros;\n- calcula folga física;\n- simula tecido;\n- recomenda tamanho;\n- afirma que uma peça realmente servirá.\n\nO resultado representa somente\numa tendência visual utilizada\npelo renderer do VesteIA.",
+        "args": "perfil_avatar: dict, produto: dict | None=None, tamanho_selecionado=None"
+      }
+    ]
+  },
+  "backend/app/services/largura_corporal_equivalente.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_valor_numerico",
+        "line": 1,
+        "doc": "Converte um valor para float com segurança.\n\nRetorna None quando o valor não puder\nser interpretado numericamente.",
+        "args": "valor"
+      },
+      {
+        "name": "_normalizar_modelagem",
+        "line": 27,
+        "doc": "Normaliza a modelagem da peça.\n\nValores internos:\n- slim\n- regular\n- oversized",
+        "args": "modelagem"
+      },
+      {
+        "name": "_calcular_confianca_largura_equivalente",
+        "line": 71,
+        "doc": "Calcula uma confiança específica\npara a largura corporal equivalente.\n\nEssa confiança não representa\nprecisão antropométrica real.",
+        "args": "confianca_metrica, metricas_corporais_vestuario"
+      },
+      {
+        "name": "gerar_largura_corporal_equivalente",
+        "line": 136,
+        "doc": "Gera uma referência horizontal experimental\npara comparação com a largura da peça.\n\nIMPORTANTE:\nesta função NÃO transforma diretamente\na largura visual do tórax em uma medida\nantropométrica real.\n\nA saída representa uma métrica derivada\nde vestuário, construída a partir de:\n- projeção frontal do tórax;\n- largura observada dos ombros;\n- relação corporal;\n- modelagem da peça;\n- confiança métrica do pipeline.\n\nO objetivo é permitir comparação experimental\ncom largura_cm da peça sem afirmar equivalência\nfísica absoluta.",
+        "args": "metricas_corporais_vestuario, confianca_metrica, interpretacao_corporal=None, modelagem=None"
+      }
+    ]
+  },
+  "backend/app/services/renderer_avatar_2d.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_numero",
+        "line": 1,
+        "doc": "Converte um valor para float\nde forma segura.",
+        "args": "valor"
+      },
+      {
+        "name": "_arredondar",
+        "line": 24,
+        "doc": "Arredonda valores numéricos\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_extrair_x",
+        "line": 46,
+        "doc": "Extrai a coordenada horizontal\noriginal da malha.",
+        "args": "ponto"
+      },
+      {
+        "name": "_extrair_y",
+        "line": 67,
+        "doc": "Extrai a coordenada vertical\nnormalizada do corpo.",
+        "args": "ponto"
+      },
+      {
+        "name": "_normalizar_x_renderer",
+        "line": 88,
+        "doc": "Centraliza e corrige horizontalmente\no corpo no renderer.\n\nO eixo X é corrigido pelo aspect ratio\nda imagem e normalizado pela mesma\naltura visual usada no eixo Y.\n\ncentro estrutural do corpo = 0.5\naltura visual do corpo = 1.0",
+        "args": "x, centro_corpo_x, aspect_ratio, altura_visual"
+      },
+      {
+        "name": "_converter_ponto_renderer",
+        "line": 147,
+        "doc": "Converte um ponto da malha corporal\npara o sistema de coordenadas\ndo Renderer 2D.",
+        "args": "ponto, centro_corpo_x, aspect_ratio, altura_visual"
+      },
+      {
+        "name": "gerar_renderer_avatar_2d_v1",
+        "line": 214,
+        "doc": "Prepara o Renderer do Avatar 2D V1.\n\nRecebe a Malha Corporal 2D V1 e\ntransforma suas coordenadas para\num espaço próprio de renderização.\n\nA geometria horizontal é corrigida\nutilizando o aspect ratio da imagem\ne normalizada pela altura visual\ncorporal.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- calcula centímetros;\n- estima altura física;\n- estima peso;\n- estima circunferências;\n- recomenda tamanho;\n- veste a roupa;\n- simula tecido;\n- gera imagem final;\n- inventa landmarks;\n- altera as etapas métricas anteriores.\n\nA saída representa apenas geometria\nvisual proporcional pronta para desenho.",
+        "args": "malha_corporal_2d: dict"
+      }
+    ]
+  },
+  "backend/app/services/candidatos_referencia_corporal.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "gerar_candidatos_altura_referencia",
+        "line": 1,
+        "doc": "Gera candidatos de altura de referência\npara futura seleção visual no Avatar V1.\n\nIMPORTANTE:\n- não estima altura anatômica;\n- não corrige a calibração;\n- não altera ranking;\n- não altera recomendação;\n- apenas produz referências próximas\n  para comparação visual.\n\nExemplo:\naltura_central_cm = 175\nquantidade = 4\nintervalo_cm = 3\n\nresultado aproximado:\n172, 175, 178, 181",
+        "args": "altura_central_cm, quantidade: int=4, intervalo_cm: int=3"
+      }
+    ]
+  },
+  "backend/app/services/calibracao_vestuario.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_valor_numerico",
+        "line": 1,
+        "doc": "Converte um valor para float com segurança.\n\nRetorna None quando o valor não puder\nser interpretado como número positivo.",
+        "args": "valor"
+      },
+      {
+        "name": "_normalizar_modelagem",
+        "line": 27,
+        "doc": "Normaliza a modelagem da peça.\n\nValores internos:\n- slim\n- regular\n- oversized",
+        "args": "modelagem"
+      },
+      {
+        "name": "_normalizar_preferencia_caimento",
+        "line": 73,
+        "doc": "Normaliza a preferência de caimento.\n\nValores internos:\n- justo\n- padrao\n- solto",
+        "args": "preferencia_caimento"
+      },
+      {
+        "name": "_extrair_metrica",
+        "line": 115,
+        "doc": "Obtém uma métrica corporal sem assumir\nque ela representa medida antropométrica real.",
+        "args": "metricas_corporais_vestuario, nome"
+      },
+      {
+        "name": "_obter_confianca_base",
+        "line": 148,
+        "doc": "Recupera a confiança métrica calculada\nanteriormente pelo pipeline.",
+        "args": "confianca_metrica"
+      },
+      {
+        "name": "_avaliar_qualidade_calibracao_vestuario",
+        "line": 177,
+        "doc": "Consolida a qualidade das informações\ndisponíveis para calibração de vestuário.\n\nNão determina precisão antropométrica.",
+        "args": "metricas_corporais_vestuario, confianca_metrica, largura_corporal_equivalente=None"
+      },
+      {
+        "name": "gerar_calibracao_vestuario",
+        "line": 267,
+        "doc": "Consolida a camada de calibração voltada\nespecificamente para vestuário.\n\nResponsabilidade desta camada:\n- receber métricas visuais já calculadas;\n- identificar quais métricas são observacionais;\n- identificar quais métricas podem ser usadas\n  diretamente;\n- receber uma largura corporal equivalente\n  experimental, quando disponível;\n- registrar modelagem e preferência de caimento;\n- produzir um contrato único para as etapas\n  posteriores do VesteIA.\n\nIMPORTANTE:\nesta função NÃO cria uma medida antropométrica.\n\nEla também NÃO altera diretamente:\n- largura do tórax;\n- largura dos ombros;\n- largura do quadril;\n- comprimento do tronco.\n\nA camada apenas organiza e qualifica\nessas métricas para uso no motor de vestuário.",
+        "args": "metricas_corporais_vestuario, confianca_metrica, largura_corporal_equivalente=None, interpretacao_corporal=None, modelagem=None, preferencia_caimento=None"
+      }
+    ]
+  },
+  "backend/app/services/compatibilidade_dimensional.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_valor_numerico",
+        "line": 1,
+        "doc": "Converte um valor para float com segurança.\n\nRetorna None quando o valor não puder\nser interpretado como número positivo.",
+        "args": "valor"
+      },
+      {
+        "name": "analisar_compatibilidade_dimensional",
+        "line": 31,
+        "doc": "Camada de compatibilidade dimensional\ncorpo x produto do VesteIA.\n\nResponsabilidades:\n- identificar medidas disponíveis;\n- consumir a calibração específica de vestuário;\n- liberar somente comparações semanticamente válidas;\n- preservar métricas visuais como apoio e auditoria;\n- separar comparação experimental de recomendação final;\n- impedir que medidas visuais sejam tratadas\n  como antropometria exata.\n\nPara camisetas:\n\nhorizontal:\n    largura_corporal_vestuario_cm\n    x\n    largura_cm da peça\n\nvertical:\n    comprimento_corporal_vestuario_cm\n    x\n    comprimento_cm da peça\n\nIMPORTANTE:\nlargura_torax_cm e largura_ombros_cm\ncontinuam disponíveis para rastreabilidade,\nmas NÃO são usadas diretamente como equivalentes\nà largura cadastrada da camiseta.",
+        "args": "contexto_corpo_produto: dict, deteccao_humana: dict"
+      }
+    ]
+  },
+  "backend/app/services/calibracao_anatomica.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "avaliar_calibracao_anatomica",
+        "line": 1,
+        "doc": "Avalia se os dados produzidos pelo pipeline\nvisual possuem qualidade suficiente para\navançar para uma futura calibração anatômica.\n\nEsta função NÃO corrige medidas e NÃO aplica\nfatores artificiais de ajuste.\n\nEla valida:\n- calibração corporal\n- disponibilidade da escala visual\n- existência de medidas estimadas\n- consistência geométrica\n\nAs medidas ainda permanecem provisórias.",
+        "args": "calibracao_corporal, escala_corporal, medidas_corporais_estimadas, consistencia_geometrica"
+      },
+      {
+        "name": "avaliar_consistencia_geometrica",
+        "line": 202,
+        "doc": "Avalia se a geometria corporal obtida\napresenta relações internas coerentes.\n\nEsta função NÃO altera medidas e NÃO\nconverte valores para centímetros.\n\nEla verifica relações entre:\n- largura dos ombros\n- largura do quadril\n- altura corporal relativa\n- proporção ombros/quadril",
+        "args": "geometria_corporal, proporcoes_corporais, referencia_altura_corporal"
+      }
+    ]
+  },
+  "backend/app/services/contrato_provador.py": {
+    "imports": [
+      "from app.services.candidatos_referencia_corporal import gerar_candidatos_altura_referencia"
+    ],
+    "functions": [
+      {
+        "name": "gerar_contrato_provador_v1",
+        "line": 6,
+        "doc": "Gera o contrato enxuto do Provador VesteIA V1.\n\nEsta camada existe para consumo do:\n- frontend;\n- futura camada de Avatar;\n- integrações externas.\n\nIMPORTANTE:\nEsta função NÃO recalcula:\n- calibração;\n- métricas corporais;\n- compatibilidade;\n- ranking;\n- scores;\n- recomendação.\n\nEla apenas transforma resultados já calculados\npelo pipeline em um contrato estável e amigável.\n\nSprint 49:\n- contrato Provador V1;\n- origem corporal explícita;\n- referência corporal explícita;\n- preparação para seleção visual de Avatar;\n- geração de candidatos de altura de referência;\n- preparação para futura entrada manual;\n- nenhuma geração de Avatar nesta etapa.",
+        "args": "sessao_id: int, produto: dict, variacoes_produto: list, decisao_provador: dict, recomendacao_tamanho_provador: dict, deteccao: dict, preferencia_caimento: str"
+      }
+    ]
+  },
+  "backend/app/services/calibracao_metrica.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "calcular_fator_correcao_anatomica",
+        "line": 1,
+        "doc": "Calcula o fator base necessário para transformar\nmedidas relativas da imagem em estimativas métricas.\n\nA função somente libera a calibração quando:\n- existe altura real do usuário;\n- existe referência corporal relativa;\n- a geometria da imagem foi validada.\n\nImportante:\neste fator ainda representa uma calibração visual\nbaseada em uma única imagem 2D.",
+        "args": "altura_usuario_cm, altura_corpo_relativa, consistencia_geometrica"
+      }
+    ]
+  },
+  "backend/app/services/recomendacao_tamanho_provador.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_normalizar_preferencia_caimento",
+        "line": 1,
+        "doc": "Normaliza a preferência de caimento.\n\nValores internos:\n- justo\n- padrao\n- solto",
+        "args": "preferencia_caimento"
+      },
+      {
+        "name": "_normalizar_modelagem",
+        "line": 45,
+        "doc": "Normaliza a modelagem da peça.\n\nValores internos:\n- slim\n- regular\n- oversized",
+        "args": "modelagem"
+      },
+      {
+        "name": "_obter_alvos_preferencia",
+        "line": 94,
+        "doc": "Define os alvos experimentais\nutilizados pelo motor de tamanho.\n\nO alvo dimensional considera:\n\n1. preferência do usuário;\n2. modelagem real da peça.",
+        "args": "preferencia_caimento, modelagem=None"
+      },
+      {
+        "name": "_valor_numerico",
+        "line": 209,
+        "doc": null,
+        "args": "valor"
+      },
+      {
+        "name": "_calcular_score",
+        "line": 231,
+        "doc": null,
+        "args": "indice, alvo, tolerancia"
+      },
+      {
+        "name": "_classificar_largura",
+        "line": 266,
+        "doc": null,
+        "args": "indice_largura, alvo_largura=None"
+      },
+      {
+        "name": "_classificar_comprimento",
+        "line": 296,
+        "doc": null,
+        "args": "indice_comprimento, alvo_comprimento=None"
+      },
+      {
+        "name": "_obter_metricas_vestuario",
+        "line": 326,
+        "doc": null,
+        "args": "deteccao"
+      },
+      {
+        "name": "_obter_medida_cm",
+        "line": 373,
+        "doc": null,
+        "args": "medidas, nome"
+      },
+      {
+        "name": "_obter_calibracao_vestuario",
+        "line": 393,
+        "doc": null,
+        "args": "deteccao"
+      },
+      {
+        "name": "_obter_referencias_dimensionais",
+        "line": 496,
+        "doc": null,
+        "args": "deteccao"
+      },
+      {
+        "name": "_resultado_ranking_parcial",
+        "line": 609,
+        "doc": null,
+        "args": "posicao, largura_disponivel, comprimento_disponivel"
+      },
+      {
+        "name": "_resultado_ranking_completo",
+        "line": 638,
+        "doc": null,
+        "args": "posicao, caimento_largura"
+      },
+      {
+        "name": "_calcular_confianca_ranking",
+        "line": 654,
+        "doc": null,
+        "args": "ranking, ranking_parcial=True"
+      },
+      {
+        "name": "_avaliar_zona_decisao_ranking",
+        "line": 794,
+        "doc": "Faixas experimentais:\n\ndiferença < 0.04\n    empate técnico\n\n0.04 <= diferença < 0.10\n    vantagem moderada\n\ndiferença >= 0.10\n    vantagem clara",
+        "args": "ranking, ranking_parcial=False"
+      },
+      {
+        "name": "_gerar_explicacao_decisao_parcial",
+        "line": 945,
+        "doc": null,
+        "args": "melhor, segundo, preferencia, largura_disponivel, comprimento_disponivel"
+      },
+      {
+        "name": "_gerar_explicacao_decisao_completa",
+        "line": 1055,
+        "doc": null,
+        "args": "melhor, segundo, preferencia"
+      },
+      {
+        "name": "_retorno_indisponivel",
+        "line": 1189,
+        "doc": null,
+        "args": "status, preferencia, mensagem, mensagem_transparencia"
+      },
+      {
+        "name": "gerar_recomendacao_tamanho_provador",
+        "line": 1233,
+        "doc": "Motor dimensional de comparação\nentre tamanhos do VesteIA.\n\nSprint 48 V1:\n- modelagem aplicada aos alvos;\n- preferência de caimento;\n- empate técnico;\n- vantagem moderada com alternativa forte;\n- vantagem clara com decisão isolada;\n- ranking experimental.",
+        "args": "variacoes_produto, deteccao, preferencia_caimento='padrao'"
+      }
+    ]
+  },
+  "backend/app/services/resultado_dimensional.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_valor_numerico_positivo",
+        "line": 1,
+        "doc": "Converte um valor para float com segurança.\n\nRetorna None quando:\n- o valor não é numérico;\n- o valor é menor ou igual a zero.",
+        "args": "valor"
+      },
+      {
+        "name": "_classificar_largura",
+        "line": 28,
+        "doc": "Classifica experimentalmente\na relação horizontal entre\ncorpo e peça.\n\nIMPORTANTE:\no índice não representa folga\nantropométrica real.\n\nEle compara:\nlargura da peça /\nreferência corporal de vestuário.",
+        "args": "indice_relativo_largura"
+      },
+      {
+        "name": "_classificar_comprimento",
+        "line": 63,
+        "doc": "Classifica experimentalmente\na relação vertical entre\ncorpo e peça.",
+        "args": "indice_relativo_comprimento"
+      },
+      {
+        "name": "_gerar_resultado_geral",
+        "line": 87,
+        "doc": "Consolida as interpretações\nhorizontal e vertical.",
+        "args": "interpretacao_largura, interpretacao_comprimento"
+      },
+      {
+        "name": "gerar_resultado_dimensional",
+        "line": 201,
+        "doc": "Gera uma interpretação dimensional\nexperimental a partir do contrato\nproduzido pela compatibilidade dimensional.\n\nArquitetura atual do VesteIA:\n\n1. O motor prioriza:\n   medidas_referencia[\"vestuario\"]\n\n2. Horizontal:\n   largura_corporal_vestuario_cm\n\n3. Vertical:\n   comprimento_corporal_vestuario_cm\n\n4. As medidas corporais brutas permanecem\n   disponíveis apenas como fallback\n   de compatibilidade durante a transição.\n\nIMPORTANTE:\n- não representa folga física real;\n- não representa medida antropométrica exata;\n- não libera recomendação definitiva;\n- interpreta relações dimensionais experimentais.",
+        "args": "compatibilidade_dimensional: dict"
+      }
+    ]
+  },
+  "backend/app/services/provador.py": {
+    "imports": [
+      "from app.database.database import conectar"
+    ],
+    "functions": [
+      {
+        "name": "_garantir_tabela_sessoes",
+        "line": 4,
+        "doc": "Garante a existência e a estrutura da tabela\nutilizada pelo Provador VesteIA.\n\nO tamanho deixou de ser obrigatório porque,\nno fluxo foto-first, o usuário escolhe primeiro\no produto e o VesteIA determina o tamanho\nposteriormente.",
+        "args": "cursor"
+      },
+      {
+        "name": "_converter_linha_para_sessao",
+        "line": 70,
+        "doc": "Converte uma linha retornada pelo PostgreSQL\nem um dicionário padronizado de sessão.",
+        "args": "linha"
+      },
+      {
+        "name": "adicionar_sessao_provador",
+        "line": 92,
+        "doc": "Registra uma nova sessão do Provador VesteIA.\n\nO tamanho pode ser None quando a experiência\ncomeça pela foto.",
+        "args": "sessao"
+      },
+      {
+        "name": "listar_sessoes_provador",
+        "line": 174,
+        "doc": "Retorna todas as sessões registradas.",
+        "args": ""
+      },
+      {
+        "name": "buscar_sessao_provador_por_id",
+        "line": 219,
+        "doc": "Busca uma sessão específica pelo ID.",
+        "args": "sessao_id"
+      },
+      {
+        "name": "atualizar_status_sessao",
+        "line": 267,
+        "doc": "Atualiza o status de uma sessão.",
+        "args": "sessao_id, novo_status"
+      },
+      {
+        "name": "atualizar_caminho_normalizado",
+        "line": 314,
+        "doc": "Registra no PostgreSQL o caminho da imagem\nnormalizada de uma sessão.",
+        "args": "sessao_id, caminho_normalizado"
+      }
+    ]
+  },
+  "backend/app/services/integracao_final_provador.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_obter_dict",
+        "line": 1,
+        "doc": "Retorna o valor apenas quando\nele for um dicionário válido.",
+        "args": "valor"
+      },
+      {
+        "name": "_booleano",
+        "line": 18,
+        "doc": "Normaliza valores booleanos.",
+        "args": "valor"
+      },
+      {
+        "name": "gerar_integracao_final_provador_v1",
+        "line": 30,
+        "doc": "Consolida as camadas visuais finais\ndo Provador VesteIA.\n\nETAPA 11 DA SPRINT 50.\n\nEsta função recebe estruturas que\njá foram processadas anteriormente:\n\n- Renderer do Avatar 2D;\n- Representação da Roupa;\n- Vestimenta do Avatar;\n- Simulação Visual de Caimento.\n\nSeu objetivo é gerar um contrato\nvisual consolidado e simples para\nconsumo pelo frontend.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- detecta pessoa;\n- calcula landmarks;\n- calcula centímetros corporais;\n- estima altura física;\n- estima peso;\n- estima circunferências;\n- recomenda tamanho;\n- recalcula caimento;\n- simula física de tecido;\n- altera anatomia;\n- altera Sprint 48;\n- altera Sprint 49.\n\nEla apenas integra resultados\njá produzidos pelo pipeline.",
+        "args": "renderer_avatar_2d: dict, representacao_roupa: dict, vestimenta_avatar_2d: dict, simulacao_caimento_visual: dict"
+      }
+    ]
+  },
+  "backend/app/services/resultado_captura.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "gerar_resultado_captura",
+        "line": 1,
+        "doc": "Gera uma resposta resumida e amigável\npara consumo pelo frontend do VesteIA.\n\nEsta função transforma os detalhes internos\ndo pipeline em uma decisão simples para\napresentação ao usuário.\n\nEstados principais:\n- aprovada\n- aprovada_com_ressalvas\n- recusada",
+        "args": "qualidade_captura, controle_fluxo_provador"
+      }
+    ]
+  },
+  "backend/app/services/compatibilidade_corpo_produto.py": {
+    "imports": [
+      "from app.services.categorias_vestuario import normalizar_categoria, obter_familia_categoria, obter_regiao_prioritaria"
+    ],
+    "functions": [
+      {
+        "name": "analisar_compatibilidade_corpo_produto",
+        "line": 8,
+        "doc": "Analisa a compatibilidade visual inicial\nentre corpo e produto no VesteIA.\n\nEsta camada utiliza:\n- categoria oficial da peça;\n- família estrutural da vestimenta;\n- região corporal prioritária;\n- contexto visual corporal;\n- modelagem cadastrada;\n- qualidade visual da análise.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- compara medidas físicas definitivas;\n- converte geometria corporal para cm;\n- calcula folga física;\n- recomenda tamanho;\n- simula tecido;\n- afirma compatibilidade física exata.\n\nO resultado representa somente uma\ninterpretação visual experimental.\n\nSprint Multivestimenta:\n\nA categoria, família e região prioritária\nsão obtidas da configuração central\ncategorias_vestuario.py.",
+        "args": "contexto_corpo_produto: dict"
+      }
+    ]
+  },
+  "backend/app/services/qualidade_captura.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "avaliar_qualidade_captura",
+        "line": 1,
+        "doc": "Consolida diferentes sinais do pipeline visual\ne decide se a captura pode avançar.\n\nDecisões possíveis:\n- avancar\n- avancar_com_ressalvas\n- pedir_nova_foto\n\nEsta função avalia qualidade da captura.\nEla NÃO recomenda tamanho e NÃO corrige\nmedidas corporais.",
+        "args": "qualidade_regioes, calibracao_corporal, pose_para_correcao_anatomica, indice_distorcao_perspectiva"
+      }
+    ]
+  },
+  "backend/app/services/catalogo.py": {
+    "imports": [
+      "from app.database.database import conectar"
+    ],
+    "functions": [
+      {
+        "name": "_converter_linha_para_produto",
+        "line": 4,
+        "doc": "Converte uma linha retornada pelo PostgreSQL\nem um dicionário padronizado de produto.\n\nOrdem esperada da consulta:\nid, nome, preco, tamanho, cor, categoria,\nlargura_cm, comprimento_cm, modelagem.",
+        "args": "linha"
+      },
+      {
+        "name": "listar_produtos",
+        "line": 35,
+        "doc": "Retorna todos os produtos cadastrados no PostgreSQL.",
+        "args": ""
+      },
+      {
+        "name": "buscar_produto_por_id",
+        "line": 73,
+        "doc": "Busca um produto específico utilizando sua chave primária.",
+        "args": "id"
+      },
+      {
+        "name": "adicionar_produto",
+        "line": 110,
+        "doc": "Insere um novo produto no PostgreSQL e retorna\no produto completo com o ID gerado pelo banco.",
+        "args": "produto"
+      },
+      {
+        "name": "atualizar_produto",
+        "line": 165,
+        "doc": "Atualiza completamente um produto existente.",
+        "args": "id, produto"
+      },
+      {
+        "name": "deletar_produto",
+        "line": 217,
+        "doc": "Remove um produto do PostgreSQL utilizando seu ID.",
+        "args": "id"
+      },
+      {
+        "name": "buscar_produto_por_categoria",
+        "line": 238,
+        "doc": "Busca produtos cuja categoria contenha o texto informado.\n\nA comparação ignora diferenças entre maiúsculas,\nminúsculas e acentos.",
+        "args": "categoria"
+      },
+      {
+        "name": "buscar_produto_por_categoria_tamanho_cor",
+        "line": 283,
+        "doc": "Busca produtos utilizando filtros opcionais.\n\nSomente os filtros efetivamente informados são\nadicionados à consulta SQL.",
+        "args": "categoria=None, tamanho=None, cor=None, largura_cm=None, comprimento_cm=None, modelagem=None"
+      },
+      {
+        "name": "buscar_variacoes_produto",
+        "line": 392,
+        "doc": "Busca todas as variações de tamanho\nequivalentes ao produto informado.\n\nNesta versão consideramos como pertencentes\nao mesmo produto os registros que possuem:\n\n- mesmo nome\n- mesma cor\n- mesma categoria\n- mesma modelagem\n\nO tamanho pode variar.\n\nEsse conjunto será utilizado pelo VesteIA\npara comparar P, M, G, GG etc.",
+        "args": "produto_referencia: dict"
+      },
+      {
+        "name": "obter_grade_tamanhos_produto",
+        "line": 511,
+        "doc": "Retorna os tamanhos realmente existentes\npara um determinado produto.\n\nA grade é construída dinamicamente a partir\ndas variantes encontradas no catálogo.\n\nO VesteIA:\n\n- não exige P/M/G/GG;\n- não converte GG2 para 3XL;\n- não inventa tamanhos ausentes;\n- preserva a nomenclatura original da loja.",
+        "args": "produto_referencia: dict"
+      },
+      {
+        "name": "obter_variantes_produto",
+        "line": 559,
+        "doc": "Retorna as variantes disponíveis\npreservando os dados cadastrados\npelo catálogo da loja.\n\nO tamanho é tratado como identificador\nexterno da variante, e não como enumeração\nfixa do VesteIA.",
+        "args": "produto_referencia: dict"
+      },
+      {
+        "name": "montar_catalogo_variantes_produto",
+        "line": 640,
+        "doc": "Monta uma visão consolidada do produto\ncom sua grade dinâmica e suas variantes.\n\nEssa estrutura servirá como ponte entre:\n\ncatálogo da loja\n    ↓\nnormalização VesteIA\n    ↓\nmotor de recomendação\n\nA função não recomenda tamanho.\nApenas descreve o que realmente existe\nno catálogo para aquele produto.",
+        "args": "produto_referencia: dict"
+      }
+    ]
+  },
+  "backend/app/services/estado_renderizacao_avatar.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_arredondar",
+        "line": 1,
+        "doc": "Converte e arredonda um valor numérico\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_dividir_seguro",
+        "line": 26,
+        "doc": "Executa uma divisão somente quando\nos dois valores são válidos.\n\nUtilizado para transformar a geometria\nobservada na fotografia em proporções\ninternas independentes de centímetros.",
+        "args": "numerador, denominador, casas=4"
+      },
+      {
+        "name": "gerar_estado_renderizacao_avatar_v1",
+        "line": 63,
+        "doc": "Prepara o Estado de Renderização V1\ndo Avatar VesteIA.\n\nEntrada:\n- avatar_corporal_v1\n\nSaída:\n- proporções normalizadas;\n- referência vertical do corpo;\n- parâmetros estruturais para\n  futura camada de desenho/renderização.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- executa MediaPipe;\n- acessa landmarks diretamente;\n- calcula centímetros;\n- estima altura física;\n- estima peso;\n- recomenda tamanho;\n- aplica roupa;\n- gera imagem;\n- altera o motor dimensional;\n- altera a Sprint 48.\n\nO sistema de referência utilizado aqui\nconsidera a altura visual do corpo como 1.0.",
+        "args": "avatar_corporal: dict"
+      }
+    ]
+  },
+  "backend/app/services/resumo_provador.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "gerar_resumo_provador",
+        "line": 1,
+        "doc": "Gera o contrato simplificado entre\no backend do VesteIA e o frontend.\n\nEste objeto deve conter somente as\ninformações necessárias para a interface\ndecidir qual experiência apresentar.",
+        "args": "resultado_captura, controle_fluxo_provador"
+      }
+    ]
+  },
+  "backend/app/services/representacao_corporal.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_obter_valor",
+        "line": 1,
+        "doc": "Recupera um valor de um dicionário\nde forma segura.",
+        "args": "dados: dict, chave: str, padrao=None"
+      },
+      {
+        "name": "_arredondar",
+        "line": 20,
+        "doc": "Arredonda valores numéricos\nquando disponíveis.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "gerar_representacao_corporal_v1",
+        "line": 45,
+        "doc": "Gera a representação corporal visual\noficial do VesteIA para o fluxo foto-first.\n\nEsta camada NÃO:\n- estima altura física;\n- inventa centímetros;\n- recalcula o Sprint 48;\n- recomenda tamanho;\n- altera calibração;\n- altera ranking.\n\nEla organiza apenas informações\nrealmente observáveis na fotografia.\n\nA representação poderá ser consumida\nfuturamente por:\n- Avatar VesteIA;\n- comparação visual;\n- modelos foto-only;\n- geração visual de vestuário.",
+        "args": "deteccao: dict"
+      }
+    ]
+  },
+  "backend/app/services/processamento_imagem.py": {
+    "imports": [
+      "from pathlib import Path",
+      "from PIL import Image, ImageOps, ImageStat, UnidentifiedImageError"
+    ],
+    "functions": [
+      {
+        "name": "analisar_imagem",
+        "line": 30,
+        "doc": "Abre uma imagem armazenada pelo Provador VesteIA\ne retorna informações técnicas reais do arquivo.",
+        "args": "caminho_arquivo"
+      },
+      {
+        "name": "normalizar_imagem",
+        "line": 74,
+        "doc": "Converte uma imagem suportada para o padrão interno\ndo VesteIA: JPEG + RGB.\n\nTambém corrige orientação EXIF e trata transparência.",
+        "args": "caminho_origem, caminho_destino"
+      },
+      {
+        "name": "avaliar_entrada_visual",
+        "line": 180,
+        "doc": "Avalia tecnicamente a imagem normalizada que será\nutilizada como entrada oficial do pipeline visual.\n\nEsta função ainda não detecta pessoa, corpo ou pose.",
+        "args": "caminho_normalizado"
+      },
+      {
+        "name": "avaliar_qualidade_foto",
+        "line": 282,
+        "doc": "Avalia características técnicas importantes\npara uma futura análise corporal.\n\nAinda não identifica pessoa, corpo ou pose.",
+        "args": "caminho_normalizado"
+      }
+    ]
+  },
+  "backend/app/services/malha_corporal_2d.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_numero",
+        "line": 1,
+        "doc": "Converte um valor para float de forma segura.",
+        "args": "valor"
+      },
+      {
+        "name": "_arredondar",
+        "line": 19,
+        "doc": "Arredonda um valor numérico\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_ponto_valido",
+        "line": 41,
+        "doc": "Verifica se um landmark possui\ncoordenadas 2D utilizáveis.",
+        "args": "ponto"
+      },
+      {
+        "name": "_extrair_ponto",
+        "line": 78,
+        "doc": "Extrai somente as informações necessárias\npara construção da malha visual.",
+        "args": "pontos, nome"
+      },
+      {
+        "name": "_centro_pontos",
+        "line": 119,
+        "doc": "Calcula o ponto central entre\ndois landmarks confiáveis.",
+        "args": "ponto_a, ponto_b"
+      },
+      {
+        "name": "_normalizar_ponto",
+        "line": 157,
+        "doc": "Converte a coordenada vertical original\nda fotografia para o espaço corporal\nnormalizado do avatar.\n\nO eixo Y passa a representar:\n\ntopo visual do corpo = 0.0\nbase visual do corpo = 1.0\n\nO eixo X permanece inicialmente no\nsistema normalizado da imagem.\n\nA centralização horizontal será tratada\nseparadamente para não destruir\na geometria observada.",
+        "args": "ponto, limite_superior, altura_visual"
+      },
+      {
+        "name": "gerar_malha_corporal_2d_v1",
+        "line": 222,
+        "doc": "Gera a Malha Corporal 2D V1 do VesteIA.\n\nA malha é uma representação estrutural\ndesenhável baseada nos landmarks reais\nobservados na fotografia.\n\nEsta camada NÃO:\n- calcula centímetros;\n- estima altura física;\n- estima peso;\n- estima circunferências;\n- recomenda tamanho;\n- modifica a Sprint 48;\n- gera imagem;\n- gera textura;\n- gera anatomia 3D;\n- inventa articulações ausentes.\n\nA saída prepara pontos, centros e\nsegmentos para o futuro renderer 2D.",
+        "args": "deteccao: dict, estado_renderizacao_avatar: dict"
+      }
+    ]
+  },
+  "backend/app/services/contexto_corpo_produto.py": {
+    "imports": [
+      "from app.services.categorias_vestuario import normalizar_categoria, obter_familia_categoria, obter_regiao_prioritaria"
+    ],
+    "functions": [
+      {
+        "name": "gerar_contexto_corpo_produto",
+        "line": 8,
+        "doc": "Reúne dados do produto e da análise corporal.\n\nEsta camada prepara o contexto utilizado\npelas etapas seguintes do Provador VesteIA.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- compara centímetros da peça diretamente\n  com coordenadas normalizadas da imagem;\n- recomenda tamanho;\n- inventa medidas corporais;\n- converte automaticamente projeções visuais\n  em medidas antropométricas;\n- altera a calibração corporal.\n\nSprint Multivestimenta:\n\nA categoria e a família estrutural da peça\npassam a ser obtidas da fonte central\ncategorias_vestuario.py.",
+        "args": "produto, deteccao_humana"
+      }
+    ]
+  },
+  "backend/app/services/avatar_corporal.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "_arredondar",
+        "line": 1,
+        "doc": "Arredonda valores numéricos\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_classificar_relacao_horizontal",
+        "line": 26,
+        "doc": "Classifica uma largura corporal relativa\nsem transformá-la em centímetros.\n\nA classificação é apenas estrutural\ndentro da própria representação visual.",
+        "args": "valor"
+      },
+      {
+        "name": "_classificar_proporcao_tronco",
+        "line": 53,
+        "doc": "Traduz a relação ombros/quadril\npara uma característica visual\nutilizável pelo Avatar VesteIA.",
+        "args": "proporcao"
+      },
+      {
+        "name": "gerar_avatar_corporal_v1",
+        "line": 78,
+        "doc": "Constrói o Avatar Corporal V1\na partir da representação corporal\noficial do VesteIA.\n\nIMPORTANTE:\n\nEsta função NÃO:\n- lê landmarks diretamente;\n- executa MediaPipe;\n- estima altura física;\n- inventa centímetros;\n- recomenda tamanho;\n- altera o Sprint 48;\n- altera o ranking;\n- gera imagem realista.\n\nEla cria uma descrição estrutural\nproporcional que poderá ser utilizada\nposteriormente por uma camada\nde renderização.",
+        "args": "representacao_corporal: dict"
+      }
+    ]
+  },
+  "backend/app/services/recomendacao.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "normalizar_grade_tamanhos",
+        "line": 49,
+        "doc": "Normaliza uma grade recebida do catálogo.\n\nAceita:\n\n[\n    \"PP\",\n    \"P\",\n    \"M\",\n    \"G\",\n]\n\nou:\n\n[\n    {\n        \"tamanho\": \"PP\",\n    },\n    {\n        \"tamanho\": \"P\",\n    },\n]\n\nIMPORTANTE:\n\n- preserva o nome original do tamanho;\n- preserva a ordem enviada pela loja;\n- remove valores vazios;\n- remove duplicados;\n- não converte GG2 para 3XL;\n- não assume equivalência entre marcas.",
+        "args": "grade_tamanhos"
+      },
+      {
+        "name": "_obter_grade",
+        "line": 132,
+        "doc": "Retorna a grade utilizada pelo motor.\n\nQuando uma grade real é informada,\nutiliza exclusivamente a grade da loja.\n\nO fallback atual existe apenas\npara compatibilidade temporária\ncom o catálogo demonstrativo do MVP.",
+        "args": "grade_tamanhos=None"
+      },
+      {
+        "name": "_buscar_indice_tamanho",
+        "line": 160,
+        "doc": "Localiza um tamanho dentro da grade.\n\nA comparação prioriza igualdade exata.\n\nComo proteção para integrações externas,\ntambém aceita comparação sem diferença\nde maiúsculas/minúsculas.",
+        "args": "tamanho_atual, grade_tamanhos"
+      },
+      {
+        "name": "mover_tamanho_na_grade",
+        "line": 215,
+        "doc": "Move um tamanho dentro da grade\nfornecida pelo catálogo.\n\nExemplos:\n\ngrade:\nPP, P, M, G, GG, EXG\n\nP + 1 -> M\nGG + 1 -> EXG\n\ngrade:\n34, 36, 38, 40, 42\n\n38 + 1 -> 40\n40 - 1 -> 38\n\nNenhum nome de tamanho é fixado\ndentro desta função.",
+        "args": "tamanho_atual, deslocamento, grade_tamanhos=None"
+      },
+      {
+        "name": "_aumentar_tamanho",
+        "line": 299,
+        "doc": "Avança uma posição na grade\ndaquele produto.\n\nNão existe mais dependência\nde P/M/G/GG.",
+        "args": "tamanho_atual, grade_tamanhos=None"
+      },
+      {
+        "name": "_diminuir_tamanho",
+        "line": 318,
+        "doc": "Retrocede uma posição na grade\ndaquele produto.\n\nNão existe mais dependência\nde P/M/G/GG.",
+        "args": "tamanho_atual, grade_tamanhos=None"
+      },
+      {
+        "name": "_selecionar_tamanho_base_grade",
+        "line": 337,
+        "doc": "Seleciona provisoriamente uma posição\ndentro da grade disponível.\n\nIMPORTANTE:\n\nEsta função mantém o comportamento\ndemonstrativo antigo do MVP.\n\nEla NÃO representa ainda o futuro\nmotor dimensional definitivo do VesteIA.\n\nO objetivo desta etapa é:\n\n- remover nomes fixos de tamanho;\n- permitir qualquer grade;\n- manter o MVP atual funcionando.\n\nFuturamente a posição será escolhida\npelas medidas reais das variantes\ndisponibilizadas pela loja.",
+        "args": "altura_cm, peso_kg, grade_tamanhos=None"
+      },
+      {
+        "name": "recomendar_tamanho",
+        "line": 451,
+        "doc": "Calcula uma sugestão inicial de tamanho\ndentro da grade disponível do produto.\n\nA grade pode ser qualquer sequência\nfornecida pela loja.\n\nExemplos:\n\n[\n    \"PP\",\n    \"P\",\n    \"M\",\n    \"G\",\n    \"GG\",\n    \"EXG\",\n]\n\n[\n    \"34\",\n    \"36\",\n    \"38\",\n    \"40\",\n    \"42\",\n    \"44\",\n]\n\n[\n    \"XS\",\n    \"S\",\n    \"M\",\n    \"L\",\n    \"XL\",\n    \"2XL\",\n]\n\nIMPORTANTE:\n\nAs regras de altura/peso continuam\nprovisórias nesta etapa do MVP.\n\nPosteriormente serão substituídas\npela comparação das medidas reais\ndas variantes importadas da loja.",
+        "args": "altura_cm: float, peso_kg: float, cintura_cm: float | None=None, preferencia_caimento: str | None=None, grade_tamanhos=None"
+      },
+      {
+        "name": "explicar_recomendacao",
+        "line": 566,
+        "doc": "Explica os principais fatores\nque influenciaram a sugestão.\n\nA grade é registrada somente\npara transparência do motor.",
+        "args": "tamanho_recomendado: str | None, cintura_cm: float | None=None, preferencia_caimento: str | None=None, grade_tamanhos=None"
+      },
+      {
+        "name": "calcular_confianca_recomendacao",
+        "line": 653,
+        "doc": "Define o nível experimental\nde confiança da sugestão atual.\n\nEsta função não transforma\na sugestão em recomendação\ndimensional definitiva.",
+        "args": "altura_cm: float | None=None, peso_kg: float | None=None, cintura_cm: float | None=None"
+      },
+      {
+        "name": "verificar_compatibilidade_peca",
+        "line": 683,
+        "doc": "Analisa características cadastradas\nda peça.\n\nO nome do tamanho é tratado apenas\ncomo identificador da variante.\n\nEsta função não assume que:\nP < M < G < GG\n\nnem qualquer outra grade universal.",
+        "args": "tamanho_recomendado: str | None, largura_cm: float | None=None, comprimento_cm: float | None=None, modelagem: str | None=None"
+      }
+    ]
+  },
+  "backend/app/services/categorias_vestuario.py": {
+    "imports": [
+      "import unicodedata"
+    ],
+    "functions": [
+      {
+        "name": "_remover_acentos",
+        "line": 252,
+        "doc": "Remove acentos sem alterar\noutros caracteres do texto.",
+        "args": "texto"
+      },
+      {
+        "name": "normalizar_categoria",
+        "line": 281,
+        "doc": "Converte uma categoria externa\npara a categoria oficial interna\ndo VesteIA.\n\nRetorna None quando não reconhecida.",
+        "args": "categoria"
+      },
+      {
+        "name": "obter_configuracao_categoria",
+        "line": 331,
+        "doc": "Retorna a configuração estrutural\nda categoria.",
+        "args": "categoria"
+      },
+      {
+        "name": "obter_familia_categoria",
+        "line": 365,
+        "doc": "Retorna somente a família\nestrutural da categoria.",
+        "args": "categoria"
+      },
+      {
+        "name": "obter_regiao_prioritaria",
+        "line": 387,
+        "doc": "Retorna a região corporal\nprioritária da categoria.",
+        "args": "categoria"
+      },
+      {
+        "name": "obter_renderer_categoria",
+        "line": 409,
+        "doc": "Retorna o renderer previsto\npara a categoria.",
+        "args": "categoria"
+      },
+      {
+        "name": "categoria_disponivel_mvp",
+        "line": 431,
+        "doc": "Informa se a categoria faz parte\ndo catálogo funcional previsto\npara o MVP multivestimenta.",
+        "args": "categoria"
+      },
+      {
+        "name": "listar_categorias_mvp",
+        "line": 457,
+        "doc": "Lista as categorias oficiais\ndisponíveis no MVP.",
+        "args": ""
+      }
+    ]
+  },
+  "backend/app/services/decisao_provador.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "gerar_decisao_provador",
+        "line": 1,
+        "doc": "Consolida os principais resultados do VesteIA\nem um contrato final amigável para o frontend.\n\nResponsabilidades desta camada:\n- consolidar qualidade da captura;\n- consolidar comportamento visual da peça;\n- consolidar comparação dimensional;\n- expor sugestão experimental de tamanho;\n- expor alternativa de tamanho;\n- expor empate técnico;\n- expor alternativa forte;\n- expor zona de decisão;\n- expor confiança do ranking;\n- preparar contrato para frontend e Avatar V1.\n\nIMPORTANTE:\nEsta camada NÃO recalcula:\n- calibração;\n- medidas corporais;\n- índices dimensionais;\n- ranking;\n- pesos;\n- scores;\n- regras da Sprint 48.\n\nEla apenas consolida semanticamente\no resultado produzido pelo motor.",
+        "args": "resumo_provador: dict, compatibilidade_corpo_produto: dict, compatibilidade_dimensional: dict, resultado_dimensional: dict, recomendacao_tamanho_provador: dict=None"
+      }
+    ]
+  },
+  "backend/app/services/vestimenta_avatar_2d.py": {
+    "imports": [
+      "from math import sqrt",
+      "from app.services.categorias_vestuario import normalizar_categoria, obter_familia_categoria"
+    ],
+    "functions": [
+      {
+        "name": "_numero",
+        "line": 9,
+        "doc": "Converte valor para float\nde forma segura.",
+        "args": "valor"
+      },
+      {
+        "name": "_arredondar",
+        "line": 28,
+        "doc": "Arredonda valor numérico\nde forma segura.",
+        "args": "valor, casas=4"
+      },
+      {
+        "name": "_ponto_valido",
+        "line": 48,
+        "doc": "Verifica se um ponto contém\ncoordenadas numéricas válidas.",
+        "args": "ponto"
+      },
+      {
+        "name": "_centro_entre_pontos",
+        "line": 76,
+        "doc": "Retorna o centro visual\nentre dois pontos.",
+        "args": "ponto_a, ponto_b"
+      },
+      {
+        "name": "_largura_horizontal",
+        "line": 110,
+        "doc": "Calcula somente a distância horizontal\nentre dois pontos do renderer.\n\nA unidade continua sendo visual/normalizada.",
+        "args": "ponto_a, ponto_b"
+      },
+      {
+        "name": "_interpolar",
+        "line": 133,
+        "doc": "Interpolação visual simples\nentre duas coordenadas.",
+        "args": "inicio, fim, fator"
+      },
+      {
+        "name": "_transformar_ponto",
+        "line": 164,
+        "doc": "Transforma um ponto da roupa\ndo sistema local do template\npara o sistema do Avatar 2D.\n\nA transformação é exclusivamente\nvisual e proporcional.",
+        "args": "ponto, centro_local_x, centro_local_y, centro_avatar_x, centro_avatar_y, escala_x, escala_y"
+      },
+      {
+        "name": "_transformar_regioes",
+        "line": 232,
+        "doc": "Reconstrói as regiões da roupa\napós posicionamento no avatar.",
+        "args": "regioes_origem, pontos_transformados"
+      },
+      {
+        "name": "_obter_y_medio",
+        "line": 296,
+        "doc": "Retorna a média vertical de\ndois landmarks do Avatar.",
+        "args": "pontos_avatar, nome_a, nome_b"
+      },
+      {
+        "name": "_obter_alvo_vertical_inferior",
+        "line": 331,
+        "doc": "Define até onde a peça inferior\ndeve se estender visualmente.\n\nNão representa comprimento físico.",
+        "args": "categoria, pontos_avatar, centro_quadril_y"
+      },
+      {
+        "name": "_obter_alvo_vertical_integrado",
+        "line": 397,
+        "doc": "Define o limite vertical visual\npara vestido e macacão.",
+        "args": "categoria, pontos_avatar, centro_ombros_y"
+      },
+      {
+        "name": "_gerar_poligono_pe",
+        "line": 448,
+        "doc": "Constrói um pequeno polígono visual\nao redor do segmento real do pé.\n\nOs pontos adicionais são somente\nacabamento gráfico do renderer.",
+        "args": "calcanhar, ponta, prefixo"
+      },
+      {
+        "name": "_vestir_calcado",
+        "line": 574,
+        "doc": "Posiciona uma representação visual\nem cada pé detectado.\n\nNão calcula número de calçado nem\ncomprimento físico do pé.",
+        "args": "renderer_avatar_2d, representacao_roupa, categoria, familia"
+      },
+      {
+        "name": "vestir_avatar_2d_v1",
+        "line": 830,
+        "doc": "Posiciona a Representação da Roupa V1\nsobre o Avatar Renderer 2D.\n\nSprint Multivestimenta.\n\nFamílias suportadas:\n- superior;\n- inferior;\n- corpo_integrado;\n- calcado.\n\nIMPORTANTE:\n\nEsta etapa NÃO:\n- mede o corpo;\n- utiliza centímetros corporais;\n- compara cm do corpo com cm da peça;\n- recomenda tamanho;\n- simula tecido;\n- calcula folga física;\n- altera a anatomia detectada.\n\nO posicionamento é exclusivamente visual.",
+        "args": "renderer_avatar_2d: dict, representacao_roupa: dict"
+      }
+    ]
+  },
+  "backend/app/services/controle_fluxo_provador.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "decidir_fluxo_provador",
+        "line": 1,
+        "doc": "Decide se o pipeline do provador pode continuar\napós a avaliação global da qualidade da captura.\n\nDecisões possíveis:\n- avancar\n- avancar_com_ressalvas\n- bloquear\n\nA função NÃO executa análise corporal,\nNÃO recomenda tamanho e NÃO altera medidas.\nEla apenas controla o fluxo.",
+        "args": "qualidade_captura"
+      }
+    ]
+  },
+  "backend/app/services/correcao_anatomica.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "avaliar_plausibilidade_medida",
+        "line": 1,
+        "doc": "Avalia se uma medida corporal estimada está\ndentro de uma faixa plausível para uso experimental.\n\nIMPORTANTE:\nas faixas abaixo são filtros internos de sanidade.\n\nElas NÃO representam:\n- padrão clínico;\n- antropometria oficial;\n- circunferência corporal real;\n- medida definitiva para recomendação de tamanho.",
+        "args": "nome_medida, valor_cm"
+      },
+      {
+        "name": "gerar_medidas_corporais_calibradas",
+        "line": 127,
+        "doc": "Consolida as medidas corporais disponíveis\ndepois das validações atuais do pipeline.\n\nSprint 48:\n- mantém separação entre medida visual e medida anatômica;\n- valida ombros, quadril, tórax e tronco;\n- não libera as medidas como antropometria real;\n- não marca nenhuma medida como corrigida anatomicamente.\n\nMesmo após validações, os valores continuam sendo\nestimativas visuais experimentais.",
+        "args": "medidas_corporais_estimadas, calibracao_anatomica, fator_calibracao_metrica, consistencia_geometrica"
+      },
+      {
+        "name": "avaliar_pose_para_correcao_anatomica",
+        "line": 430,
+        "doc": "Avalia se a pose possui condições\nmínimas para futuras correções métricas.\n\nAnalisa:\n- assimetria de profundidade dos ombros;\n- assimetria de profundidade do quadril;\n- alinhamento vertical dos ombros;\n- alinhamento vertical do quadril.\n\nNenhuma medida é corrigida nesta função.",
+        "args": "pontos_corporais, consistencia_geometrica"
+      },
+      {
+        "name": "calcular_indice_distorcao_perspectiva",
+        "line": 678,
+        "doc": "Calcula um índice interno de distorção\ngeométrica da captura.\n\nO índice não representa perspectiva física\nem graus ou distância real da câmera.\n\nServe como indicador interno de qualidade\npara o pipeline do VesteIA.",
+        "args": "pose_para_correcao_anatomica"
+      },
+      {
+        "name": "calcular_confianca_metrica",
+        "line": 856,
+        "doc": "Calcula uma confiança específica para\no uso métrico das medidas corporais.\n\nEsta confiança é diferente da confiança visual.\n\nConsidera:\n- existência das medidas;\n- calibração;\n- consistência geométrica;\n- qualidade da pose;\n- distorção;\n- correção de aspect ratio.",
+        "args": "medidas_corporais_estimadas, calibracao_anatomica, consistencia_geometrica, pose_para_correcao_anatomica, indice_distorcao_perspectiva"
+      },
+      {
+        "name": "gerar_metricas_corporais_para_vestuario",
+        "line": 1066,
+        "doc": "Classifica semanticamente as medidas\ncorporais disponíveis.\n\nEsta função é fundamental para impedir\ncomparações incompatíveis entre:\n\n- distâncias de landmarks;\n- projeções frontais;\n- comprimentos corporais;\n- medidas cadastradas de uma roupa.\n\nNeste estágio:\n- ombros NÃO são usados diretamente como largura da roupa;\n- quadril NÃO é tratado como circunferência;\n- tórax frontal NÃO é tratado como meia circunferência;\n- comprimento do tronco pode participar de comparação\n  vertical experimental.",
+        "args": "medidas_corporais_estimadas, indice_distorcao_perspectiva, calibracao_anatomica, consistencia_geometrica=None, pose_para_correcao_anatomica=None"
+      }
+    ]
+  },
+  "backend/app/schemas/produto_schema.py": {
+    "imports": [
+      "from pydantic import BaseModel"
+    ],
+    "functions": []
+  },
+  "backend/app/models/sessao_provador.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "__init__",
+        "line": 14,
+        "doc": null,
+        "args": "self, produto_id: int, produto_nome: str, modo: str, nome_arquivo: str, tipo_arquivo: str, tamanho_bytes: int, status: str, tamanho: str | None=None, caminho_arquivo: str | None=None, caminho_normalizado: str | None=None"
+      }
+    ]
+  },
+  "backend/app/models/produto.py": {
+    "imports": [],
+    "functions": [
+      {
+        "name": "__init__",
+        "line": 9,
+        "doc": null,
+        "args": "self, nome: str, preco: float, tamanho: str, cor: str, categoria: str, largura_cm: float | None=None, comprimento_cm: float | None=None, modelagem: str | None=None"
+      }
+    ]
+  },
+  "backend/app/api/routes.py": {
+    "imports": [
+      "from fastapi import APIRouter, HTTPException",
+      "from pydantic import BaseModel",
+      "from app.models.produto import Produto",
+      "from app.perfil import perfil_usuario",
+      "from app.schemas.produto_schema import ProdutoResponse, ProdutoSchema",
+      "from app.services.catalogo import adicionar_produto, atualizar_produto, buscar_produto_por_categoria_tamanho_cor, buscar_produto_por_id, deletar_produto, listar_produtos, obter_grade_tamanhos_produto, obter_variantes_produto",
+      "from app.services.recomendacao import calcular_confianca_recomendacao, explicar_recomendacao, recomendar_tamanho, verificar_compatibilidade_peca",
+      "from app.services.vestibilidade_avatar import gerar_vestibilidade_avatar_v1"
+    ],
+    "functions": [
+      {
+        "name": "_normalizar_texto",
+        "line": 40,
+        "doc": "Normaliza texto apenas para comparações internas.\n\nO valor original continua sendo preservado\nnas respostas e no catálogo.",
+        "args": "valor"
+      },
+      {
+        "name": "_chave_modelo_produto",
+        "line": 56,
+        "doc": "Identifica um mesmo modelo comercial.\n\nNesta fase do MVP consideramos variantes\ndo mesmo produto os registros com:\n\n- mesmo nome;\n- mesma cor;\n- mesma categoria;\n- mesma modelagem.\n\nO tamanho pode variar livremente.",
+        "args": "produto: dict"
+      },
+      {
+        "name": "_agrupar_produtos_por_modelo",
+        "line": 89,
+        "doc": "Agrupa registros de variantes por modelo\nsem assumir nenhuma grade universal.",
+        "args": "produtos"
+      },
+      {
+        "name": "_buscar_variante_por_tamanho",
+        "line": 119,
+        "doc": "Busca a variante que possui o tamanho\nselecionado pelo motor.\n\nA comparação é tolerante apenas a\nmaiúsculas/minúsculas.\n\nNão converte, por exemplo:\nGG2 -> 3XL.",
+        "args": "variantes, tamanho"
+      },
+      {
+        "name": "inicio",
+        "line": 179,
+        "doc": "Retorna a mensagem inicial da API.",
+        "args": "nome: str='Visitante'"
+      },
+      {
+        "name": "sobre",
+        "line": 192,
+        "doc": "Retorna uma descrição resumida do projeto.",
+        "args": ""
+      },
+      {
+        "name": "produtos",
+        "line": 211,
+        "doc": "Lista todos os produtos cadastrados\nno PostgreSQL.",
+        "args": ""
+      },
+      {
+        "name": "criar_produto",
+        "line": 224,
+        "doc": "Cria um produto e retorna também\no ID gerado pelo banco.\n\nO campo tamanho é preservado exatamente\ncomo informado pelo catálogo.\n\nExemplos válidos:\nPP, EXG, GG2, 34, 36, 44, 3XL etc.",
+        "args": "produto: ProdutoSchema"
+      },
+      {
+        "name": "editar_produto",
+        "line": 258,
+        "doc": "Atualiza completamente um produto existente.",
+        "args": "id: int, produto: ProdutoSchema"
+      },
+      {
+        "name": "excluir_produto",
+        "line": 283,
+        "doc": "Exclui um produto pelo ID.",
+        "args": "id: int"
+      },
+      {
+        "name": "buscar_produtos_por_categoria_tamanho_cor",
+        "line": 317,
+        "doc": "Busca produtos utilizando somente\nos filtros informados.\n\nO tamanho continua sendo tratado\ncomo texto livre do catálogo.",
+        "args": "categoria: str | None=None, tamanho: str | None=None, cor: str | None=None, largura_cm: float | None=None, comprimento_cm: float | None=None, modelagem: str | None=None"
+      },
+      {
+        "name": "buscar_produto",
+        "line": 349,
+        "doc": "Busca um único produto pelo ID.",
+        "args": "id: int"
+      },
+      {
+        "name": "grade_tamanhos_produto",
+        "line": 374,
+        "doc": "Retorna a grade real de tamanhos\nexistente para o produto informado.\n\nA grade vem das variantes cadastradas\nno catálogo e não de uma enumeração\nfixa do VesteIA.",
+        "args": "id: int"
+      },
+      {
+        "name": "recomendar_tamanho_endpoint",
+        "line": 438,
+        "doc": "Calcula uma sugestão experimental\nde tamanho.\n\nQuando produto_id é informado,\na grade vem automaticamente das\nvariantes reais daquele produto.\n\nSem produto_id, o motor mantém\napenas o fallback demonstrativo\ntemporário do MVP.",
+        "args": "altura_cm: float, peso_kg: float, cintura_cm: float | None=None, preferencia_caimento: str | None=None, produto_id: int | None=None"
+      },
+      {
+        "name": "recomendar_produtos",
+        "line": 556,
+        "doc": "Recomenda variantes utilizando\na grade real de cada produto.\n\nCada modelo pode possuir uma grade\ncompletamente diferente.\n\nExemplos:\n\nProduto A:\nPP, M, EXG, GG2\n\nProduto B:\n34, 36, 40, 44, 46\n\nProduto C:\nXS, S, M, XL, 3XL\n\nO VesteIA trabalha somente com\nas variantes realmente existentes.",
+        "args": "altura_cm: float | None=None, peso_kg: float | None=None, cintura_cm: float | None=None, categoria: str | None=None, modelagem: str | None=None, preferencia_caimento: str | None=None"
+      },
+      {
+        "name": "obter_perfil",
+        "line": 950,
+        "doc": "Retorna o perfil corporal atualmente armazenado.",
+        "args": ""
+      },
+      {
+        "name": "atualizar_perfil",
+        "line": 957,
+        "doc": "Atualiza os dados corporais\nutilizados na recomendação.",
+        "args": "altura_cm: float | None=None, peso_kg: float | None=None, cintura_cm: float | None=None"
+      },
+      {
+        "name": "calcular_vestibilidade_avatar",
+        "line": 991,
+        "doc": "Calcula a tendência visual de vestibilidade\nutilizando o perfil aproximado configurado\npelo usuário no Avatar Builder.\n\nNão representa medidas corporais reais\nnem simulação física exata.",
+        "args": "dados: VestibilidadeAvatarRequest"
+      }
+    ]
+  },
+  "backend/app/api/provador.py": {
+    "imports": [
+      "from pathlib import Path",
+      "from uuid import uuid4",
+      "from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile",
+      "from app.models.sessao_provador import SessaoProvador",
+      "from app.services.catalogo import buscar_produto_por_id, buscar_variacoes_produto",
+      "from app.services.contexto_corpo_produto import gerar_contexto_corpo_produto",
+      "from app.services.compatibilidade_corpo_produto import analisar_compatibilidade_corpo_produto",
+      "from app.services.compatibilidade_dimensional import analisar_compatibilidade_dimensional",
+      "from app.services.resultado_dimensional import gerar_resultado_dimensional",
+      "from app.services.decisao_provador import gerar_decisao_provador",
+      "from app.services.contrato_provador import gerar_contrato_provador_v1",
+      "from app.services.recomendacao_tamanho_provador import gerar_recomendacao_tamanho_provador",
+      "from app.services.deteccao_pessoa import detectar_pessoa",
+      "from app.services.representacao_corporal import gerar_representacao_corporal_v1",
+      "from app.services.avatar_corporal import gerar_avatar_corporal_v1",
+      "from app.services.estado_renderizacao_avatar import gerar_estado_renderizacao_avatar_v1",
+      "from app.services.malha_corporal_2d import gerar_malha_corporal_2d_v1",
+      "from app.services.renderer_avatar_2d import gerar_renderer_avatar_2d_v1",
+      "from app.services.representacao_roupa import gerar_representacao_roupa_v1",
+      "from app.services.vestimenta_avatar_2d import vestir_avatar_2d_v1",
+      "from app.services.simulacao_caimento_visual import simular_caimento_visual_v1",
+      "from app.services.integracao_final_provador import gerar_integracao_final_provador_v1",
+      "from app.services.processamento_imagem import analisar_imagem, avaliar_entrada_visual, avaliar_qualidade_foto, normalizar_imagem",
+      "from app.services.provador import adicionar_sessao_provador, atualizar_caminho_normalizado, atualizar_status_sessao, buscar_sessao_provador_por_id, listar_sessoes_provador"
+    ],
+    "functions": [
+      {
+        "name": "normalizar_preferencia_caimento",
+        "line": 144,
+        "doc": "Normaliza a preferência recebida\npelo frontend.\n\nValores internos:\n- justo\n- padrao\n- solto",
+        "args": "preferencia_caimento"
+      },
+      {
+        "name": "salvar_foto_localmente",
+        "line": 193,
+        "doc": "Salva a imagem utilizando\num nome interno único.",
+        "args": "conteudo: bytes, tipo_arquivo: str"
+      },
+      {
+        "name": "verificar_arquivo_sessao",
+        "line": 238,
+        "doc": "Verifica se a sessão possui\numa imagem fisicamente disponível.",
+        "args": "sessao"
+      },
+      {
+        "name": "preparar_experiencia",
+        "line": 266,
+        "doc": "Recebe, valida e registra uma nova sessão\nfoto-first do Provador VesteIA.\n\nNeste fluxo:\n- o usuário seleciona o produto;\n- envia sua foto;\n- não informa tamanho;\n- não informa medidas corporais;\n- o tamanho será analisado posteriormente\n  pelo motor do VesteIA.",
+        "args": "foto: UploadFile=File(...), produto_id: int=Form(...), modo: str=Form('foto')"
+      },
+      {
+        "name": "listar_sessoes",
+        "line": 515,
+        "doc": "Lista todas as sessões registradas.",
+        "args": ""
+      },
+      {
+        "name": "obter_sessao",
+        "line": 542,
+        "doc": "Busca uma sessão e verifica\na disponibilidade da imagem.",
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "iniciar_processamento",
+        "line": 605,
+        "doc": null,
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "concluir_processamento",
+        "line": 704,
+        "doc": null,
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "registrar_falha_processamento",
+        "line": 791,
+        "doc": null,
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "analisar_imagem_sessao",
+        "line": 880,
+        "doc": null,
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "normalizar_imagem_sessao",
+        "line": 973,
+        "doc": null,
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "preparar_entrada_visual",
+        "line": 1121,
+        "doc": null,
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "avaliar_foto_provador",
+        "line": 1219,
+        "doc": null,
+        "args": "sessao_id: int"
+      },
+      {
+        "name": "detectar_pessoa_sessao",
+        "line": 1309,
+        "doc": null,
+        "args": "sessao_id: int, preferencia_caimento: str=Query(default='padrao', description='Preferência de caimento: justo, padrao ou solto.')"
+      },
+      {
+        "name": "executar_pipeline_provador",
+        "line": 1485,
+        "doc": "Orquestra automaticamente\no pipeline principal do VesteIA.\n\nFluxo foto-only:\nfoto\n-> detecção\n-> representação corporal\n-> Avatar Corporal V1\n-> Estado de Renderização V1\n-> Malha Corporal 2D V1\n-> Renderer do Avatar 2D V1\n-> Representação da Roupa V1\n-> análise corpo-produto",
+        "args": "sessao_id: int, preferencia_caimento: str=Query(default='padrao', description='Preferência de caimento: justo, padrao ou solto.')"
+      },
+      {
+        "name": "obter_resultado_provador",
+        "line": 2241,
+        "doc": "Executa o mesmo pipeline oficial\ne retorna o contrato enxuto\ndo Provador VesteIA.",
+        "args": "sessao_id: int, preferencia_caimento: str=Query(default='padrao', description='Preferência de caimento: justo, padrao ou solto.')"
+      }
+    ]
+  }
+}

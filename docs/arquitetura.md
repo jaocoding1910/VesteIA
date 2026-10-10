@@ -1,3 +1,7 @@
+# Registro histórico da arquitetura anterior
+
+A arquitetura implementada nesta entrega está no README da raiz e em MANUTENCAO.md. O texto abaixo documenta as etapas anteriores preservadas.
+
 ---
 
 ## 7. Arquitetura atual do backend

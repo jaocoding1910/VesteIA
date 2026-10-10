@@ -1,0 +1,29 @@
+import assert from 'node:assert/strict';
+import {readFile,mkdir} from 'node:fs/promises';
+import {createServer} from 'vite';
+import {chromium} from 'playwright';
+const products=JSON.parse(await readFile('../docs/catalogo-loja-forma.json')).produtos.map((p,i)=>({...p,id:100+i,variantes:p.variantes.map((v,j)=>({...v,id:200+i*10+j,tamanhos:v.tamanhos.map((s,k)=>({...s,id:300+i*10+k}))}))}));
+const server=await createServer({server:{port:5205,strictPort:true,host:'127.0.0.1'}});await server.listen();let browser;
+try{
+ browser=await chromium.launch({headless:true,args:['--no-sandbox']});const page=await browser.newPage({viewport:{width:1440,height:1100}});let errors=[],calls=0,images;page.on('pageerror',e=>errors.push(e.message));
+ await page.route('http://127.0.0.1:8000/**',async route=>{const url=route.request().url();if(url.includes('/fixture-base.png')||url.includes('/fixture-dressed.png')){await route.fulfill({contentType:'image/png',headers:{'Access-Control-Allow-Origin':'*'},body:Buffer.from(images[url.includes('fixture-base')?0:1],'base64')});return;}if(url.endsWith('/ia/previa'))calls++;const body=url.endsWith('/ia/status')?{configured:false,categories:['camiseta'],message:'IA não configurada.'}:route.request().method()==='POST'?{tamanhos:[],recomendacao:null}:{produtos:products};await route.fulfill({contentType:'application/json',headers:{'Access-Control-Allow-Origin':'*'},body:JSON.stringify(body)});});
+ await page.goto('http://127.0.0.1:5205/#produto/100');await page.locator('.measured-preview summary').click();
+ // Controlled fixtures verify that only the calibrated garment changes.
+ images=await page.evaluate(()=>{const make=(dressed)=>{const c=document.createElement('canvas');c.width=400;c.height=600;const ctx=c.getContext('2d');ctx.fillStyle='#444';ctx.fillRect(0,0,400,600);ctx.fillStyle='#c69b7a';ctx.fillRect(150,80,100,480);if(dressed){ctx.fillStyle='black';ctx.fillRect(112,120,176,174);ctx.fillStyle='white';ctx.font='22px Arial';ctx.fillText('VesteIA',156,200);}return c.toDataURL().split(',')[1];};return [make(false),make(true)];});
+ const inputs=page.locator('.measured-inputs input[type=file]');await inputs.nth(0).setInputFiles({name:'base.png',mimeType:'image/png',buffer:Buffer.from(images[0],'base64')});await inputs.nth(1).setInputFiles({name:'vestida.png',mimeType:'image/png',buffer:Buffer.from(images[1],'base64')});await page.locator('.mask-editor').waitFor();await page.getByRole('button',{name:'Confirmar recorte e alinhamento',exact:true}).click();await page.locator('.measured-result canvas').waitFor();
+ const before=await page.locator('.measured-result canvas').evaluate(c=>({image:c.toDataURL(),corner:[...c.getContext('2d').getImageData(0,0,1,1).data]}));
+ await page.locator('.measured-size-buttons button').filter({hasText:/^G$/}).click();await page.waitForTimeout(100);
+ const after=await page.locator('.measured-result canvas').evaluate(c=>({image:c.toDataURL(),corner:[...c.getContext('2d').getImageData(0,0,1,1).data]}));assert.notEqual(before.image,after.image);assert.deepEqual(before.corner,after.corner);assert.equal(calls,0);
+ // A user's reference photo is usable without enabling an external paid provider.
+ const source=await readFile('public/assets/avatar-humano-masculino-v2.png');
+ await inputs.nth(1).setInputFiles({name:'referencia-avatar.png',mimeType:'image/png',buffer:source});await page.getByText('As imagens têm resoluções diferentes.',{exact:false}).waitFor();assert.equal(await page.getByRole('button',{name:'Confirmar recorte e alinhamento',exact:true}).isDisabled(),true);
+ // Screenshot is the calibration screen: no invented size correspondence is confirmed.
+ await mkdir('../docs/screenshots',{recursive:true});await page.addStyleTag({content:'.site-header{visibility:hidden}'});await page.locator('.measured-preview').screenshot({path:'../docs/screenshots/medidas-calibracao.png'});
+ await inputs.nth(0).setInputFiles({name:'base.png',mimeType:'image/png',buffer:Buffer.from(images[0],'base64')});await inputs.nth(1).setInputFiles({name:'vestida.png',mimeType:'image/png',buffer:Buffer.from(images[1],'base64')});await page.getByRole('button',{name:'Confirmar recorte e alinhamento',exact:true}).click();await page.locator('.measured-result canvas').waitFor();
+ await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+ // Moving the crop invalidates calibration and hides the old result.
+ const handle=page.locator('.mask-editor circle').first();await handle.scrollIntoViewIfNeeded();const box=await handle.boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+8,box.y+box.height/2+8);await page.mouse.up();await page.waitForTimeout(100);assert.equal(await page.locator('.measured-result').count(),0);products[0].variantes[0].metadata.visual.previa_medidas={base_url:'http://127.0.0.1:8000/fixture-base.png',vestida_url:'http://127.0.0.1:8000/fixture-dressed.png',tamanho_referencia:'P',calibrado:true,contorno:[[.3,.2],[.7,.2],[.7,.49],[.3,.49]]};
+ await page.reload();await page.locator('.measured-preview summary').click();await page.locator('.measured-result canvas').waitFor();assert.equal(calls,0);
+ products[0].variantes[0].metadata.visual.previa_medidas.calibrado=false;await page.reload();await page.locator('.measured-preview summary').click();await page.getByText('A referência do catálogo precisa de um contorno calibrado válido.',{exact:true}).waitFor();assert.equal(await page.locator('.measured-result').count(),0);assert.deepEqual(errors,[]);
+ console.log('PASS measured UI: existing API sizes, body pixels stable, garment changes, no AI call, alignment guard, calibration invalidation, mobile.');
+}finally{await browser?.close();await server.close();}
