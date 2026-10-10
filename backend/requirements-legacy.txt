@@ -1,0 +1,7 @@
+# Somente para DATABASE_ENABLED=true (catálogo, perfis e provador 2D antigos).
+-r requirements.txt
+psycopg2-binary==2.9.13
+mediapipe==0.10.21
+# Compatibilidade do detector local com NumPy 1.x; versões testadas.
+numpy==1.26.4
+opencv-contrib-python==4.11.0.86

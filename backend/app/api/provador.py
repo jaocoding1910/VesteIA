@@ -1,4 +1,7 @@
 from pathlib import Path
+from io import BytesIO
+from PIL import Image, UnidentifiedImageError
+from app.services.photo_privacy import register_token, purge_expired, delete_capture
 from uuid import uuid4
 
 from fastapi import (
@@ -333,7 +336,7 @@ async def preparar_experiencia(
         )
 
     conteudo_foto = (
-        await foto.read()
+        await foto.read(TAMANHO_MAXIMO_FOTO + 1)
     )
 
     tamanho_arquivo = len(
@@ -360,6 +363,15 @@ async def preparar_experiencia(
             ),
         )
 
+    try:
+        with Image.open(BytesIO(conteudo_foto)) as img:
+            if img.format not in {"JPEG", "PNG", "WEBP"} or img.width * img.height > 25_000_000:
+                raise ValueError("Formato ou resolução não permitidos")
+            img.verify()
+    except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError) as erro:
+        raise HTTPException(400, "Envie uma imagem JPEG, PNG ou WebP válida, até 25 megapixels.") from erro
+
+    purge_expired()
     try:
         (
             caminho_relativo,
@@ -422,7 +434,11 @@ async def preparar_experiencia(
             ),
         ) from erro
 
+    access_token = register_token(registro["id"])
+
     return {
+        "access_token": access_token,
+        "expira_em_horas": 24,
         "sessao_id": (
             registro["id"]
         ),
@@ -2394,3 +2410,7 @@ def obter_resultado_provador(
             "em modo foto-only."
         ),
     }
+
+@router.delete("/sessoes/{sessao_id}", status_code=204)
+def excluir_captura(sessao_id: int):
+    delete_capture(sessao_id)

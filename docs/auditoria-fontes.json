@@ -1,0 +1,862 @@
+{
+  "versao": "1.5.4",
+  "base_sha256": "9d1a582de13a90887b32a2ff0a2f57848eb8c34c36cbcb2f5414f69bf7974bc8",
+  "arquivos": [
+    {
+      "path": ".gitignore",
+      "bytes": 432
+    },
+    {
+      "path": "README.md",
+      "bytes": 24459
+    },
+    {
+      "path": "backend/.env.example",
+      "bytes": 160
+    },
+    {
+      "path": "backend/README.md",
+      "bytes": 219
+    },
+    {
+      "path": "backend/app/adapters/catalog_adapter.py",
+      "bytes": 2364
+    },
+    {
+      "path": "backend/app/adapters/external_catalog.py",
+      "bytes": 1278
+    },
+    {
+      "path": "backend/app/api/mvp.py",
+      "bytes": 5398
+    },
+    {
+      "path": "backend/app/api/provador.py",
+      "bytes": 55176
+    },
+    {
+      "path": "backend/app/api/routes.py",
+      "bytes": 24672
+    },
+    {
+      "path": "backend/app/database/database.py",
+      "bytes": 540
+    },
+    {
+      "path": "backend/app/main.py",
+      "bytes": 2511
+    },
+    {
+      "path": "backend/app/models/pose_landmarker_lite.task",
+      "bytes": 5777746
+    },
+    {
+      "path": "backend/app/models/produto.py",
+      "bytes": 765
+    },
+    {
+      "path": "backend/app/models/sessao_provador.py",
+      "bytes": 1264
+    },
+    {
+      "path": "backend/app/perfil.py",
+      "bytes": 562
+    },
+    {
+      "path": "backend/app/repositories/catalog_repository.py",
+      "bytes": 4178
+    },
+    {
+      "path": "backend/app/repositories/legacy_bridge.py",
+      "bytes": 2785
+    },
+    {
+      "path": "backend/app/schemas/produto_schema.py",
+      "bytes": 763
+    },
+    {
+      "path": "backend/app/services/analise_corporal.py",
+      "bytes": 29236
+    },
+    {
+      "path": "backend/app/services/avatar_corporal.py",
+      "bytes": 11461
+    },
+    {
+      "path": "backend/app/services/avatar_photo_adapter.py",
+      "bytes": 1863
+    },
+    {
+      "path": "backend/app/services/calibracao_anatomica.py",
+      "bytes": 10449
+    },
+    {
+      "path": "backend/app/services/calibracao_metrica.py",
+      "bytes": 2734
+    },
+    {
+      "path": "backend/app/services/calibracao_vestuario.py",
+      "bytes": 14488
+    },
+    {
+      "path": "backend/app/services/candidatos_referencia_corporal.py",
+      "bytes": 4680
+    },
+    {
+      "path": "backend/app/services/catalogo.py",
+      "bytes": 15795
+    },
+    {
+      "path": "backend/app/services/categorias_vestuario.py",
+      "bytes": 9774
+    },
+    {
+      "path": "backend/app/services/comparacao_mvp.py",
+      "bytes": 5364
+    },
+    {
+      "path": "backend/app/services/compatibilidade_corpo_produto.py",
+      "bytes": 14173
+    },
+    {
+      "path": "backend/app/services/compatibilidade_dimensional.py",
+      "bytes": 31245
+    },
+    {
+      "path": "backend/app/services/contexto_corpo_produto.py",
+      "bytes": 12114
+    },
+    {
+      "path": "backend/app/services/contrato_provador.py",
+      "bytes": 19840
+    },
+    {
+      "path": "backend/app/services/controle_fluxo_provador.py",
+      "bytes": 2953
+    },
+    {
+      "path": "backend/app/services/correcao_anatomica.py",
+      "bytes": 30789
+    },
+    {
+      "path": "backend/app/services/decisao_provador.py",
+      "bytes": 22460
+    },
+    {
+      "path": "backend/app/services/deteccao_pessoa.py",
+      "bytes": 56590
+    },
+    {
+      "path": "backend/app/services/escala_corporal.py",
+      "bytes": 5391
+    },
+    {
+      "path": "backend/app/services/estado_renderizacao_avatar.py",
+      "bytes": 12096
+    },
+    {
+      "path": "backend/app/services/generated_tryon.py",
+      "bytes": 531
+    },
+    {
+      "path": "backend/app/services/integracao_final_provador.py",
+      "bytes": 13792
+    },
+    {
+      "path": "backend/app/services/largura_corporal_equivalente.py",
+      "bytes": 10738
+    },
+    {
+      "path": "backend/app/services/malha_corporal_2d.py",
+      "bytes": 18897
+    },
+    {
+      "path": "backend/app/services/photo_privacy.py",
+      "bytes": 1727
+    },
+    {
+      "path": "backend/app/services/processamento_imagem.py",
+      "bytes": 10635
+    },
+    {
+      "path": "backend/app/services/provador.py",
+      "bytes": 8409
+    },
+    {
+      "path": "backend/app/services/qualidade_captura.py",
+      "bytes": 6301
+    },
+    {
+      "path": "backend/app/services/recomendacao.py",
+      "bytes": 15685
+    },
+    {
+      "path": "backend/app/services/recomendacao_tamanho_provador.py",
+      "bytes": 52960
+    },
+    {
+      "path": "backend/app/services/renderer_avatar_2d.py",
+      "bytes": 24350
+    },
+    {
+      "path": "backend/app/services/representacao_corporal.py",
+      "bytes": 12180
+    },
+    {
+      "path": "backend/app/services/representacao_roupa.py",
+      "bytes": 36907
+    },
+    {
+      "path": "backend/app/services/resultado_captura.py",
+      "bytes": 4132
+    },
+    {
+      "path": "backend/app/services/resultado_dimensional.py",
+      "bytes": 17422
+    },
+    {
+      "path": "backend/app/services/resumo_provador.py",
+      "bytes": 2384
+    },
+    {
+      "path": "backend/app/services/simulacao_caimento_visual.py",
+      "bytes": 29019
+    },
+    {
+      "path": "backend/app/services/vestibilidade_avatar.py",
+      "bytes": 16354
+    },
+    {
+      "path": "backend/app/services/vestimenta_avatar_2d.py",
+      "bytes": 34889
+    },
+    {
+      "path": "backend/migrations/000_base_legada.sql",
+      "bytes": 528
+    },
+    {
+      "path": "backend/migrations/001_catalogo_normalizado.sql",
+      "bytes": 1428
+    },
+    {
+      "path": "backend/migrations/002_integracao_mvp.sql",
+      "bytes": 1161
+    },
+    {
+      "path": "backend/requirements-dev.txt",
+      "bytes": 48
+    },
+    {
+      "path": "backend/requirements-test.txt",
+      "bytes": 14
+    },
+    {
+      "path": "backend/requirements.txt",
+      "bytes": 254
+    },
+    {
+      "path": "backend/scripts/import_catalog.py",
+      "bytes": 972
+    },
+    {
+      "path": "backend/scripts/purge_photos.py",
+      "bytes": 219
+    },
+    {
+      "path": "backend/scripts/setup_db.py",
+      "bytes": 4562
+    },
+    {
+      "path": "backend/tests/test_finalizacao.py",
+      "bytes": 3608
+    },
+    {
+      "path": "backend/tests/test_mvp.py",
+      "bytes": 9661
+    },
+    {
+      "path": "backend/tests/test_premium.py",
+      "bytes": 1654
+    },
+    {
+      "path": "compose.yaml",
+      "bytes": 461
+    },
+    {
+      "path": "docs/ABAS_E_LOOK_1_5.md",
+      "bytes": 3063
+    },
+    {
+      "path": "docs/ABRIR_1_5_4.md",
+      "bytes": 1869
+    },
+    {
+      "path": "docs/ASSETS_VISUAIS.md",
+      "bytes": 2488
+    },
+    {
+      "path": "docs/BASE_LIMPA.md",
+      "bytes": 2559
+    },
+    {
+      "path": "docs/CORRECAO_AVATAR.md",
+      "bytes": 4344
+    },
+    {
+      "path": "docs/ENCAIXE_POR_REGIOES.md",
+      "bytes": 4276
+    },
+    {
+      "path": "docs/ESPECIFICACAO_USUARIO.txt",
+      "bytes": 23444
+    },
+    {
+      "path": "docs/MANUTENCAO.md",
+      "bytes": 2681
+    },
+    {
+      "path": "docs/MVP_1_0_IMPLEMENTACAO.md",
+      "bytes": 985
+    },
+    {
+      "path": "docs/PERSONALIZACAO_HUMANA.md",
+      "bytes": 3423
+    },
+    {
+      "path": "docs/PLANO_MVP.md",
+      "bytes": 2476
+    },
+    {
+      "path": "docs/PREMIUM_1_5_4.md",
+      "bytes": 9334
+    },
+    {
+      "path": "docs/README_BASE_1_0.md",
+      "bytes": 13412
+    },
+    {
+      "path": "docs/REFERENCIAS_1_5_4.json",
+      "bytes": 454
+    },
+    {
+      "path": "docs/VALIDACAO.md",
+      "bytes": 3589
+    },
+    {
+      "path": "docs/VALIDACAO_1_4.md",
+      "bytes": 806
+    },
+    {
+      "path": "docs/VALIDACAO_FINAL.md",
+      "bytes": 3015
+    },
+    {
+      "path": "docs/VISUAL_CORPO_REALISTA.md",
+      "bytes": 2209
+    },
+    {
+      "path": "docs/VISUAL_INTEGRADO.md",
+      "bytes": 2199
+    },
+    {
+      "path": "docs/arquitetura.md",
+      "bytes": 4157
+    },
+    {
+      "path": "docs/auditoria-fontes-base.json",
+      "bytes": 84524
+    },
+    {
+      "path": "docs/catalogo-exemplo.json",
+      "bytes": 1137
+    },
+    {
+      "path": "docs/catalogo-externo-exemplo.json",
+      "bytes": 541
+    },
+    {
+      "path": "docs/catalogo-visual-exemplo.json",
+      "bytes": 1251
+    },
+    {
+      "path": "docs/mapeamento-externo-exemplo.json",
+      "bytes": 411
+    },
+    {
+      "path": "docs/screenshots/base-limpa-feminino-calca.png",
+      "bytes": 47478
+    },
+    {
+      "path": "docs/screenshots/base-limpa-feminino-camiseta.png",
+      "bytes": 47700
+    },
+    {
+      "path": "docs/screenshots/base-limpa-manequim.png",
+      "bytes": 61339
+    },
+    {
+      "path": "docs/screenshots/base-limpa-masculino-calca.png",
+      "bytes": 50313
+    },
+    {
+      "path": "docs/screenshots/base-limpa-masculino-camiseta.png",
+      "bytes": 48314
+    },
+    {
+      "path": "docs/screenshots/premium-desktop.png",
+      "bytes": 1043965
+    },
+    {
+      "path": "docs/screenshots/premium-editor.png",
+      "bytes": 164878
+    },
+    {
+      "path": "docs/screenshots/premium-home.png",
+      "bytes": 291648
+    },
+    {
+      "path": "docs/screenshots/premium-mobile.png",
+      "bytes": 485861
+    },
+    {
+      "path": "docs/screenshots/premium-provador.png",
+      "bytes": 594813
+    },
+    {
+      "path": "frontend/.env.example",
+      "bytes": 40
+    },
+    {
+      "path": "frontend/.gitignore",
+      "bytes": 253
+    },
+    {
+      "path": "frontend/README.md",
+      "bytes": 368
+    },
+    {
+      "path": "frontend/eslint.config.js",
+      "bytes": 892
+    },
+    {
+      "path": "frontend/index.html",
+      "bytes": 384
+    },
+    {
+      "path": "frontend/package-lock.json",
+      "bytes": 81677
+    },
+    {
+      "path": "frontend/package.json",
+      "bytes": 1096
+    },
+    {
+      "path": "frontend/public/assets/avatar-feminino-ilustrado.png",
+      "bytes": 849236
+    },
+    {
+      "path": "frontend/public/assets/avatar-feminino-natural.png",
+      "bytes": 1324747
+    },
+    {
+      "path": "frontend/public/assets/avatar-humano-feminino-personalizavel.png",
+      "bytes": 1698215
+    },
+    {
+      "path": "frontend/public/assets/avatar-humano-feminino-v2.png",
+      "bytes": 1510757
+    },
+    {
+      "path": "frontend/public/assets/avatar-humano-masculino-personalizavel.png",
+      "bytes": 1692690
+    },
+    {
+      "path": "frontend/public/assets/avatar-humano-masculino-v2.png",
+      "bytes": 1547088
+    },
+    {
+      "path": "frontend/public/assets/avatar-masculino-ilustrado.png",
+      "bytes": 888967
+    },
+    {
+      "path": "frontend/public/assets/avatar-masculino-natural.png",
+      "bytes": 1325432
+    },
+    {
+      "path": "frontend/public/assets/camiseta-oversized.jpeg",
+      "bytes": 51249
+    },
+    {
+      "path": "frontend/public/assets/demo-calca-areia.svg",
+      "bytes": 651
+    },
+    {
+      "path": "frontend/public/assets/demo-calca-preto.svg",
+      "bytes": 651
+    },
+    {
+      "path": "frontend/public/assets/demo-camiseta-azul.svg",
+      "bytes": 643
+    },
+    {
+      "path": "frontend/public/assets/demo-camiseta-off-white.svg",
+      "bytes": 643
+    },
+    {
+      "path": "frontend/public/assets/demo-camiseta-preto.svg",
+      "bytes": 643
+    },
+    {
+      "path": "frontend/public/assets/demo-camiseta-violeta.svg",
+      "bytes": 643
+    },
+    {
+      "path": "frontend/public/assets/manequim-feminino-base.png",
+      "bytes": 667360
+    },
+    {
+      "path": "frontend/public/assets/manequim-masculino-base.png",
+      "bytes": 783391
+    },
+    {
+      "path": "frontend/public/assets/manequins-base-lisa.png",
+      "bytes": 644153
+    },
+    {
+      "path": "frontend/public/assets/referencia-humana-feminino.png",
+      "bytes": 849236
+    },
+    {
+      "path": "frontend/public/assets/referencia-humana-masculino.png",
+      "bytes": 888967
+    },
+    {
+      "path": "frontend/public/assets/roupa-real-calca-feminino.svg",
+      "bytes": 1132617
+    },
+    {
+      "path": "frontend/public/assets/roupa-real-calca-masculino.svg",
+      "bytes": 1185611
+    },
+    {
+      "path": "frontend/public/assets/roupa-real-camiseta-feminino.svg",
+      "bytes": 1132677
+    },
+    {
+      "path": "frontend/public/assets/roupa-real-camiseta-masculino.svg",
+      "bytes": 1185653
+    },
+    {
+      "path": "frontend/public/favicon.svg",
+      "bytes": 9522
+    },
+    {
+      "path": "frontend/public/icons.svg",
+      "bytes": 5031
+    },
+    {
+      "path": "frontend/src/App.css",
+      "bytes": 82788
+    },
+    {
+      "path": "frontend/src/App.jsx",
+      "bytes": 7413
+    },
+    {
+      "path": "frontend/src/Experience.css",
+      "bytes": 33190
+    },
+    {
+      "path": "frontend/src/LegacyProvador.jsx",
+      "bytes": 96316
+    },
+    {
+      "path": "frontend/src/Premium.css",
+      "bytes": 19807
+    },
+    {
+      "path": "frontend/src/assets/hero.png",
+      "bytes": 13057
+    },
+    {
+      "path": "frontend/src/assets/produtos/camiseta-oversized.jpeg",
+      "bytes": 51249
+    },
+    {
+      "path": "frontend/src/assets/react.svg",
+      "bytes": 4126
+    },
+    {
+      "path": "frontend/src/assets/vite.svg",
+      "bytes": 8709
+    },
+    {
+      "path": "frontend/src/components/AvatarBuilder.jsx",
+      "bytes": 9107
+    },
+    {
+      "path": "frontend/src/components/AvatarRenderer2D.jsx",
+      "bytes": 26869
+    },
+    {
+      "path": "frontend/src/components/AvatarRenderer3D.jsx",
+      "bytes": 35959
+    },
+    {
+      "path": "frontend/src/components/ui/Icon.jsx",
+      "bytes": 1187
+    },
+    {
+      "path": "frontend/src/components/ui/Modal.jsx",
+      "bytes": 689
+    },
+    {
+      "path": "frontend/src/components/ui/useMotion.js",
+      "bytes": 819
+    },
+    {
+      "path": "frontend/src/components/vestimentas/CalcaRenderer2D.jsx",
+      "bytes": 8005
+    },
+    {
+      "path": "frontend/src/components/vestimentas/CalcadoRenderer2D.jsx",
+      "bytes": 8076
+    },
+    {
+      "path": "frontend/src/components/vestimentas/CamisetaRenderer2D.jsx",
+      "bytes": 5330
+    },
+    {
+      "path": "frontend/src/components/vestimentas/SaiaRenderer2D.jsx",
+      "bytes": 5830
+    },
+    {
+      "path": "frontend/src/components/vestimentas/ShortRenderer2D.jsx",
+      "bytes": 9257
+    },
+    {
+      "path": "frontend/src/components/vestimentas/VestidoRenderer2D.jsx",
+      "bytes": 6923
+    },
+    {
+      "path": "frontend/src/components/vestimentas/contratosVestimentas.js",
+      "bytes": 9691
+    },
+    {
+      "path": "frontend/src/features/catalog/Catalog.jsx",
+      "bytes": 3755
+    },
+    {
+      "path": "frontend/src/features/catalog/CatalogHero.jsx",
+      "bytes": 2583
+    },
+    {
+      "path": "frontend/src/features/catalog/ProductImage.jsx",
+      "bytes": 2182
+    },
+    {
+      "path": "frontend/src/features/catalog/catalogModel.js",
+      "bytes": 1340
+    },
+    {
+      "path": "frontend/src/features/catalog/useCatalog.js",
+      "bytes": 859
+    },
+    {
+      "path": "frontend/src/features/commerce/Cart.jsx",
+      "bytes": 3040
+    },
+    {
+      "path": "frontend/src/features/commerce/Store.jsx",
+      "bytes": 3359
+    },
+    {
+      "path": "frontend/src/features/fitting/AvatarGuides.jsx",
+      "bytes": 1361
+    },
+    {
+      "path": "frontend/src/features/fitting/AvatarIllustration.jsx",
+      "bytes": 3724
+    },
+    {
+      "path": "frontend/src/features/fitting/AvatarView.jsx",
+      "bytes": 4926
+    },
+    {
+      "path": "frontend/src/features/fitting/AvatarVisualTabs.jsx",
+      "bytes": 784
+    },
+    {
+      "path": "frontend/src/features/fitting/ClothSurface.jsx",
+      "bytes": 1353
+    },
+    {
+      "path": "frontend/src/features/fitting/FittingRoom.jsx",
+      "bytes": 11355
+    },
+    {
+      "path": "frontend/src/features/fitting/GarmentLayer.jsx",
+      "bytes": 5454
+    },
+    {
+      "path": "frontend/src/features/fitting/HumanAvatarBody.jsx",
+      "bytes": 5738
+    },
+    {
+      "path": "frontend/src/features/fitting/HumanHead.jsx",
+      "bytes": 809
+    },
+    {
+      "path": "frontend/src/features/fitting/LookPanel.jsx",
+      "bytes": 2197
+    },
+    {
+      "path": "frontend/src/features/fitting/PhotoExperience.jsx",
+      "bytes": 4954
+    },
+    {
+      "path": "frontend/src/features/fitting/SizeCard.jsx",
+      "bytes": 2456
+    },
+    {
+      "path": "frontend/src/features/fitting/SmoothAvatarBody.jsx",
+      "bytes": 736
+    },
+    {
+      "path": "frontend/src/features/fitting/avatarCapabilities.js",
+      "bytes": 368
+    },
+    {
+      "path": "frontend/src/features/fitting/avatarModel.js",
+      "bytes": 925
+    },
+    {
+      "path": "frontend/src/features/fitting/clothMesh.js",
+      "bytes": 2577
+    },
+    {
+      "path": "frontend/src/features/fitting/garmentModel.js",
+      "bytes": 5802
+    },
+    {
+      "path": "frontend/src/features/fitting/lookRules.js",
+      "bytes": 616
+    },
+    {
+      "path": "frontend/src/features/fitting/smoothAvatarSource.js",
+      "bytes": 1122
+    },
+    {
+      "path": "frontend/src/features/fitting/useComparison.js",
+      "bytes": 1636
+    },
+    {
+      "path": "frontend/src/features/profile/AvatarControls.jsx",
+      "bytes": 3897
+    },
+    {
+      "path": "frontend/src/features/profile/PhotoAvatarSource.jsx",
+      "bytes": 3851
+    },
+    {
+      "path": "frontend/src/features/profile/ProfileEditor.jsx",
+      "bytes": 5541
+    },
+    {
+      "path": "frontend/src/index.css",
+      "bytes": 245
+    },
+    {
+      "path": "frontend/src/main.jsx",
+      "bytes": 229
+    },
+    {
+      "path": "frontend/src/renderers/garments/bone.js",
+      "bytes": 298
+    },
+    {
+      "path": "frontend/src/renderers/garments/calca.js",
+      "bytes": 338
+    },
+    {
+      "path": "frontend/src/renderers/garments/calcado.js",
+      "bytes": 415
+    },
+    {
+      "path": "frontend/src/renderers/garments/camiseta.js",
+      "bytes": 362
+    },
+    {
+      "path": "frontend/src/renderers/garments/geometry.js",
+      "bytes": 1481
+    },
+    {
+      "path": "frontend/src/renderers/garments/registry.js",
+      "bytes": 1504
+    },
+    {
+      "path": "frontend/src/renderers/garments/saia.js",
+      "bytes": 306
+    },
+    {
+      "path": "frontend/src/renderers/garments/short.js",
+      "bytes": 334
+    },
+    {
+      "path": "frontend/src/renderers/garments/vestido.js",
+      "bytes": 376
+    },
+    {
+      "path": "frontend/src/services/apiConfig.js",
+      "bytes": 114
+    },
+    {
+      "path": "frontend/src/services/mvpApi.js",
+      "bytes": 969
+    },
+    {
+      "path": "frontend/src/services/provadorService.js",
+      "bytes": 13810
+    },
+    {
+      "path": "frontend/tests/avatar-personalization.mjs",
+      "bytes": 4219
+    },
+    {
+      "path": "frontend/tests/base-replacement.mjs",
+      "bytes": 4045
+    },
+    {
+      "path": "frontend/tests/cloth-mesh.mjs",
+      "bytes": 1287
+    },
+    {
+      "path": "frontend/tests/e2e.mjs",
+      "bytes": 10683
+    },
+    {
+      "path": "frontend/tests/final-preview.mjs",
+      "bytes": 3501
+    },
+    {
+      "path": "frontend/tests/garment-model.mjs",
+      "bytes": 1886
+    },
+    {
+      "path": "frontend/tests/garment-visuals.mjs",
+      "bytes": 6955
+    },
+    {
+      "path": "frontend/tests/look-rules.mjs",
+      "bytes": 1077
+    },
+    {
+      "path": "frontend/tests/premium-experience.mjs",
+      "bytes": 9043
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "bytes": 161
+    }
+  ]
+}

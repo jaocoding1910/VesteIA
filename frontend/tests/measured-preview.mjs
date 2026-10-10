@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {measuredRatios,measurementValue,warpPoint,bounds} from '../src/features/fitting/measuredPreview.js';
+const m={medidas:{largura_cm:52,comprimento_cm:70,manga_cm:22,ombros_cm:46}};
+const g={medidas:{largura_cm:58,comprimento_cm:78,manga_cm:25,ombros_cm:50}};
+const result=measuredRatios(m,g,'camiseta');
+assert.equal(result.valid,true);assert.equal(result.ratios.width,58/52);assert.equal(result.ratios.length,78/70);
+assert.equal(measuredRatios(m,m,'camiseta').ratios.width,1);
+assert.equal(measuredRatios(m,{medidas:{comprimento_cm:78}},'camiseta').valid,false);
+assert.equal(measurementValue({medidas:{quadril_cm:100}},'calca','width').value,50);
+assert.equal(measuredRatios(m,{medidas:{torax_cm:116,comprimento_cm:78}},'camiseta').valid,false);
+assert.equal(measuredRatios(m,{medidas:{largura_cm:100,comprimento_cm:78}},'camiseta').outOfRange,true);
+assert.equal(measuredRatios(m,{medidas:{largura_cm:-1,comprimento_cm:'x'}},'camiseta').valid,false);
+const box=bounds([[.3,.2],[.7,.5]]),r=result.ratios;
+assert.deepEqual(warpPoint([.5,.2],box,r,true),[.5,.2]);
+assert.ok(warpPoint([.6,.5],box,r,true)[1]>.5);
+assert.deepEqual(warpPoint([.3,.4],box,{width:1,length:1,sleeve:1,shoulder:1},true),[.3,.4]);
+console.log('PASS: catalog ratios, independent axes, fixed anchor, missing/invalid measures, incompatible definitions and extreme variation.');

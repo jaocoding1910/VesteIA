@@ -1,0 +1,1032 @@
+Analise este projeto completo antes de fazer qualquer alteração.
+
+Quero que você atue como um engenheiro de software sênior, front-end engineer, UI/UX designer e especialista em renderização visual para melhorar este projeto do VesteIA sem destruir o que já funciona.
+
+==================================================
+OBJETIVO GERAL
+==================================================
+
+Melhorar o projeto atual do VesteIA, deixando-o com aparência e experiência de produto premium/profissional, com visual moderno inspirado em sites de fintech, banco digital e SaaS de alto nível.
+
+Além disso, quero melhorar:
+- a navegação;
+- as microinterações;
+- o visual geral;
+- o provador virtual;
+- o caimento das roupas;
+- a lógica de seleção das peças;
+- a personalização dos avatares humanos;
+- a organização e qualidade do código.
+
+A aplicação atual já está funcionando e possui uma base boa.
+
+Portanto:
+NÃO quero uma reconstrução desnecessária do zero.
+
+Quero uma evolução cuidadosa da aplicação existente.
+
+==================================================
+INSTRUÇÃO CRÍTICA ANTES DE ALTERAR O CÓDIGO
+==================================================
+
+Antes de modificar qualquer arquivo:
+
+1. Analise toda a estrutura do projeto.
+2. Entenda como o projeto funciona atualmente.
+3. Identifique quais arquivos controlam:
+   - layout;
+   - home;
+   - navegação;
+   - estilos;
+   - animações;
+   - renderização dos avatares;
+   - avatar neutro;
+   - avatar masculino;
+   - avatar feminino;
+   - renderização das roupas;
+   - seleção de peças;
+   - caimento;
+   - tamanhos;
+   - estados React;
+   - personalização;
+   - persistência das escolhas.
+4. Identifique dependências entre esses componentes.
+5. Preserve tudo que já estiver funcionando corretamente.
+6. Não remova funcionalidades existentes sem necessidade.
+7. Evite grandes reescritas quando uma refatoração menor resolver.
+8. Faça as mudanças de forma incremental e organizada.
+9. Verifique se cada mudança não quebra outra parte do sistema.
+
+==================================================
+VÍDEO DE REFERÊNCIA
+==================================================
+
+Também estou anexando um vídeo de referência.
+
+Esse vídeo NÃO deve ser copiado visualmente de forma literal.
+
+Não quero copiar:
+- marca;
+- identidade visual;
+- textos;
+- conteúdo;
+- cores exatas;
+- layout exato;
+- imagens;
+- estrutura comercial do site mostrado.
+
+Quero que o vídeo seja utilizado como REFERÊNCIA DE EXPERIÊNCIA, MOVIMENTO E INTERAÇÃO.
+
+Observe principalmente no vídeo:
+- a sensação de navegação dinâmica;
+- a fluidez da interface;
+- como os elementos respondem ao mouse;
+- elementos que parecem subir ao passar o mouse;
+- cards com sensação de profundidade;
+- pequenas mudanças visuais no hover;
+- transições entre elementos;
+- ritmo das animações;
+- comportamento durante o scroll;
+- entrada e saída de blocos;
+- sensação de produto premium;
+- microinterações;
+- movimento elegante da página.
+
+Quero adaptar essa sensação ao VesteIA.
+
+O resultado deve continuar tendo identidade própria.
+
+Não copie o site do vídeo.
+
+Extraia apenas os conceitos de:
+- UX;
+- movimento;
+- interação;
+- profundidade;
+- fluidez;
+- modernidade.
+
+==================================================
+DIREÇÃO VISUAL DO VESTEIA
+==================================================
+
+Quero que o site transmita:
+
+- tecnologia;
+- inovação;
+- moda;
+- inteligência artificial;
+- produto premium;
+- confiança;
+- modernidade;
+- sofisticação;
+- simplicidade.
+
+Quero uma aparência semelhante ao nível de acabamento de:
+- fintechs;
+- bancos digitais;
+- produtos SaaS modernos;
+- plataformas de tecnologia premium.
+
+Não quero uma interface exageradamente futurista.
+
+Quero algo moderno, bonito e profissional.
+
+==================================================
+INTERAÇÕES E MICROANIMAÇÕES
+==================================================
+
+Implemente animações elegantes e sutis.
+
+Exemplos:
+
+HOVER
+- cards podem subir alguns pixels;
+- botões podem ter pequena mudança de escala;
+- elementos podem ganhar sombra;
+- elementos podem ganhar profundidade;
+- usar transform: translateY de forma sutil;
+- usar scale muito leve quando fizer sentido.
+
+EFEITO "DEGRAU"
+Quero que alguns elementos tenham exatamente essa sensação:
+
+Ao passar o mouse:
+- o elemento sobe levemente;
+- parece ganhar uma camada;
+- aumenta suavemente a sombra;
+- dá sensação de profundidade.
+
+Esse movimento deve parecer premium e não infantil.
+
+SCROLL
+Adicionar animações sutis como:
+- fade-in;
+- slide-up;
+- reveal;
+- entrada progressiva de blocos.
+
+Não exagerar.
+
+As animações devem ajudar a experiência, não distrair.
+
+TRANSIÇÕES
+Usar transições suaves ao:
+- selecionar avatar;
+- mudar roupa;
+- trocar tamanho;
+- mudar caimento;
+- trocar tom de pele;
+- trocar cabelo;
+- navegar entre opções.
+
+==================================================
+MOBILE
+==================================================
+
+Como dispositivos móveis não possuem hover real:
+
+Crie equivalentes apropriados usando:
+- toque;
+- seleção;
+- estado ativo;
+- pequenas animações;
+- feedback visual.
+
+O site precisa continuar excelente em:
+- desktop;
+- notebook;
+- tablet;
+- smartphone.
+
+==================================================
+HOME E NAVEGAÇÃO
+==================================================
+
+Revise a experiência geral da página.
+
+Quero que a navegação fique:
+- mais interessante;
+- mais fluida;
+- mais visual;
+- mais profissional.
+
+Se fizer sentido:
+- reorganize a hierarquia;
+- melhore o header;
+- melhore os cards;
+- melhore as chamadas;
+- melhore as seções;
+- melhore os espaçamentos;
+- melhore tipografia;
+- melhore botões;
+- melhore a apresentação do provador.
+
+O provador virtual deve ser um dos principais elementos de destaque.
+
+==================================================
+PROVADOR VIRTUAL
+==================================================
+
+Essa é uma das partes mais importantes do projeto.
+
+O provador deve parecer cada vez menos um protótipo visual e cada vez mais uma aplicação real.
+
+Quero melhorar:
+
+- encaixe das roupas;
+- cobertura corporal;
+- proporções visuais;
+- posição das peças;
+- sobreposição;
+- contorno;
+- integração da roupa com o corpo.
+
+==================================================
+CAIMENTO DAS ROUPAS
+==================================================
+
+Atualmente ainda existem situações em que partes do corpo aparecem onde deveriam estar cobertas pela peça.
+
+Isso precisa ser melhorado.
+
+Quero que a roupa pareça realmente vestida.
+
+Exemplo:
+
+CAMISETA
+A camiseta precisa:
+- cobrir corretamente o tronco;
+- acompanhar os ombros;
+- respeitar peito;
+- respeitar cintura;
+- ter mangas visualmente coerentes;
+- não deixar áreas do corpo vazando;
+- não parecer apenas uma imagem flutuando sobre o avatar.
+
+CALÇA
+A calça precisa:
+- cobrir corretamente a região inferior;
+- acompanhar cintura;
+- quadril;
+- pernas;
+- manter proporção natural.
+
+OUTRAS PEÇAS
+Aplicar a mesma lógica.
+
+==================================================
+OCLUSÃO E COBERTURA DO CORPO
+==================================================
+
+Quando uma roupa cobre determinada região do corpo:
+
+essa parte do corpo não deve continuar aparecendo por cima ou atravessando a peça.
+
+Corrija:
+- vazamentos;
+- braços atravessando tecido de forma incorreta;
+- tronco aparecendo sobre camiseta;
+- pernas atravessando calça;
+- formas estranhas nas bordas.
+
+Se necessário:
+- reorganize camadas;
+- máscaras;
+- clipping;
+- SVG paths;
+- z-index;
+- ordem de renderização.
+
+==================================================
+REGRA MUITO IMPORTANTE:
+ROUPA BASE / ROUPA NEUTRA
+==================================================
+
+Atualmente o avatar utiliza uma roupa neutra/base para que ele não fique totalmente exposto.
+
+Porém existe um problema:
+
+quando o usuário seleciona uma peça nova, essa peça aparece POR CIMA da roupa neutra.
+
+Não quero isso.
+
+Quero mudar completamente essa lógica.
+
+==================================================
+COMPORTAMENTO ESPERADO
+==================================================
+
+A roupa neutra/base deve funcionar apenas como fallback.
+
+Se nenhuma peça estiver selecionada naquela região:
+a base neutra pode aparecer.
+
+Mas se o usuário selecionar uma peça:
+A BASE NEUTRA DESSA REGIÃO DEVE DESAPARECER.
+
+A peça escolhida deve substituir visualmente a base.
+
+==================================================
+EXEMPLOS
+==================================================
+
+SE O USUÁRIO ESCOLHER APENAS CAMISETA:
+
+Quero:
+- apenas a camiseta vestida no tronco.
+
+Não quero:
+- camiseta por cima de outra camiseta neutra.
+
+SE O USUÁRIO ESCOLHER APENAS CALÇA:
+
+Quero:
+- apenas a calça na parte inferior.
+
+Não quero:
+- calça sobre outra roupa existente.
+
+SE ESCOLHER:
+
+camiseta + calça
+
+Quero:
+- camiseta selecionada;
+- calça selecionada;
+- nenhuma roupa neutra aparecendo por baixo nessas regiões.
+
+==================================================
+SUBSTITUIÇÃO DE PEÇAS
+==================================================
+
+Se o usuário trocar uma camiseta por outra:
+
+A nova camiseta deve SUBSTITUIR a antiga.
+
+Não empilhar roupas.
+
+Mesma regra para:
+- calças;
+- shorts;
+- saias;
+- casacos;
+- outras categorias.
+
+==================================================
+ORGANIZAÇÃO POR REGIÕES
+==================================================
+
+Idealmente trate o vestuário por regiões independentes:
+
+parte superior
+parte inferior
+calçados
+acessórios
+camada externa
+etc.
+
+Cada região precisa controlar sua própria peça.
+
+Exemplo:
+
+roupaSuperior = camiseta selecionada
+roupaInferior = calça selecionada
+
+Trocar camiseta não deve remover a calça.
+
+Trocar calça não deve remover a camiseta.
+
+==================================================
+REMOVER PEÇA
+==================================================
+
+Se o usuário remover uma peça:
+
+A base neutra pode voltar APENAS naquela região, caso seja necessário.
+
+Não resetar o avatar inteiro.
+
+==================================================
+OBJETIVO DESSA LÓGICA
+==================================================
+
+Quero que o usuário consiga analisar claramente a peça escolhida.
+
+A roupa base não deve competir visualmente com o produto.
+
+O provador precisa mostrar a peça selecionada da maneira mais limpa possível.
+
+==================================================
+AJUSTE / CAIMENTO
+==================================================
+
+Hoje existem opções semelhantes a:
+- mais largo;
+- mais estreito.
+
+Mas visualmente algumas mudanças ainda ficam artificiais.
+
+Melhore essa lógica.
+
+Quero variações como:
+
+- justo;
+- slim;
+- padrão;
+- solto;
+- largo;
+- oversized;
+
+quando existirem.
+
+As diferenças devem ser perceptíveis, mas naturais.
+
+==================================================
+NÃO FAZER
+==================================================
+
+Evitar simplesmente aplicar:
+
+scaleX exagerado
+
+ou
+
+esticar o desenho inteiro.
+
+Isso causa deformação.
+
+==================================================
+FAZER
+==================================================
+
+Quando possível, modificar de forma localizada:
+
+- largura dos ombros;
+- abertura do tronco;
+- cintura;
+- mangas;
+- comprimento;
+- pernas;
+- quadril;
+- folga.
+
+==================================================
+AVATAR NEUTRO
+==================================================
+
+O avatar neutro / manequim já funciona bem.
+
+Não é prioridade transformá-lo em algo complexo.
+
+Mantenha a lógica atual.
+
+Faça apenas:
+- ajustes visuais;
+- correções;
+- integração com a nova lógica de vestuário;
+
+se necessário.
+
+==================================================
+AVATARES HUMANOS
+==================================================
+
+Os avatares humanos masculino e feminino precisam receber mais opções.
+
+Hoje ainda há pouca personalização.
+
+Quero transformar essa área em um pequeno editor de avatar.
+
+Sem ficar complexo demais.
+
+==================================================
+TOM DE PELE
+==================================================
+
+Adicionar várias opções de tom de pele.
+
+Ao mudar o tom:
+
+alterar corretamente:
+- rosto;
+- pescoço;
+- braços;
+- mãos;
+- pernas;
+- demais partes visíveis.
+
+A mudança precisa funcionar de verdade.
+
+==================================================
+CABELOS
+==================================================
+
+Adicionar vários estilos.
+
+Exemplos:
+
+- curto;
+- médio;
+- longo;
+- liso;
+- ondulado;
+- cacheado;
+- crespo.
+
+Não precisa adicionar dezenas.
+
+Pode criar um conjunto bem selecionado.
+
+==================================================
+CABELO MASCULINO
+==================================================
+
+Exemplos:
+- curto;
+- degradê;
+- médio;
+- ondulado;
+- cacheado;
+- crespo.
+
+==================================================
+CABELO FEMININO
+==================================================
+
+Exemplos:
+- curto;
+- médio;
+- longo;
+- liso;
+- ondulado;
+- cacheado;
+- crespo.
+
+==================================================
+COR DO CABELO
+==================================================
+
+Adicionar opções naturais:
+
+- preto;
+- castanho escuro;
+- castanho;
+- castanho claro;
+- loiro;
+- ruivo.
+
+==================================================
+ESTRUTURA CORPORAL
+==================================================
+
+Hoje já existem opções semelhantes a:
+- mais largo;
+- mais estreito.
+
+Mas o resultado ainda pode parecer estranho.
+
+Quero melhorar essa área.
+
+Criar presets visuais como:
+
+- slim;
+- padrão;
+- robusto;
+
+ou equivalente.
+
+As mudanças devem afetar o corpo de forma coerente.
+
+Não quero deformar o avatar inteiro.
+
+==================================================
+PROPORÇÕES VISUAIS
+==================================================
+
+Se fizer sentido, permitir pequenas variações de proporção.
+
+Por exemplo:
+- mais baixo;
+- médio;
+- mais alto.
+
+PORÉM:
+
+essas opções são apenas visuais.
+
+Não devem representar centímetros reais.
+
+==================================================
+REGRA SOBRE MEDIDAS
+==================================================
+
+Não inventar:
+
+- altura real;
+- peso;
+- cintura em centímetros;
+- peito em centímetros;
+- quadril em centímetros;
+- circunferência corporal;
+- medidas físicas absolutas.
+
+Uma foto monocular comum não fornece automaticamente escala física confiável.
+
+Se o sistema atual usa:
+- landmarks;
+- proporções;
+- coordenadas normalizadas;
+
+preserve essa lógica.
+
+==================================================
+ARQUITETURA DO AVATAR
+==================================================
+
+Quero uma estrutura modular.
+
+Algo próximo de:
+
+Avatar
+├── base
+├── gênero/base visual
+├── pele
+├── cabelo
+│   ├── estilo
+│   └── cor
+├── corpo
+│   ├── estrutura
+│   └── proporções
+├── roupa superior
+├── roupa inferior
+├── acessórios
+└── caimento
+
+Evitar deixar tudo preso em um único componente enorme.
+
+==================================================
+PERSISTÊNCIA DAS ESCOLHAS
+==================================================
+
+As escolhas precisam permanecer.
+
+Exemplo:
+
+usuário escolhe:
+
+avatar masculino
+pele X
+cabelo Y
+cor Z
+
+Depois troca a camiseta.
+
+As configurações do avatar devem permanecer.
+
+==================================================
+TROCA DE ROUPA
+==================================================
+
+Trocar camiseta não deve:
+- resetar pele;
+- resetar cabelo;
+- resetar corpo;
+- remover calça.
+
+Trocar calça não deve:
+- remover camiseta;
+- resetar avatar.
+
+==================================================
+ESTADO DO REACT
+==================================================
+
+Revise cuidadosamente o gerenciamento de estado.
+
+Corrigir possíveis bugs como:
+
+- avatar feminino usando estado masculino;
+- avatar masculino usando partes do feminino;
+- troca de peça resetando personalização;
+- roupa superior removendo roupa inferior;
+- mudança de corpo afetando cabelo;
+- mudança de cabelo resetando pele;
+- fallback neutro aparecendo sobre roupa selecionada.
+
+==================================================
+UI DO EDITOR DE AVATAR
+==================================================
+
+Melhore também a interface dessas opções.
+
+Evite apenas colocar vários selects simples.
+
+Pode utilizar:
+- mini cards;
+- thumbnails;
+- botões de seleção;
+- swatches de cores;
+- carrossel horizontal;
+- tabs.
+
+Quero uma experiência visual agradável.
+
+==================================================
+SELEÇÃO DE PEÇAS
+==================================================
+
+Melhorar a experiência da seleção de roupas.
+
+Exemplo:
+- thumbnails;
+- cards;
+- estados selecionados claros;
+- hover elegante;
+- preview da peça;
+- transição suave ao vestir.
+
+==================================================
+ESTAMPA E COR DAS ROUPAS
+==================================================
+
+Quando uma peça possuir:
+- logo;
+- desenho;
+- estampa;
+- cor específica;
+
+tente preservar corretamente na renderização.
+
+Evitar distorção excessiva.
+
+==================================================
+PERFORMANCE
+==================================================
+
+Revise a aplicação procurando:
+
+- renders desnecessários;
+- estados duplicados;
+- cálculos repetidos;
+- componentes pesados;
+- lógica duplicada;
+- SVGs renderizados de forma ineficiente.
+
+Otimize sem sacrificar qualidade.
+
+==================================================
+CÓDIGO
+==================================================
+
+Faça uma limpeza responsável.
+
+Melhorar:
+- legibilidade;
+- modularização;
+- separação de responsabilidades;
+- reutilização;
+- nomes de componentes;
+- organização.
+
+Não apagar código útil sem necessidade.
+
+==================================================
+COMPONENTES GRANDES
+==================================================
+
+Se encontrar componentes enormes:
+
+pode separar em partes menores.
+
+Exemplo:
+
+AvatarRenderer
+HairLayer
+SkinLayer
+UpperGarmentLayer
+LowerGarmentLayer
+AvatarControls
+GarmentSelector
+
+Mas preserve compatibilidade com o projeto.
+
+==================================================
+CSS / ESTILIZAÇÃO
+==================================================
+
+Organize também:
+- animações;
+- classes;
+- responsividade;
+- tokens visuais;
+- espaçamento;
+- sombras;
+- border-radius.
+
+Evitar efeitos exagerados.
+
+==================================================
+ACESSIBILIDADE
+==================================================
+
+As animações não devem prejudicar acessibilidade.
+
+Respeitar quando possível:
+
+prefers-reduced-motion.
+
+Garantir:
+- contraste;
+- foco visível;
+- botões claros;
+- navegação utilizável.
+
+==================================================
+ARQUITETURA FUTURA
+==================================================
+
+Quero manter a possibilidade de futuramente adicionar:
+
+- avatar 3D;
+- rotação;
+- visão lateral;
+- diferentes ângulos.
+
+Mas NÃO tente transformar tudo em 3D agora.
+
+O foco atual continua sendo melhorar o 2D existente.
+
+Apenas evite decisões arquiteturais que dificultem essa evolução futura.
+
+==================================================
+ORDEM DE PRIORIDADE
+==================================================
+
+Prioridade 1
+Corrigir visual e navegação para aparência premium.
+
+Prioridade 2
+Melhorar animações e microinterações usando o vídeo como referência.
+
+Prioridade 3
+Corrigir a lógica da roupa base:
+mostrar somente a peça selecionada na região.
+
+Prioridade 4
+Melhorar caimento e cobertura das roupas.
+
+Prioridade 5
+Melhorar avatares humanos.
+
+Prioridade 6
+Adicionar opções de:
+- cabelo;
+- cor de cabelo;
+- pele;
+- corpo.
+
+Prioridade 7
+Corrigir inconsistências de estado.
+
+Prioridade 8
+Refatoração e performance.
+
+==================================================
+FLUXO DE TRABALHO
+==================================================
+
+Quero que você trabalhe nesta ordem:
+
+ETAPA 1
+Analise o projeto.
+
+ETAPA 2
+Mostre um diagnóstico curto:
+- arquitetura atual;
+- arquivos principais;
+- possíveis problemas encontrados.
+
+ETAPA 3
+Crie um plano de implementação.
+
+ETAPA 4
+Faça as alterações.
+
+ETAPA 5
+Execute/teste o projeto sempre que possível.
+
+ETAPA 6
+Corrija problemas encontrados.
+
+ETAPA 7
+Revise responsividade.
+
+ETAPA 8
+Entregue o resultado final.
+
+==================================================
+TESTES IMPORTANTES
+==================================================
+
+Teste pelo menos os seguintes cenários:
+
+1.
+Avatar masculino + camiseta.
+
+2.
+Avatar masculino + calça.
+
+3.
+Avatar masculino + camiseta + calça.
+
+4.
+Avatar feminino + camiseta.
+
+5.
+Avatar feminino + calça.
+
+6.
+Avatar feminino + camiseta + calça.
+
+7.
+Trocar camiseta mantendo calça.
+
+8.
+Trocar calça mantendo camiseta.
+
+9.
+Remover camiseta.
+
+10.
+Remover calça.
+
+11.
+Alterar pele.
+
+12.
+Alterar cabelo.
+
+13.
+Alterar cor de cabelo.
+
+14.
+Alterar estrutura corporal.
+
+15.
+Trocar avatar masculino para feminino.
+
+16.
+Trocar feminino para masculino.
+
+17.
+Verificar se nenhuma roupa base continua aparecendo incorretamente sob uma peça selecionada.
+
+18.
+Verificar vazamentos de corpo através das roupas.
+
+19.
+Verificar desktop.
+
+20.
+Verificar mobile.
+
+==================================================
+RESULTADO ESPERADO
+==================================================
+
+Quero que o VesteIA pareça uma aplicação muito mais madura.
+
+A pessoa deve entrar no site e sentir:
+
+"isso parece um produto real".
+
+O provador precisa ser o centro da experiência.
+
+A roupa precisa parecer efetivamente vestida.
+
+O avatar precisa parecer personalizável.
+
+E a interface deve transmitir qualidade e tecnologia.
+
+==================================================
+ENTREGA FINAL
+==================================================
+
+No final:
+
+1. Informe quais arquivos foram alterados.
+2. Explique as principais mudanças.
+3. Informe bugs corrigidos.
+4. Informe melhorias de performance.
+5. Informe o que mudou no sistema de avatares.
+6. Informe o que mudou no sistema de roupas.
+7. Informe como a roupa base passou a funcionar.
+8. Informe como as novas animações funcionam.
+9. Informe o que foi inspirado no comportamento do vídeo.
+10. Liste pontos que podem ser melhorados futuramente.
+
+IMPORTANTE:
+Não me entregue apenas sugestões.
+
+Quero que você efetivamente trabalhe no projeto, implemente as melhorias, teste o resultado e preserve as funcionalidades existentes sempre que possível.

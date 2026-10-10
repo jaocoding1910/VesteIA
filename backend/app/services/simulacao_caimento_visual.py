@@ -69,6 +69,114 @@ def _normalizar_texto(
     )
 
 
+
+def _obter_fatores_vestibilidade_avatar(
+    vestibilidade_avatar,
+):
+    """
+    Extrai os multiplicadores visuais
+    produzidos pelo motor de vestibilidade
+    do Avatar Builder.
+
+    A influência é propositalmente
+    suavizada para evitar deformações
+    visuais exageradas.
+
+    Quando não houver vestibilidade,
+    retorna fatores neutros 1.0.
+    """
+
+    if not isinstance(
+        vestibilidade_avatar,
+        dict,
+    ):
+        return {
+            "horizontal": 1.0,
+            "vertical": 1.0,
+            "classificacao": None,
+            "disponivel": False,
+        }
+
+    integracao = (
+        vestibilidade_avatar.get(
+            "integracao_caimento_visual"
+        )
+        or {}
+    )
+
+    vestibilidade = (
+        vestibilidade_avatar.get(
+            "vestibilidade_visual"
+        )
+        or {}
+    )
+
+    fator_horizontal = (
+        _numero(
+            integracao.get(
+                "multiplicador_horizontal_avatar"
+            )
+        )
+        or 1.0
+    )
+
+    fator_vertical = (
+        _numero(
+            integracao.get(
+                "multiplicador_vertical_avatar"
+            )
+        )
+        or 1.0
+    )
+
+    intensidade_horizontal = 0.45
+    intensidade_vertical = 0.35
+
+    fator_horizontal_suavizado = (
+        1.0
+        + (
+            fator_horizontal
+            - 1.0
+        )
+        * intensidade_horizontal
+    )
+
+    fator_vertical_suavizado = (
+        1.0
+        + (
+            fator_vertical
+            - 1.0
+        )
+        * intensidade_vertical
+    )
+
+    return {
+        "horizontal": (
+            _arredondar(
+                fator_horizontal_suavizado
+            )
+        ),
+
+        "vertical": (
+            _arredondar(
+                fator_vertical_suavizado
+            )
+        ),
+
+        "classificacao": (
+            vestibilidade.get(
+                "classificacao"
+            )
+        ),
+
+        "disponivel": bool(
+            vestibilidade_avatar.get(
+                "vestibilidade_calculada",
+                False,
+            )
+        ),
+    }
+
 # ==========================================================
 # MODELAGEM
 # ==========================================================
@@ -529,6 +637,7 @@ def simular_caimento_visual_v1(
     vestimenta_avatar_2d: dict,
     representacao_roupa: dict,
     preferencia_caimento: str,
+    vestibilidade_avatar: dict = None,
 ):
     """
     Gera a Simulação Visual de Caimento V1.
@@ -712,6 +821,20 @@ def simular_caimento_visual_v1(
         )
     )
 
+    fatores_avatar = (
+        _obter_fatores_vestibilidade_avatar(
+            vestibilidade_avatar
+        )
+    )
+
+    fator_avatar_horizontal = (
+        fatores_avatar["horizontal"]
+    )
+
+    fator_avatar_vertical = (
+        fatores_avatar["vertical"]
+    )
+
     # ======================================================
     # TRANSFORMAÇÃO VISUAL
     # ======================================================
@@ -719,6 +842,7 @@ def simular_caimento_visual_v1(
     fator_horizontal = (
         fator_modelagem
         * fator_preferencia
+        * fator_avatar_horizontal
     )
 
     fator_horizontal = (
@@ -730,12 +854,15 @@ def simular_caimento_visual_v1(
     # A transformação vertical permanece
     # propositalmente conservadora.
     fator_vertical = (
-        1.0
-        + (
-            fator_horizontal
-            - 1.0
+        (
+            1.0
+            + (
+                fator_horizontal
+                - 1.0
+            )
+            * 0.25
         )
-        * 0.25
+        * fator_avatar_vertical
     )
 
     fator_vertical = (
@@ -1088,6 +1215,26 @@ def simular_caimento_visual_v1(
                 _arredondar(
                     fator_preferencia
                 )
+            ),
+
+            "fator_avatar_horizontal": (
+                _arredondar(
+                    fator_avatar_horizontal
+                )
+            ),
+
+            "fator_avatar_vertical": (
+                _arredondar(
+                    fator_avatar_vertical
+                )
+            ),
+
+            "classificacao_vestibilidade_avatar": (
+                fatores_avatar["classificacao"]
+            ),
+
+            "vestibilidade_avatar_disponivel": (
+                fatores_avatar["disponivel"]
             ),
 
             "fator_horizontal_final": (

@@ -1,0 +1,7 @@
+{
+  "steps": 50,
+  "guidance": 3.0,
+  "seed": 44,
+  "blur": 3,
+  "upper_cleanup": 3
+}
